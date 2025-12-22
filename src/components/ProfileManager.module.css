@@ -1,0 +1,93 @@
+.container {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.toggleBtn {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+    background: rgba(42, 64, 92, 0.05);
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    margin-top: 8px;
+
+    /* Glass style */
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+}
+
+.title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--secondary);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+}
+
+.list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.name {
+    display: block;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.date {
+    font-size: 0.8rem;
+    color: var(--secondary);
+}
+
+.deleteBtn {
+    background: transparent;
+    border: none;
+    color: var(--accent-rose);
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.6;
+    padding: 4px;
+}
+
+.deleteBtn:hover {
+    opacity: 1;
+}

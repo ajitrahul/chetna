@@ -1,0 +1,198 @@
+.hero {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-top: 40px;
+  padding-bottom: 80px;
+}
+
+.heroBackground {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.heroContent {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* On mobile, swap order so text is first */
+@media (max-width: 968px) {
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .textColumn {
+    order: -1;
+    /* Text first on mobile */
+  }
+
+  .hero {
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  .ctaGroup {
+    justify-content: center;
+  }
+
+  .eyebrow {
+    justify-content: center;
+  }
+}
+
+.widgetColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.journalWrapper {
+  /* Subtle separation */
+}
+
+.textColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.eyebrow {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.headline {
+  font-size: 4rem;
+  line-height: 1.1;
+  color: var(--foreground);
+  font-family: var(--font-heading);
+}
+
+.subtext {
+  font-size: 1.15rem;
+  color: var(--secondary);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+.ctaGroup {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.primaryCta {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.primaryCta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+  /* In dark mode this shadow might be invisible, which is fine */
+}
+
+.secondaryCta {
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--foreground);
+}
+
+.secondaryCta:hover {
+  background: rgba(125, 125, 125, 0.05);
+}
+
+
+/* Features */
+.features {
+  padding: 100px 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.sectionHeader h2 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  color: var(--primary);
+}
+
+.sectionHeader p {
+  color: var(--secondary);
+  font-size: 1.1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.featureCard {
+  padding: 40px 32px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--glass-shadow);
+}
+
+.iconBox {
+  margin-bottom: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featureCard h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+  color: var(--primary);
+}
+
+.featureCard p {
+  color: var(--secondary);
+  line-height: 1.6;
+}

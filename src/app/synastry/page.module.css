@@ -1,0 +1,210 @@
+.container {
+    padding: 80px 24px;
+    text-align: center;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+.subtitle {
+    color: var(--secondary);
+    font-size: 1.2rem;
+    margin-bottom: 60px;
+    font-weight: 300;
+}
+
+.selectorGrid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+}
+
+.profileSlot {
+    width: 320px;
+}
+
+.profileSlot h3 {
+    color: var(--secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+}
+
+.emptyState,
+.selectedCard {
+    background: var(--card-bg);
+    border: 1px dashed var(--secondary);
+    border-radius: var(--radius-md);
+    padding: 40px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    backdrop-filter: blur(16px);
+    transition: all 0.3s ease;
+}
+
+.selectedCard {
+    border: 1px solid var(--accent-gold);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: var(--glass-shadow);
+}
+
+.name {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    color: var(--primary);
+}
+
+.connector {
+    font-size: 2.5rem;
+    color: var(--accent-gold);
+}
+
+.changeBtn {
+    font-size: 0.85rem;
+    color: var(--secondary);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.analyzeBtn {
+    padding: 16px 48px;
+    font-size: 1.15rem;
+    background: var(--foreground);
+    color: var(--background);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.analyzeBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.analyzeBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Visualization Results */
+.resultSection {
+    margin-top: 100px;
+    animation: fadeIn 1s ease-out;
+}
+
+.vennContainer {
+    position: relative;
+    height: 320px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circle {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: white;
+    backdrop-filter: blur(4px);
+    transition: all 0.5s ease;
+    mix-blend-mode: multiply;
+    /* Better blending in light mode */
+}
+
+@media (prefers-color-scheme: dark) {
+    .circle {
+        mix-blend-mode: screen;
+        /* Light blending on dark */
+    }
+}
+
+.circleA {
+    background: rgba(138, 172, 222, 0.7);
+    /* Soft Blue */
+    left: 10%;
+    z-index: 1;
+}
+
+.circleB {
+    background: rgba(222, 196, 138, 0.7);
+    /* Soft Gold */
+    right: 10%;
+    z-index: 1;
+}
+
+.intersectionLabel {
+    position: absolute;
+    z-index: 2;
+    color: white;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.insightsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    text-align: left;
+}
+
+.insightCard {
+    background: var(--card-bg);
+    padding: 32px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(16px);
+}
+
+.insightCard h4 {
+    color: var(--primary);
+    margin-bottom: 12px;
+    font-size: 1.25rem;
+}
+
+.insightCard p {
+    color: var(--secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

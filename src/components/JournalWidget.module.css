@@ -1,0 +1,117 @@
+.widget {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect on the widget to invite interaction */
+.widget:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+    .widget {
+        background: rgba(20, 20, 35, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.date {
+    font-size: 0.75rem;
+    color: var(--secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    color: var(--foreground);
+    resize: none;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.textarea:focus {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    .textarea {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .textarea:focus {
+        background: rgba(0, 0, 0, 0.4);
+    }
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status {
+    font-size: 0.75rem;
+    color: var(--secondary);
+    font-style: italic;
+}
+
+.saveBtn {
+    background: var(--primary);
+    color: var(--background);
+    /* Invert for contrast */
+    border: none;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+}
+
+.saveBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.saveBtn:disabled {
+    background: var(--secondary);
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
