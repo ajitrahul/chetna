@@ -154,3 +154,26 @@
 .resetBtn:hover {
     background: rgba(0, 0, 0, 0.05);
 }
+
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: 40px 16px;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .askBtn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .card {
+        padding: 24px;
+    }
+}

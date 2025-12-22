@@ -55,7 +55,21 @@
     font-family: var(--font-heading);
 }
 
-/* Enhancing the form inputs inside BirthDataForm globally or via deep selector if needed, 
-   but ideally BirthDataForm should use consistent classes. 
-   Assuming BirthDataForm uses standard inputs, we might want to style them there.
-*/
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: 40px 16px;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .formWrapper {
+        padding: 24px;
+    }
+
+    .chartSection {
+        padding: 24px;
+        margin-top: 48px;
+    }
+}
