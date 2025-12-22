@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import styles from './page.module.css';
 import { ArrowRight, TrendingUp, Clock, Heart } from 'lucide-react';
+import AIClaritySearchBar from '@/components/AIClaritySearchBar';
 
 export default function Home() {
   return (
@@ -25,6 +26,9 @@ export default function Home() {
             <p className={styles.heroSubtitle}>
               Chetna helps you understand patterns, timing, and tendencies in your chart so you can make grounded, responsible choices.
             </p>
+
+            <AIClaritySearchBar />
+
             <div className={styles.heroActions}>
               <Link href="/chart" className={styles.primaryBtn}>
                 Generate My Chart <ArrowRight size={20} />

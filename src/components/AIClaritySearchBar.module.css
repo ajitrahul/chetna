@@ -1,0 +1,101 @@
+.searchWrapper {
+    width: 100%;
+    max-width: 700px;
+    margin: 2rem auto;
+    text-align: center;
+}
+
+.searchForm {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 50px;
+    padding: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.searchForm:focus-within {
+    border-color: var(--accent-gold);
+    box-shadow: 0 10px 40px rgba(212, 175, 55, 0.15);
+    transform: translateY(-2px);
+}
+
+.inputIcon {
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    color: var(--accent-gold);
+}
+
+.sparkleIcon {
+    filter: drop-shadow(0 0 5px var(--accent-gold));
+}
+
+.searchInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--foreground);
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    padding: 0.8rem 0.5rem;
+    outline: none;
+}
+
+.searchInput::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.searchBtn {
+    background: var(--accent-gold);
+    color: var(--background);
+    border: none;
+    border-radius: 40px;
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.searchBtn:hover:not(:disabled) {
+    background: var(--accent-gold-dim);
+    transform: scale(1.02);
+}
+
+.searchBtn:disabled {
+    background: rgba(212, 175, 55, 0.3);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}
+
+.hint {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .searchForm {
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 1rem;
+    }
+
+    .searchInput {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .searchBtn {
+        width: 100%;
+        justify-content: center;
+    }
+}

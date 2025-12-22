@@ -1,8 +1,12 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import bcrypt from "bcryptjs"
+import prisma from "@/lib/prisma"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    adapter: PrismaAdapter(prisma),
     secret: process.env.NEXTAUTH_SECRET,
     providers: [
         GoogleProvider({
@@ -16,20 +20,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                // Temporary mock authentication - replace with real database check later
-                if (credentials?.email === "test@example.com" && credentials?.password === "password") {
-                    return {
-                        id: "1",
-                        email: credentials.email,
-                        name: "Test User",
-                    }
+                if (!credentials?.email || !credentials?.password) {
+                    return null
                 }
-                return null
+
+                const user = await prisma.user.findUnique({
+                    where: { email: credentials.email as string }
+                })
+
+                if (!user || !user.password) {
+                    return null
+                }
+
+                const isValidPassword = await bcrypt.compare(
+                    credentials.password as string,
+                    user.password
+                )
+
+                if (!isValidPassword) {
+                    return null
+                }
+
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    image: user.image,
+                }
             }
         })
     ],
     session: {
-        strategy: "jwt", // Use JWT instead of database sessions
+        strategy: "jwt",
     },
     pages: {
         signIn: "/login",

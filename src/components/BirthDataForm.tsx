@@ -4,7 +4,11 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import ProfileManager, { UserProfile } from './ProfileManager';
 
-export default function BirthDataForm() {
+interface BirthDataFormProps {
+    onChartGenerated?: (data: any) => void;
+}
+
+export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) {
     const [formData, setFormData] = useState({
         name: '',
         dob: '',
@@ -38,28 +42,80 @@ export default function BirthDataForm() {
         });
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        setLoading(true);
+        setError(null);
 
-        if (saveProfile && formData.name) {
-            const newProfile: UserProfile = {
-                id: Date.now().toString(),
-                name: formData.name,
-                dob: formData.dob,
-                tob: formData.tob,
-                pob: formData.pob
-            };
+        try {
+            // 1. Geocode the Place of Birth
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.pob)}&limit=1`);
+            const geoData = await geoRes.json();
 
-            // Avoid duplicates roughly
-            const exists = profiles.find(p => p.name === newProfile.name && p.dob === newProfile.dob);
-            if (!exists) {
-                setProfiles([...profiles, newProfile]);
+            if (!geoData || geoData.length === 0) {
+                throw new Error("Could not find coordinates for this location.");
             }
-        }
 
-        // Navigate or Show Chart logic would go here
-        console.log('Generating chart for:', formData);
-        // In a real app: router.push('/chart/view?data=...')
+            const lat = parseFloat(geoData[0].lat);
+            const lng = parseFloat(geoData[0].lon);
+
+            // 2. Parse Date and Time
+            const dobDate = new Date(formData.dob);
+            const [hours, minutes] = formData.tob.split(':').map(Number);
+
+            // 3. Calculate Chart (API Call)
+            const calcRes = await fetch('/api/astrology/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    year: dobDate.getFullYear(),
+                    month: dobDate.getMonth() + 1,
+                    day: dobDate.getDate(),
+                    hour: hours || 12,
+                    minute: minutes || 0,
+                    lat,
+                    lng
+                }),
+            });
+
+            if (!calcRes.ok) throw new Error("Failed to calculate chart.");
+            const chartResult = await calcRes.json();
+
+            if (onChartGenerated) {
+                onChartGenerated(chartResult);
+            }
+
+            console.log('Real Chart Generated:', chartResult);
+
+            if (saveProfile && formData.name) {
+                const newProfile: UserProfile = {
+                    id: Date.now().toString(),
+                    name: formData.name,
+                    dob: formData.dob,
+                    tob: formData.tob,
+                    pob: formData.pob,
+                    lat,
+                    lng,
+                    chartData: chartResult // Store the real data
+                };
+
+                const exists = profiles.find(p => p.name === newProfile.name && p.dob === newProfile.dob);
+                if (!exists) {
+                    setProfiles([...profiles, newProfile]);
+                }
+            }
+
+            // In a real app, notify parent component or redirect
+            alert("Chart Generated Successfully! (Check console for data)");
+
+        } catch (err: any) {
+            setError(err.message || "An error occurred");
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (!isClient) return null;

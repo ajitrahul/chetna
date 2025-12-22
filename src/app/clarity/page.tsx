@@ -1,11 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styles from './page.module.css';
 
-export default function ClarityPage() {
-    const [question, setQuestion] = useState('');
+function ClarityContent() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const initialQuery = searchParams.get('q') || '';
+
+    const [question, setQuestion] = useState(initialQuery);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [credits, setCredits] = useState<number | null>(null);
+
     const [result, setResult] = useState<null | {
         questionContext: string;
         phaseOverview: string;
@@ -15,39 +24,54 @@ export default function ClarityPage() {
         ethicalClosing: string;
     }>(null);
 
-    const handleAsk = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!question.trim()) return;
+    // Auto-trigger if question comes from homepage
+    useEffect(() => {
+        if (initialQuery && initialQuery.length >= 10) {
+            triggerAsk(initialQuery);
+        }
+    }, [initialQuery]);
 
+    const triggerAsk = async (q: string) => {
         setIsAnalyzing(true);
         setResult(null);
+        setError(null);
 
-        // Simulate AI Delay
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            setResult({
-                questionContext: question,
-                phaseOverview: "This phase emphasizes emotional regulation and clarity in communication. Reactivity may increase confusion; restraint supports stability.",
-                patternInsights: [
-                    "Tendency to revisit old patterns",
-                    "Need for structure over emotion",
-                    "Importance of boundaries in relationships",
-                    "This is not a phase for impulsive decisions"
-                ],
-                actionGuidance: [
-                    "Choose clarity over emotional intensity",
-                    "Speak only when it reduces confusion",
-                    "Allow time instead of forcing resolution",
-                    "These are actions, not predictions"
-                ],
-                reflectiveQuestions: [
-                    "What am I trying to control here?",
-                    "What response supports self-respect?",
-                    "Where can patience improve outcomes?"
-                ],
-                ethicalClosing: "This guidance reflects tendencies, not certainty. Outcomes depend on awareness and action."
+        try {
+            const response = await fetch('/api/clarity/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: q }),
             });
-        }, 2500);
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                router.push(`/login?callbackUrl=/clarity?q=${encodeURIComponent(q)}`);
+                return;
+            }
+
+            if (response.status === 402) {
+                setError("You've run out of credits. Please purchase more to seek clarity.");
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to get insights');
+            }
+
+            setResult(data.response);
+            setCredits(data.remainingCredits);
+        } catch (err: any) {
+            setError(err.message || 'An unexpected error occurred');
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const handleAsk = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!question.trim() || question.length < 10) return;
+        triggerAsk(question);
     };
 
     return (
@@ -56,6 +80,22 @@ export default function ClarityPage() {
             <p className={styles.subtitle}>
                 Ask one focused question to understand a pattern in your chart.
             </p>
+
+            {credits !== null && (
+                <p className={styles.creditsInfo}>Remaining Credits: {credits}</p>
+            )}
+
+            {error && (
+                <div className={styles.errorBox}>
+                    <p>{error}</p>
+                    {error.includes('credits') && (
+                        <Link href="/pricing" className={styles.actionLink}>Buy Credits</Link>
+                    )}
+                    {error.includes('chart') && (
+                        <Link href="/chart" className={styles.actionLink}>Create Chart</Link>
+                    )}
+                </div>
+            )}
 
             {!result && (
                 <>
@@ -79,7 +119,7 @@ export default function ClarityPage() {
                         <button
                             type="submit"
                             className={styles.askBtn}
-                            disabled={isAnalyzing || !question.trim()}
+                            disabled={isAnalyzing || !question.trim() || question.length < 10}
                         >
                             {isAnalyzing ? 'Reflecting on patterns...' : 'Seek Clarity'}
                         </button>
@@ -112,7 +152,7 @@ export default function ClarityPage() {
                     <div className={styles.section}>
                         <h2 className={styles.sectionTitle}>What This Phase Highlights</h2>
                         <ul className={styles.insightList}>
-                            {result.patternInsights.map((insight, i) => (
+                            {result.patternInsights.map((insight: string, i: number) => (
                                 <li key={i}>{insight}</li>
                             ))}
                         </ul>
@@ -122,7 +162,7 @@ export default function ClarityPage() {
                     <div className={`${styles.section} ${styles.guidanceSection}`}>
                         <h2 className={styles.sectionTitle}>How You Can Respond Consciously</h2>
                         <ul className={styles.actionList}>
-                            {result.actionGuidance.map((action, i) => (
+                            {result.actionGuidance.map((action: string, i: number) => (
                                 <li key={i}>{action}</li>
                             ))}
                         </ul>
@@ -132,7 +172,7 @@ export default function ClarityPage() {
                     <div className={styles.section}>
                         <h2 className={styles.sectionTitle}>Questions Worth Reflecting On</h2>
                         <ul className={styles.reflectionList}>
-                            {result.reflectiveQuestions.map((q, i) => (
+                            {result.reflectiveQuestions.map((q: string, i: number) => (
                                 <li key={i}>{q}</li>
                             ))}
                         </ul>
@@ -152,5 +192,13 @@ export default function ClarityPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function ClarityPage() {
+    return (
+        <Suspense fallback={<div className="container">Loading...</div>}>
+            <ClarityContent />
+        </Suspense>
     );
 }

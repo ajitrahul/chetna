@@ -263,6 +263,40 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
+.creditsInfo {
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+.errorBox {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+    color: #ff6b6b;
+}
+
+.actionLink {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid var(--accent-gold);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    margin-left: 1rem;
+    transition: all 0.3s ease;
+}
+
+.actionLink:hover {
+    background: var(--accent-gold);
+    color: var(--background);
+}
+
 @media (max-width: 768px) {
     .pageContainer {
         padding: 40px 16px;

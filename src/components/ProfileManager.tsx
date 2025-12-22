@@ -10,6 +10,9 @@ export type UserProfile = {
     dob: string;
     tob: string;
     pob: string;
+    lat?: number;
+    lng?: number;
+    chartData?: any;
 };
 
 interface ProfileManagerProps {

@@ -93,6 +93,11 @@ const MOCK_PLACEMENTS: PlacementData[] = [
 
 export default function ChartPage() {
     const [selectedPlacement, setSelectedPlacement] = useState<PlacementData>(MOCK_PLACEMENTS[0]);
+    const [activeChart, setActiveChart] = useState<any>(null);
+
+    const handleChartGenerated = (data: any) => {
+        setActiveChart(data);
+    };
 
     return (
         <div className={`container ${styles.pageContainer}`}>
@@ -102,12 +107,14 @@ export default function ChartPage() {
             </p>
 
             <div className={styles.formWrapper}>
-                <BirthDataForm />
+                <BirthDataForm onChartGenerated={handleChartGenerated} />
             </div>
 
             <div className={styles.chartSection}>
-                <h2 className={styles.chartTitle}>Your Chart Overlay</h2>
-                <ChartDisplay />
+                <h2 className={styles.chartTitle}>
+                    {activeChart ? 'Your Personal Chart' : 'Preview Chart Overlay'}
+                </h2>
+                <ChartDisplay data={activeChart} />
             </div>
 
             {/* Placement Explanation Tabs */}
