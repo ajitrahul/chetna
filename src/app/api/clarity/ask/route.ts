@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     try {
         const session = await auth();
 
-        if (!session?.user) {
+        if (!session?.user?.id) {
             return NextResponse.json(
                 { error: 'Unauthorized. Please log in to ask questions.' },
                 { status: 401 }
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
                 userId: session.user.id,
                 questionText: question,
                 response: aiResponse as any,
-                chartSnapshot: profile.chartData,
+                chartSnapshot: profile.chartData as any,
                 isPaid: true,
             },
         });

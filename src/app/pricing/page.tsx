@@ -53,8 +53,8 @@ export default function PricingPage() {
                     router.push('/clarity');
                 },
                 prefill: {
-                    email: session.user.email,
-                    name: session.user.name,
+                    email: session.user?.email || '',
+                    name: session.user?.name || '',
                 },
                 theme: {
                     color: '#D4AF37',
