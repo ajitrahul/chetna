@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
+import { useSession } from 'next-auth/react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import ProfileManager, { UserProfile } from './ProfileManager';
 
@@ -9,6 +10,7 @@ interface BirthDataFormProps {
 }
 
 export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) {
+    const { data: session } = useSession();
     const [formData, setFormData] = useState({
         name: '',
         dob: '',
@@ -91,27 +93,49 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
             console.log('Real Chart Generated:', chartResult);
 
             if (saveProfile && formData.name) {
-                const newProfile: UserProfile = {
-                    id: Date.now().toString(),
-                    name: formData.name,
-                    dob: formData.dob,
-                    tob: formData.tob,
-                    pob: formData.pob,
-                    lat,
-                    lng,
-                    chartData: chartResult // Store the real data
-                };
+                // If logged in, save to DB
+                if (session?.user?.id) {
+                    try {
+                        await fetch('/api/profiles', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: formData.name,
+                                dateOfBirth: formData.dob,
+                                timeOfBirth: formData.tob,
+                                placeOfBirth: formData.pob,
+                                latitude: lat,
+                                longitude: lng,
+                                chartData: chartResult
+                            }),
+                        });
+                    } catch (err) {
+                        console.error('Failed to save profile to DB:', err);
+                    }
+                } else {
+                    // Fallback to localStorage for guests
+                    const newProfile: UserProfile = {
+                        id: Date.now().toString(),
+                        name: formData.name,
+                        dob: formData.dob,
+                        tob: formData.tob,
+                        pob: formData.pob,
+                        lat,
+                        lng,
+                        chartData: chartResult
+                    };
 
-                const exists = profiles.find(p => p.name === newProfile.name && p.dob === newProfile.dob);
-                if (!exists) {
-                    setProfiles([...profiles, newProfile]);
+                    const exists = profiles.find(p => p.name === newProfile.name && p.dob === newProfile.dob);
+                    if (!exists) {
+                        setProfiles([...profiles, newProfile]);
+                    }
                 }
             }
 
-            // In a real app, notify parent component or redirect
-            alert("Chart Generated Successfully! (Check console for data)");
+            alert("Chart Generated Successfully!");
 
         } catch (err: any) {
+            console.error('BirthDataForm Error:', err);
             setError(err.message || "An error occurred");
         } finally {
             setLoading(false);
@@ -194,11 +218,18 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
                     Save this profile to my circle
                 </label>
 
+                {error && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
+                        {error}
+                    </div>
+                )}
+
                 <button
                     type="submit"
-                    className="w-full py-3 mt-4 bg-[var(--primary)] text-white font-medium rounded-[var(--radius-md)] hover:bg-[var(--primary-hover)] transition-colors shadow-lg"
+                    className="w-full py-3 mt-4 bg-[var(--primary)] text-white font-medium rounded-[var(--radius-md)] hover:bg-[var(--primary-hover)] transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                    disabled={loading}
                 >
-                    View My Chart
+                    {loading ? 'Calculating Patterns...' : 'View My Chart'}
                 </button>
 
                 <style jsx>{`
@@ -218,6 +249,10 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
           .font-medium { font-weight: 500; }
           .cursor-pointer { cursor: pointer; }
           .shadow-lg { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+          .bg-red-50 { background-color: #fef2f2; }
+          .border-red-200 { border-color: #fecaca; }
+          .text-red-600 { color: #dc2626; }
+          .rounded-md { border-radius: 6px; }
         `}</style>
             </form>
         </div>

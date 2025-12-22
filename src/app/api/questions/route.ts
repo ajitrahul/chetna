@@ -1,0 +1,30 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import prisma from '@/lib/prisma';
+
+export async function GET(req: NextRequest) {
+    try {
+        const session = await auth();
+
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const questions = await prisma.question.findMany({
+            where: { userId: session.user.id },
+            orderBy: { createdAt: 'desc' },
+            take: 20, // Limit to recent 20
+        });
+
+        return NextResponse.json(questions);
+    } catch (error) {
+        console.error('Failed to fetch questions:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch questions' },
+            { status: 500 }
+        );
+    }
+}

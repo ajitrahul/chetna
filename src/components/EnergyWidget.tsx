@@ -3,38 +3,54 @@
 import { useState, useEffect } from 'react';
 import styles from './EnergyWidget.module.css';
 
-// Mock data for the "Current Energy" - normally this would come from an API
-const CURRENT_TRANSITS = {
-    header: "Cosmic Weather",
-    transit: "Moon in Scorpio",
-    theme: "Emotional Depth",
-    prompt: "What feelings are you keeping below the surface today?"
-};
-
 export default function EnergyWidget() {
-    const [mounted, setMounted] = useState(false);
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setMounted(true);
+        fetch('/api/astrology/transit')
+            .then(async res => {
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.details || errorData.error || `Transit fetch failed (${res.status})`);
+                }
+                return res.json();
+            })
+            .then(transitData => {
+                if (transitData.error) throw new Error(transitData.error);
+                setData(transitData);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('Failed to fetch transits:', err.message);
+                setLoading(false);
+            });
     }, []);
 
-    if (!mounted) return null; // Hydration fix
+    if (loading) {
+        return (
+            <div className={styles.widget}>
+                <div className={styles.shimmer}></div>
+            </div>
+        );
+    }
+
+    if (!data || !data.transit) return null;
 
     return (
         <div className={styles.widget}>
             <div className={styles.badge}>Today's Energy</div>
             <div className={styles.content}>
                 <div className={styles.iconWrapper}>
-                    {/* Simple Moon Icon (CSS) */}
                     <div className={styles.moonIcon}></div>
                 </div>
                 <div className={styles.textGroup}>
-                    <h3 className={styles.transit}>{CURRENT_TRANSITS.transit}</h3>
-                    <p className={styles.theme}>{CURRENT_TRANSITS.theme}</p>
+                    <h3 className={styles.transit}>{data.transit}</h3>
+                    <p className={styles.theme}>{data.theme}</p>
                 </div>
             </div>
             <div className={styles.divider}></div>
-            <p className={styles.prompt}>“{CURRENT_TRANSITS.prompt}”</p>
+            <p className={styles.prompt}>“{data.prompt}”</p>
         </div>
     );
 }

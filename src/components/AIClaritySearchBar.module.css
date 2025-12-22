@@ -8,13 +8,13 @@
 .searchForm {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--card-bg);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(212, 175, 55, 0.2);
+    border: 1px solid var(--accent-gold-dim);
     border-radius: 50px;
     padding: 6px;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--glass-shadow);
 }
 
 .searchForm:focus-within {
@@ -46,7 +46,8 @@
 }
 
 .searchInput::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--secondary);
+    opacity: 0.5;
 }
 
 .searchBtn {
@@ -69,16 +70,18 @@
 }
 
 .searchBtn:disabled {
-    background: rgba(212, 175, 55, 0.3);
-    color: rgba(255, 255, 255, 0.3);
+    background: var(--bg-soft);
+    color: var(--secondary);
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
 .hint {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--secondary);
     margin-top: 1rem;
     font-style: italic;
+    font-weight: 500;
 }
 
 @media (max-width: 600px) {

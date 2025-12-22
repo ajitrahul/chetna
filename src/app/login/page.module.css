@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     padding: 60px 24px;
-    background: linear-gradient(135deg, rgba(255, 248, 231, 0.2) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(var(--background-rgb), 0.5) 0%, transparent 100%);
 }
 
 .loginBox {
@@ -14,8 +14,8 @@
     padding: 48px;
     border-radius: 16px;
     border: 1px solid var(--card-border);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(12px);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(20px);
 }
 
 .title {
@@ -146,8 +146,8 @@
 }
 
 .googleBtn:hover {
-    border-color: var(--foreground);
-    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--accent-gold);
+    background: rgba(var(--foreground-rgb), 0.02);
 }
 
 .toggle {

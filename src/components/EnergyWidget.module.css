@@ -1,10 +1,9 @@
 .widget {
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--card-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--card-border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    /* Softer shadow */
+    box-shadow: var(--glass-shadow);
     border-radius: var(--radius-md);
     padding: 24px;
     width: 100%;
@@ -12,14 +11,6 @@
     position: relative;
     overflow: hidden;
     transition: transform 0.3s ease;
-}
-
-/* Dark mode adjustment for transparency */
-@media (prefers-color-scheme: dark) {
-    .widget {
-        background: rgba(20, 20, 35, 0.4);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
 }
 
 .badge {
@@ -72,18 +63,11 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+    background: linear-gradient(135deg, rgba(var(--foreground-rgb), 0.05), rgba(var(--foreground-rgb), 0.02));
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-@media (prefers-color-scheme: dark) {
-    .iconWrapper {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+    border: 1px solid var(--border-soft);
 }
 
 .moonIcon {
@@ -120,8 +104,27 @@
 .prompt {
     font-family: var(--font-heading);
     font-style: italic;
+    font-weight: 500;
     font-size: 1.1rem;
     color: var(--foreground);
     line-height: 1.5;
-    opacity: 0.9;
+}
+
+.shimmer {
+    height: 180px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(var(--foreground-rgb), 0.05), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }

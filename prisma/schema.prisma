@@ -24,6 +24,7 @@ model User {
   profiles      Profile[]
   questions     Question[]
   creditPacks   CreditPack[]
+  journalEntries JournalEntry[]
   accounts      Account[]
   sessions      Session[]
 }
@@ -124,4 +125,19 @@ model VerificationToken {
   expires    DateTime
   
   @@unique([identifier, token])
+}
+
+// Daily reflections
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  date      String   // Using "YYYY-MM-DD" format
+  transit   Json?    // Optional: capture transit data for that day
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
 }

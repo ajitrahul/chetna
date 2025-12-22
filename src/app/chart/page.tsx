@@ -97,6 +97,8 @@ export default function ChartPage() {
 
     const handleChartGenerated = (data: any) => {
         setActiveChart(data);
+        // Scroll to chart
+        document.getElementById('chart-display-section')?.scrollIntoView({ behavior: 'smooth' });
     };
 
     return (
@@ -110,7 +112,7 @@ export default function ChartPage() {
                 <BirthDataForm onChartGenerated={handleChartGenerated} />
             </div>
 
-            <div className={styles.chartSection}>
+            <div id="chart-display-section" className={styles.chartSection}>
                 <h2 className={styles.chartTitle}>
                     {activeChart ? 'Your Personal Chart' : 'Preview Chart Overlay'}
                 </h2>

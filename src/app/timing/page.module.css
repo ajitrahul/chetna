@@ -77,10 +77,18 @@
     box-shadow: var(--glass-shadow);
 }
 
-.card h3 {
-    color: var(--primary);
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 16px;
-    font-size: 1.4rem;
+    color: var(--accent-gold);
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--primary);
 }
 
 .card p {
@@ -88,26 +96,109 @@
     line-height: 1.7;
 }
 
-.guidanceBox {
-    margin-top: 60px;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), transparent);
-    border: 1px solid var(--card-border);
-    border-left: 4px solid var(--accent-gold);
-    padding: 32px;
-    border-radius: var(--radius-md);
+.timelineSection {
+    margin-top: 80px;
 }
 
-.guidanceTitle {
+.sectionTitle {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    margin-bottom: 32px;
     color: var(--primary);
-    margin-bottom: 12px;
+    text-align: center;
 }
 
-.guidanceText {
+.timelineList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.timelineItem {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.activeItem {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+.timelineLord {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.timelineDate {
+    font-size: 0.9rem;
     color: var(--secondary);
-    font-size: 1.1rem;
-    line-height: 1.7;
+}
+
+.currentBadge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-gold);
+    color: black;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+}
+
+.loadingState,
+.guestState,
+.errorState {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.guestIcon {
+    color: var(--accent-gold);
+    margin-bottom: 24px;
+    opacity: 0.5;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--card-border);
+    border-top-color: var(--accent-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loginBtn {
+    margin-top: 24px;
+    padding: 12px 32px;
+    background: var(--accent-gold);
+    color: black;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {
@@ -121,5 +212,9 @@
 
     .currentPeriod {
         padding: 24px;
+    }
+
+    .timelineList {
+        grid-template-columns: 1fr 1fr;
     }
 }

@@ -10,18 +10,38 @@ export default function Logo({ width = 120, height = 40 }: { width?: number, hei
 
     useEffect(() => {
         const checkTheme = () => {
-            if (typeof window !== 'undefined' && window.matchMedia) {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme) {
+                setIsDark(currentTheme === 'dark');
+            } else {
                 setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
             }
         };
 
         checkTheme();
 
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-theme') {
+                    checkTheme();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, { attributes: true });
+
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const listener = (e: MediaQueryListEvent) => setIsDark(e.matches);
+        const listener = (e: MediaQueryListEvent) => {
+            if (!document.documentElement.getAttribute('data-theme')) {
+                setIsDark(e.matches);
+            }
+        };
         mediaQuery.addEventListener('change', listener);
 
-        return () => mediaQuery.removeEventListener('change', listener);
+        return () => {
+            observer.disconnect();
+            mediaQuery.removeEventListener('change', listener);
+        };
     }, []);
 
     const src = isDark ? '/chetna_logo_dark.png' : '/chetna_logo_light.png';

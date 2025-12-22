@@ -1,61 +1,156 @@
-import styles from './page.module.css';
-import type { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-    title: 'Timing & Dashas | Chetna',
-    description: 'Understand the "weather" of your life through planetary periods.',
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import styles from './page.module.css';
+import { Clock, Calendar, Info, ChevronRight, Sparkles } from 'lucide-react';
+
+const LORD_DESCRIPTIONS: Record<string, any> = {
+    'Jupiter': { supports: 'Growth, wisdom, teaching, expansion.', resists: 'Reckless shortcuts, lack of foundations.', themes: 'Optimism, spiritual seeking.' },
+    'Saturn': { supports: 'Discipline, structure, long-term legacy.', resists: 'Laziness, superficial expansion.', themes: 'Duty, maturity, reality checks.' },
+    'Mercury': { supports: 'Communication, business, learning.', resists: 'Emotional impulsivity, ignoring details.', themes: 'Intelligence, adaptability.' },
+    'Venus': { supports: 'Relationships, creativity, comfort.', resists: 'Financial waste, over-indulgence.', themes: 'Beauty, harmony, desire.' },
+    'Sun': { supports: 'Leadership, clarity, self-expression.', resists: 'Playing small, ego-driven conflicts.', themes: 'Authority, vitality.' },
+    'Moon': { supports: 'Emotional nurturing, caregiving, intuition.', resists: 'Rationalizing feelings, over-sensitivity.', themes: 'Care, home, change.' },
+    'Mars': { supports: 'Courage, technical work, competition.', resists: 'Passive-aggression, indecision.', themes: 'Energy, drive, conflict.' },
+    'Rahu': { supports: 'Innovation, ambition, breaking norms.', resists: 'Standard paths, repetitive tasks.', themes: 'Desire, obsession, newness.' },
+    'Ketu': { supports: 'Introspection, research, moving on.', resists: 'Material attachments, staying in comfort.', themes: 'Detachment, deep focus.' }
 };
 
 export default function TimingPage() {
+    const { data: session, status } = useSession();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [dashas, setDashas] = useState<any[]>([]);
+    const [currentDasha, setCurrentDasha] = useState<any>(null);
+
+    useEffect(() => {
+        if (status === 'authenticated') {
+            fetchUserDashas();
+        } else if (status === 'unauthenticated') {
+            setLoading(false);
+        }
+    }, [status]);
+
+    const fetchUserDashas = async () => {
+        try {
+            setLoading(true);
+            // 1. Get primary profile
+            const profRes = await fetch('/api/profiles');
+            const profiles = await profRes.json();
+
+            if (!profiles || profiles.length === 0) {
+                setError("No birth profiles found. Please create one in 'Your Chart' first.");
+                setLoading(false);
+                return;
+            }
+
+            // 2. Get dashas for the latest profile
+            const dashaRes = await fetch(`/api/astrology/dashas?profileId=${profiles[0].id}`);
+            const data = await dashaRes.json();
+
+            if (data.error) throw new Error(data.error);
+
+            setDashas(data.dashas);
+            setCurrentDasha(data.dashas.find((d: any) => d.isCurrent));
+        } catch (err: any) {
+            setError(err.message || "Failed to load timing data.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) return (
+        <div className={styles.loadingState}>
+            <div className={styles.spinner}></div>
+            <p>Scanning your timeline...</p>
+        </div>
+    );
+
+    if (!session) return (
+        <div className={styles.container}>
+            <div className={styles.guestState}>
+                <Clock size={48} className={styles.guestIcon} />
+                <h2>Login to View Your Timeline</h2>
+                <p>Track your planetary periods and understand the 'weather' of your life.</p>
+                <button onClick={() => window.location.href = '/login'} className={styles.loginBtn}>Login Now</button>
+            </div>
+        </div>
+    );
+
+    if (error) return (
+        <div className={styles.container}>
+            <div className={styles.errorState}>
+                <p>{error}</p>
+                {error.includes('profiles') && (
+                    <button onClick={() => window.location.href = '/chart'} className={styles.primaryBtn}>Create Chart</button>
+                )}
+            </div>
+        </div>
+    );
+
+    const interpretation = currentDasha ? LORD_DESCRIPTIONS[currentDasha.lord] : null;
+
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
+            <header className={styles.header}>
                 <h1 className={styles.title}>Your Current Timeline</h1>
                 <p className={styles.subtitle}>
                     Planetary periods (Dashas) are not destiny. They are "seasons" that influence your capacity to act, feel, and perceive.
                 </p>
-            </div>
+            </header>
 
-            {/* Mock Data for Now */}
-            <div className={styles.currentPeriod}>
-                <div className={styles.periodLabel}>Current Major Phase (Mahadasha)</div>
-                <h2 className={styles.periodName}>Jupiter - Saturn</h2>
-                <div className={styles.periodDates}>Sep 2024 — Mar 2027</div>
-            </div>
+            {currentDasha && (
+                <div className={styles.currentPeriod}>
+                    <div className={styles.periodLabel}>Current Major Phase (Mahadasha)</div>
+                    <h2 className={styles.periodName}>{currentDasha.lord} Period</h2>
+                    <div className={styles.periodDates}>
+                        {new Date(currentDasha.start).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} —
+                        {new Date(currentDasha.end).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+                    </div>
+                </div>
+            )}
 
             <div className={styles.grid}>
                 <div className={styles.card}>
-                    <h3>What This Phase Supports</h3>
-                    <p>
-                        This is a time for structuring your wisdom. Jupiter expands vision, while Saturn demands discipline.
-                        Activities that require long-term planning, teaching, or establishing foundational systems are highly supported.
-                    </p>
+                    <div className={styles.cardHeader}>
+                        <Sparkles size={18} />
+                        <h3>What This Phase Supports</h3>
+                    </div>
+                    <p>{interpretation?.supports || "Loading interpretation..."}</p>
                 </div>
 
                 <div className={styles.card}>
-                    <h3>What It Resists</h3>
-                    <p>
-                        Reckless expansion or skipping steps. You may feel a tension between "wanting more" and "feeling restricted."
-                        This resistance is actually a protection mechanism to ensure you build sustainably.
-                    </p>
+                    <div className={styles.cardHeader}>
+                        <Info size={18} />
+                        <h3>What It Resists</h3>
+                    </div>
+                    <p>{interpretation?.resists || "Loading interpretation..."}</p>
                 </div>
 
                 <div className={styles.card}>
-                    <h3>Emotional Themes</h3>
-                    <p>
-                        A sense of serious duty. You might feel older or more responsible than usual.
-                        Occasional heaviness is normal; it's the weight of maturity settling in.
-                    </p>
+                    <div className={styles.cardHeader}>
+                        <Calendar size={18} />
+                        <h3>Emotional Themes</h3>
+                    </div>
+                    <p>{interpretation?.themes || "Loading interpretation..."}</p>
                 </div>
             </div>
 
-            <div className={styles.guidanceBox}>
-                <h3 className={styles.guidanceTitle}>How to Work With This Time</h3>
-                <p className={styles.guidanceText}>
-                    Do not force speed. Verify your foundations. If you feel stuck, it is likely because a structure needs to be respected.
-                    Commit to the slow path, and the rewards will be enduring.
-                </p>
-            </div>
+            <section className={styles.timelineSection}>
+                <h3 className={styles.sectionTitle}>Your Full Cycle</h3>
+                <div className={styles.timelineList}>
+                    {dashas.map((d, i) => (
+                        <div key={i} className={`${styles.timelineItem} ${d.isCurrent ? styles.activeItem : ''}`}>
+                            <div className={styles.timelineLord}>{d.lord}</div>
+                            <div className={styles.timelineDate}>
+                                {new Date(d.start).getFullYear()} — {new Date(d.end).getFullYear()}
+                            </div>
+                            {d.isCurrent && <span className={styles.currentBadge}>Active Now</span>}
+                        </div>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 }

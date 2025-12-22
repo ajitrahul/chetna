@@ -58,11 +58,38 @@
     font-size: 0.95rem;
     font-weight: 600;
     transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
 }
 
 .loginBtn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--glass-shadow);
+    opacity: 0.9;
+}
+
+.authGroup {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.signOutBtn {
+    padding: 6px 16px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--foreground);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.signOutBtn:hover {
+    border-color: var(--accent-rose);
+    color: var(--accent-rose);
+    background: rgba(var(--foreground-rgb), 0.02);
 }
 
 .themeToggle {
@@ -82,7 +109,9 @@
 .themeToggle:hover {
     border-color: var(--accent-gold);
     color: var(--accent-gold);
+    background: rgba(var(--foreground-rgb), 0.02);
 }
+
 
 @media (max-width: 968px) {
     .nav {

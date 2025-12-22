@@ -5,7 +5,7 @@
 /* Hero Section */
 .hero {
   padding: 120px 24px;
-  background: linear-gradient(180deg, rgba(255, 248, 231, 0.3) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(var(--background-rgb), 0.5) 0%, transparent 100%);
 }
 
 .heroContainer {
@@ -203,7 +203,7 @@
 /* Not Do Section */
 .notDoSection {
   padding: 100px 24px;
-  background: linear-gradient(180deg, transparent 0%, rgba(255, 248, 231, 0.3) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(var(--background-rgb), 0.5) 100%);
 }
 
 .notDoContainer {
@@ -240,6 +240,102 @@
   font-size: 1.1rem;
   color: var(--secondary);
   font-weight: 500;
+}
+
+/* Dashboard Styles */
+.dashboard {
+  padding: 80px 24px;
+  background: radial-gradient(circle at top right, rgba(var(--accent-gold-rgb), 0.08), transparent 45%),
+    radial-gradient(circle at bottom left, rgba(var(--accent-gold-rgb), 0.05), transparent 45%);
+}
+
+.dashboardGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboardHeader {
+  margin-bottom: 48px;
+}
+
+.welcomeText {
+  font-size: 2.8rem;
+  font-family: var(--font-heading);
+  color: var(--primary);
+  margin-bottom: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.userName {
+  color: var(--accent-gold);
+}
+
+.dashboardSubtitle {
+  font-size: 1.15rem;
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+.widgetGrid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  position: sticky;
+  top: 100px;
+}
+
+.searchSection {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(20px);
+}
+
+.quickLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.quickLinkItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  color: var(--foreground);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.quickLinkItem span {
+  flex-grow: 1;
+}
+
+.quickLinkItem:hover {
+  border-color: var(--accent-gold);
+  transform: translateX(6px);
+  background: rgba(var(--accent-gold-rgb), 0.05);
+  box-shadow: var(--glass-shadow);
 }
 
 /* Responsive Design */
