@@ -1,0 +1,125 @@
+.container {
+    padding: 80px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.title {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: var(--secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.currentPeriod {
+    background: var(--card-bg);
+    border: 1px solid var(--accent-gold);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    text-align: center;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+    margin-bottom: 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.periodLabel {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent-gold);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.periodName {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.periodDates {
+    color: var(--secondary);
+    font-family: var(--font-main);
+    font-size: 1.1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 32px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--glass-shadow);
+}
+
+.card h3 {
+    color: var(--primary);
+    margin-bottom: 16px;
+    font-size: 1.4rem;
+}
+
+.card p {
+    color: var(--secondary);
+    line-height: 1.7;
+}
+
+.guidanceBox {
+    margin-top: 60px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), transparent);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-gold);
+    padding: 32px;
+    border-radius: var(--radius-md);
+}
+
+.guidanceTitle {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 12px;
+}
+
+.guidanceText {
+    color: var(--secondary);
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 40px 16px;
+    }
+
+    .title {
+        font-size: 2.2rem;
+    }
+
+    .currentPeriod {
+        padding: 24px;
+    }
+}

@@ -1,6 +1,6 @@
 .pageContainer {
     padding: 80px 24px;
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     text-align: center;
     min-height: 80vh;
@@ -19,11 +19,48 @@
     font-weight: 300;
 }
 
+/* Rules Box */
+.rulesBox {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), transparent);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--accent-gold);
+    padding: 24px 32px;
+    border-radius: var(--radius-md);
+    margin-bottom: 40px;
+    text-align: left;
+}
+
+.rulesBox h3 {
+    font-size: 1.1rem;
+    color: var(--primary);
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.rulesBox ul {
+    list-style: none;
+    padding: 0;
+}
+
+.rulesBox li {
+    color: var(--secondary);
+    padding: 8px 0 8px 24px;
+    position: relative;
+}
+
+.rulesBox li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+}
+
 .inputContainer {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    max-width: 600px;
+    max-width: 700px;
     margin: 0 auto;
 }
 
@@ -103,15 +140,19 @@
     }
 }
 
+/* AI Answer Screen - 6 Sections */
 .resultContainer {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 40px;
     text-align: left;
-    margin-top: 40px;
+    margin-top: 60px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.card {
+.section {
     background: var(--card-bg);
     padding: 32px;
     border-radius: var(--radius-md);
@@ -120,23 +161,90 @@
     backdrop-filter: blur(16px);
 }
 
-.highlight {
-    border-left: 4px solid var(--accent-gold);
-    background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
-}
-
-.cardHeader {
-    font-size: 0.85rem;
+.sectionTitle {
+    font-size: 0.9rem;
     text-transform: uppercase;
     color: var(--accent-gold);
     letter-spacing: 0.15em;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     font-weight: 600;
 }
 
-.card p {
+.questionContext {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    color: var(--primary);
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.phaseSection {
+    border-left: 4px solid var(--accent-gold);
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.03) 0%, transparent 100%);
+}
+
+.section p {
     font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--secondary);
+}
+
+.insightList,
+.actionList,
+.reflectionList {
+    list-style: none;
+    padding: 0;
+}
+
+.insightList li,
+.actionList li,
+.reflectionList li {
+    padding: 12px 0 12px 28px;
+    position: relative;
+    font-size: 1.05rem;
     line-height: 1.7;
+    color: var(--secondary);
+}
+
+.insightList li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent-gold);
+    font-weight: bold;
+}
+
+.actionList li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent-gold);
+    font-weight: bold;
+}
+
+.reflectionList li::before {
+    content: '?';
+    position: absolute;
+    left: 0;
+    color: var(--accent-gold);
+    font-weight: bold;
+}
+
+.guidanceSection {
+    border: 2px solid var(--accent-gold);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), transparent);
+}
+
+.closingSection {
+    background: rgba(0, 0, 0, 0.02);
+    border: none;
+    text-align: center;
+}
+
+.ethicalClosing {
+    font-size: 0.95rem;
+    color: var(--secondary);
+    font-style: italic;
 }
 
 .resetBtn {
@@ -173,7 +281,7 @@
         text-align: center;
     }
 
-    .card {
+    .section {
         padding: 24px;
     }
 }

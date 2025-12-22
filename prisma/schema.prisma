@@ -1,0 +1,127 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?   // Null for OAuth users
+  name          String?
+  image         String?   // Profile picture from OAuth
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  profiles      Profile[]
+  questions     Question[]
+  creditPacks   CreditPack[]
+  accounts      Account[]
+  sessions      Session[]
+}
+
+// OAuth account info (for NextAuth)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+}
+
+// Session for NextAuth
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Birth chart profile
+model Profile {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name          String
+  dateOfBirth   DateTime
+  timeOfBirth   String    // Stored as "HH:MM" format
+  placeOfBirth  String
+  latitude      Float
+  longitude     Float
+  timezone      String
+  
+  chartData     Json      // Complete calculated chart positions
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+}
+
+// AI Clarity questions
+model Question {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  questionText  String
+  response      Json      // 6-section AI answer structure
+  chartSnapshot Json      // Chart data at time of question
+  
+  isPaid        Boolean   @default(false)
+  paymentId     String?   // Razorpay payment ID
+  amount        Int?      // Amount in paise
+  
+  createdAt     DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Credit packs purchased
+model CreditPack {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  packType        String    // "5_PACK" or "10_PACK"
+  questionsTotal  Int       // 5 or 10
+  questionsUsed   Int       @default(0)
+  
+  purchasedAt     DateTime  @default(now())
+  expiresAt       DateTime? // Null = never expires
+  
+  paymentId       String    // Razorpay payment ID
+  amount          Int       // Amount paid in paise
+  
+  @@index([userId])
+}
+
+// Verification tokens for email verification
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  
+  @@unique([identifier, token])
+}

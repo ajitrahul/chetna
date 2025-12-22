@@ -1,0 +1,106 @@
+Absolutely. Below are three production-ready sections you can place directly on the website or hand to your developer.
+They are written to be clear, calm, ethical, and legally safe, without sounding defensive.
+1️⃣ DISCLAIMER PAGE (FINAL COPY)
+Page Title
+Disclaimer
+Purpose of Chetna
+Chetna is an awareness-first astrology platform designed to support reflection, understanding, and conscious decision-making.
+Astrology, as used on this platform, is interpretive in nature. It offers perspectives on patterns, tendencies, and timing — not fixed outcomes or certainties.
+What Chetna Provides
+Interpretive insights based on astrological data
+Pattern-based explanations of timing and tendencies
+Reflective guidance to support awareness and responsibility
+Chetna does not provide predictions, guarantees, or absolute conclusions.
+What Chetna Does Not Provide
+Chetna does not offer:
+Medical advice or health diagnoses
+Legal advice or decisions
+Financial guarantees or instructions
+Psychological or therapeutic treatment
+Predictions of death, illness, marriage, divorce, or other fixed events
+If you are facing serious medical, legal, or mental health concerns, please consult a qualified professional.
+Role of AI on Chetna
+The AI features on Chetna are designed to:
+explain astrological patterns
+support reflective thinking
+suggest areas of focus and awareness
+The AI does not replace human judgement, professional advice, or personal responsibility.
+User Responsibility
+All insights provided by Chetna are for informational and reflective purposes only.
+Users remain fully responsible for their choices, actions, and decisions.
+By using this platform, you acknowledge that:
+astrology is not deterministic
+outcomes depend on many factors, including personal action and circumstance
+Closing Statement
+Chetna exists to support clarity — not dependency.
+Awareness is the starting point; choice is always yours.
+2️⃣ PRICING PAGE COPY
+Page Title
+Pricing
+Intro Text
+Chetna follows a simple and transparent pricing model.
+You pay only for what you choose to explore — no subscriptions, no pressure.
+🔹 AI-Guided Reflection
+Single Question
+₹149 per question
+One focused question at a time
+Chart-aware, pattern-based guidance
+No predictions or guarantees
+Designed for reflection and clarity
+Credit Packs (Optional)
+5 Questions — ₹699
+10 Questions — ₹1299
+Credits can be used at your own pace.
+No expiry. No auto-renewal.
+What You’re Paying For
+Structured astrological interpretation
+AI-assisted reflection and guidance
+Ethical safeguards and clarity-first design
+You are not paying for:
+fortune-telling
+emergency answers
+absolute predictions
+Small Note (Important)
+Chetna encourages thoughtful use.
+More questions do not mean better answers — clarity comes from reflection and action.
+3️⃣ FIRST-TIME USER ONBOARDING TEXT
+(Shown across 3–4 simple screens or steps)
+Onboarding Screen 1 — Welcome
+Welcome to Chetna
+Chetna is an awareness-first astrology platform.
+Here, astrology is used to understand patterns and timing — not to predict outcomes.
+Onboarding Screen 2 — What to Expect
+What You’ll Find Here
+Insights into your birth chart
+Understanding of current phases and timing
+Guidance on actions, habits, and communication
+AI-assisted reflection for thoughtful questions
+Everything is designed to support clarity and responsibility.
+Onboarding Screen 3 — What You Won’t Find
+What Chetna Does Not Do
+No fear-based predictions
+No guarantees or verdicts
+No pressure to keep asking questions
+No replacement for your own judgement
+Chetna supports thinking — it does not decide for you.
+Onboarding Screen 4 — How to Use Chetna Well
+A Gentle Note Before You Begin
+Ask focused, reflective questions
+Use insights as guidance, not instructions
+Take time to act on awareness
+Return when you’re ready — not out of urgency
+Astrology works best when paired with conscious action.
+Final Button
+Begin with Awareness
+🔒 INTERNAL PRODUCT LOCK (FOR YOU & DEV)
+These three sections should:
+remain visible and accessible
+not be hidden in fine print
+not be rewritten into marketing language
+They are trust-building pillars, not legal formality.
+If you want next, I can:
+Create a Terms of Use page
+Write microcopy for AI refusals / reframing
+Design payment confirmation language
+Or help you prepare a launch checklist
+Just tell me what you want to build next.

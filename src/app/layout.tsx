@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Montserrat, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import AuthProvider from '@/components/AuthProvider';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -29,10 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${montserrat.variable} ${cormorant.variable}`}>
-        <Header />
-        <main style={{ paddingTop: '20px' }}>
-          {children}
-        </main>
+        <AuthProvider>
+          <Header />
+          <main style={{ paddingTop: '20px' }}>
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

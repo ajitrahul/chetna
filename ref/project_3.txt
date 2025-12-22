@@ -1,0 +1,221 @@
+Great — I’ll convert the reference webpage into clear, low-fidelity wireframe sketches in text form that a developer or UI/UX designer can directly translate into Figma / Whimsical / Balsamiq.
+Think of this as layout + hierarchy, not visual styling.
+🧩 CHETNA — V1 WIREFRAME SKETCHES (TEXTUAL)
+🟦 1. HOMEPAGE WIREFRAME
+Copy code
+
+------------------------------------------------
+| LOGO (left)        Home | How it Works | Ask |
+------------------------------------------------
+
+[ HERO SECTION ]
+-----------------------------------------------
+| Headline:                                   |
+| "Astrology for Awareness, Not Prediction"  |
+|                                             |
+| Subtext (2 lines max)                        |
+| Calm explanation of purpose                  |
+|                                             |
+| [ Generate My Chart ]   [ How It Works ]     |
+-----------------------------------------------
+
+[ WHAT CHETNA DOES – 3 COLUMN ]
+-----------------------------------------------
+| Card 1        | Card 2        | Card 3        |
+| Explains      | Timing as     | Free Will     |
+| Patterns      | Capacity      | Focus         |
+-----------------------------------------------
+
+[ WHAT WE DO NOT DO ]
+-----------------------------------------------
+| - No daily predictions                       |
+| - No fear-based astrology                   |
+| - No guarantees                             |
+| - No dependency models                      |
+-----------------------------------------------
+
+[ FOOTER ]
+-----------------------------------------------
+| Disclaimer | Privacy | Contact               |
+-----------------------------------------------
+🟦 2. BIRTH CHART INPUT PAGE
+Copy code
+
+-----------------------------------------------
+| LOGO | Back                                  |
+-----------------------------------------------
+
+[ PAGE TITLE ]
+-----------------------------------------------
+| "Generate Your Birth Chart"                  |
+-----------------------------------------------
+
+[ INPUT FORM ]
+-----------------------------------------------
+| Date of Birth   [  DD / MM / YYYY  ]         |
+| Time of Birth   [  HH : MM  ] (Unknown ✓)    |
+| Place of Birth  [  City / Country ]          |
+|                                             |
+| [ View My Chart ]                            |
+-----------------------------------------------
+
+[ SMALL NOTE ]
+-----------------------------------------------
+| "Astrology shows patterns, not certainties." |
+-----------------------------------------------
+🟦 3. CHART DISPLAY PAGE (CORE PAGE)
+Copy code
+
+-----------------------------------------------
+| LOGO | My Chart | Dasha | Relationships      |
+-----------------------------------------------
+
+[ CHART + SUMMARY ]
+-----------------------------------------------
+| [ D1 CHART VISUAL ]     | Ascendant: Scorpio |
+|                         | Moon: Aries        |
+|                         | Current Dasha: ... |
+-----------------------------------------------
+
+[ PLACEMENT EXPLANATION TABS ]
+-----------------------------------------------
+| Tabs: Planet | House | Dasha | Guidance      |
+-----------------------------------------------
+
+[ TAB CONTENT STRUCTURE ]
+-----------------------------------------------
+| What this placement often indicates          |
+|---------------------------------------------|
+| Common psychological patterns                |
+|---------------------------------------------|
+| What helps during this phase                 |
+|---------------------------------------------|
+| What to avoid                                |
+|---------------------------------------------|
+| Free-will reminder                           |
+-----------------------------------------------
+🟦 4. DASHA & TIMING PAGE
+Copy code
+
+-----------------------------------------------
+| LOGO | Chart | Dasha | Relationships         |
+-----------------------------------------------
+
+[ PAGE TITLE ]
+-----------------------------------------------
+| "Understanding Your Current Phase"          |
+-----------------------------------------------
+
+[ CURRENT DASHA BLOCK ]
+-----------------------------------------------
+| Mahadasha: Mars (2021–2028)                  |
+| Antardasha: Venus (2024–2025)                |
+-----------------------------------------------
+
+[ EXPLANATION SECTIONS ]
+-----------------------------------------------
+| What this phase supports                     |
+|---------------------------------------------|
+| What this phase resists                      |
+|---------------------------------------------|
+| Typical emotional themes                     |
+|---------------------------------------------|
+| Best way to work with this phase             |
+-----------------------------------------------
+
+⚠ No event predictions shown
+🟦 5. RELATIONSHIP DYNAMICS PAGE
+Copy code
+
+-----------------------------------------------
+| LOGO | Chart | Dasha | Relationships         |
+-----------------------------------------------
+
+[ PAGE TITLE ]
+-----------------------------------------------
+| "Relationship Patterns & Dynamics"           |
+-----------------------------------------------
+
+[ SECTION BLOCKS ]
+-----------------------------------------------
+| Communication Style                          |
+|---------------------------------------------|
+| Emotional Needs                              |
+|---------------------------------------------|
+| Conflict Patterns                            |
+|---------------------------------------------|
+| Growth Conditions                            |
+-----------------------------------------------
+
+[ NOTE ]
+-----------------------------------------------
+| "This explains tendencies, not outcomes."    |
+-----------------------------------------------
+🟦 6. ASK FOR CLARITY (PAID AI) PAGE
+Copy code
+
+-----------------------------------------------
+| LOGO | Ask for Clarity                       |
+-----------------------------------------------
+
+[ INTRO TEXT ]
+-----------------------------------------------
+| "Ask one focused question about a pattern    |
+| in your chart."                              |
+-----------------------------------------------
+
+[ QUESTION INPUT ]
+-----------------------------------------------
+| [ Text box – 2–3 lines max ]                 |
+-----------------------------------------------
+
+[ RULES (VISIBLE) ]
+-----------------------------------------------
+| - One question at a time                     |
+| - No predictions or guarantees               |
+| - Astrology supports reflection              |
+-----------------------------------------------
+
+[ CTA ]
+-----------------------------------------------
+| [ Proceed to Payment ]                       |
+-----------------------------------------------
+
+[ AI RESPONSE SCREEN ]
+-----------------------------------------------
+| Chart Observation                            |
+|---------------------------------------------|
+| Pattern Explanation                          |
+|---------------------------------------------|
+| Guidance (helps / avoid)                     |
+|---------------------------------------------|
+| Free-will reminder                           |
+-----------------------------------------------
+🟦 7. DISCLAIMER PAGE (SEPARATE & VISIBLE)
+Copy code
+
+-----------------------------------------------
+| LOGO | Disclaimer                            |
+-----------------------------------------------
+
+[ CONTENT ]
+-----------------------------------------------
+| - Astrology is interpretive                  |
+| - No medical / legal advice                  |
+| - User retains responsibility               |
+-----------------------------------------------
+🟦 8. GLOBAL BEHAVIOUR RULES (NOT VISIBLE, BUT ENFORCED)
+No push notifications
+No daily cards
+No urgency banners
+No emotional hooks
+User always initiates actions
+🔑 ONE-LINE FOR DESIGNER / DEVELOPER
+“Design this like a calm learning tool — not a social app, not a spiritual marketplace.”
+NEXT (OPTIONAL – VERY USEFUL)
+I can next:
+Convert this into Figma-ready component list
+Create mobile-first wireframes
+Define API endpoints per page
+Prepare a handoff checklist for dev sign-off
+Tell me what you want to do next.

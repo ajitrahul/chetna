@@ -7,9 +7,12 @@ export default function ClarityPage() {
     const [question, setQuestion] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState<null | {
-        observation: string;
-        pattern: string;
-        guidance: string;
+        questionContext: string;
+        phaseOverview: string;
+        patternInsights: string[];
+        actionGuidance: string[];
+        reflectiveQuestions: string[];
+        ethicalClosing: string;
     }>(null);
 
     const handleAsk = (e: React.FormEvent) => {
@@ -23,9 +26,26 @@ export default function ClarityPage() {
         setTimeout(() => {
             setIsAnalyzing(false);
             setResult({
-                observation: "Current Saturn transit is highlighting your 10th house of career.",
-                pattern: "You may feel a tension between 'duty' and 'desire', a classic pattern of resistance to structure.",
-                guidance: "This is not a block, but a request for discipline. Small, consistent actions will dissolve the anxiety. Wait 3 days before making big decisions."
+                questionContext: question,
+                phaseOverview: "This phase emphasizes emotional regulation and clarity in communication. Reactivity may increase confusion; restraint supports stability.",
+                patternInsights: [
+                    "Tendency to revisit old patterns",
+                    "Need for structure over emotion",
+                    "Importance of boundaries in relationships",
+                    "This is not a phase for impulsive decisions"
+                ],
+                actionGuidance: [
+                    "Choose clarity over emotional intensity",
+                    "Speak only when it reduces confusion",
+                    "Allow time instead of forcing resolution",
+                    "These are actions, not predictions"
+                ],
+                reflectiveQuestions: [
+                    "What am I trying to control here?",
+                    "What response supports self-respect?",
+                    "Where can patience improve outcomes?"
+                ],
+                ethicalClosing: "This guidance reflects tendencies, not certainty. Outcomes depend on awareness and action."
             });
         }, 2500);
     };
@@ -34,26 +54,37 @@ export default function ClarityPage() {
         <div className={`container ${styles.pageContainer}`}>
             <h1 className={styles.title}>Ask for Clarity</h1>
             <p className={styles.subtitle}>
-                Focus on one pattern or confusion. Receive guidance, not a verdict.
+                Ask one focused question to understand a pattern in your chart.
             </p>
 
             {!result && (
-                <form onSubmit={handleAsk} className={styles.inputContainer}>
-                    <textarea
-                        className={styles.questionInput}
-                        placeholder="e.g., 'Why do I feel so stuck in my career right now?'"
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        disabled={isAnalyzing}
-                    />
-                    <button
-                        type="submit"
-                        className={styles.askBtn}
-                        disabled={isAnalyzing || !question.trim()}
-                    >
-                        {isAnalyzing ? 'Reflecting on patterns...' : 'Seek Clarity'}
-                    </button>
-                </form>
+                <>
+                    <div className={styles.rulesBox}>
+                        <h3>Before You Ask</h3>
+                        <ul>
+                            <li>One question at a time</li>
+                            <li>No predictions or guarantees</li>
+                            <li>Astrology supports reflection, not decisions</li>
+                        </ul>
+                    </div>
+
+                    <form onSubmit={handleAsk} className={styles.inputContainer}>
+                        <textarea
+                            className={styles.questionInput}
+                            placeholder="e.g., 'How should I approach communication in my relationship right now?'"
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            disabled={isAnalyzing}
+                        />
+                        <button
+                            type="submit"
+                            className={styles.askBtn}
+                            disabled={isAnalyzing || !question.trim()}
+                        >
+                            {isAnalyzing ? 'Reflecting on patterns...' : 'Seek Clarity'}
+                        </button>
+                    </form>
+                </>
             )}
 
             {isAnalyzing && (
@@ -65,19 +96,51 @@ export default function ClarityPage() {
 
             {result && (
                 <div className={styles.resultContainer}>
-                    <div className={styles.card}>
-                        <h3 className={styles.cardHeader}>Chart Observation</h3>
-                        <p>{result.observation}</p>
+                    {/* Section A: Question Context */}
+                    <div className={styles.section}>
+                        <h2 className={styles.sectionTitle}>Your Question</h2>
+                        <p className={styles.questionContext}>"{result.questionContext}"</p>
                     </div>
 
-                    <div className={`${styles.card} ${styles.highlight}`}>
-                        <h3 className={styles.cardHeader}>The Pattern</h3>
-                        <p>{result.pattern}</p>
+                    {/* Section B: Current Phase Overview */}
+                    <div className={`${styles.section} ${styles.phaseSection}`}>
+                        <h2 className={styles.sectionTitle}>Current Phase Overview</h2>
+                        <p>{result.phaseOverview}</p>
                     </div>
 
-                    <div className={styles.card}>
-                        <h3 className={styles.cardHeader}>Guidance for Action</h3>
-                        <p>{result.guidance}</p>
+                    {/* Section C: Pattern Insights */}
+                    <div className={styles.section}>
+                        <h2 className={styles.sectionTitle}>What This Phase Highlights</h2>
+                        <ul className={styles.insightList}>
+                            {result.patternInsights.map((insight, i) => (
+                                <li key={i}>{insight}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Section D: Action Guidance (Most Valuable) */}
+                    <div className={`${styles.section} ${styles.guidanceSection}`}>
+                        <h2 className={styles.sectionTitle}>How You Can Respond Consciously</h2>
+                        <ul className={styles.actionList}>
+                            {result.actionGuidance.map((action, i) => (
+                                <li key={i}>{action}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Section E: Reflective Questions */}
+                    <div className={styles.section}>
+                        <h2 className={styles.sectionTitle}>Questions Worth Reflecting On</h2>
+                        <ul className={styles.reflectionList}>
+                            {result.reflectiveQuestions.map((q, i) => (
+                                <li key={i}>{q}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Section F: Ethical Closing */}
+                    <div className={`${styles.section} ${styles.closingSection}`}>
+                        <p className={styles.ethicalClosing}>{result.ethicalClosing}</p>
                     </div>
 
                     <button
