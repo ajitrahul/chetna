@@ -22,6 +22,9 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: 'Chetna | Astrology for Awareness',
   description: 'Understand patterns, not predictions. A calm, awareness-first approach to Vedic Astrology.',
+  icons: {
+    icon: '/icons/chetna.png',
+  },
 };
 
 export default function RootLayout({

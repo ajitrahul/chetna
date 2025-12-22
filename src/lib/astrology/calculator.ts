@@ -89,40 +89,49 @@ export async function calculateChart(
         const planets: Record<string, PlanetPosition> = {};
 
         // 2. Calculate Planets
+        // SEFLG_SPEED = 256 | SEFLG_SWIEPH = 2 = 258 (safe flag value)
+        const calcFlags = 258; // SEFLG_SWIEPH | SEFLG_SPEED
+
         for (const [name, id] of Object.entries(PLANETS_CONFIG)) {
-            // calc_ut returns Float64Array [long, lat, dist, longSpeed, latSpeed, distSpeed]
-            const posArr = swe.calc_ut(julianDay, id, swe.SEFLG_SPEED);
+            try {
+                // calc_ut returns Float64Array [long, lat, dist, longSpeed, latSpeed, distSpeed]
+                const posArr = swe.calc_ut(julianDay, id, calcFlags);
 
-            if (!posArr || posArr.length < 4) {
-                throw new Error(`Failed to calculate position for ${name}`);
-            }
+                if (!posArr || posArr.length < 4) {
+                    console.error(`Failed to calculate position for ${name}, got:`, posArr);
+                    throw new Error(`Failed to calculate position for ${name}`);
+                }
 
-            const pos = {
-                longitude: posArr[0],
-                latitude: posArr[1],
-                distance: posArr[2],
-                speed: posArr[3]
-            };
+                const pos = {
+                    longitude: posArr[0],
+                    latitude: posArr[1],
+                    distance: posArr[2],
+                    speed: posArr[3]
+                };
 
-            if (name === 'Rahu') {
-                planets['Ketu'] = {
-                    name: 'Ketu',
-                    longitude: (pos.longitude + 180) % 360,
-                    latitude: -pos.latitude,
+                if (name === 'Rahu') {
+                    planets['Ketu'] = {
+                        name: 'Ketu',
+                        longitude: (pos.longitude + 180) % 360,
+                        latitude: -pos.latitude,
+                        distance: pos.distance,
+                        speed: pos.speed,
+                        isRetrograde: pos.speed < 0,
+                    };
+                }
+
+                planets[name] = {
+                    name,
+                    longitude: pos.longitude,
+                    latitude: pos.latitude,
                     distance: pos.distance,
                     speed: pos.speed,
                     isRetrograde: pos.speed < 0,
                 };
+            } catch (error) {
+                console.error(`Error calculating ${name}:`, error);
+                throw new Error(`Failed to calculate ${name}: ${error}`);
             }
-
-            planets[name] = {
-                name,
-                longitude: pos.longitude,
-                latitude: pos.latitude,
-                distance: pos.distance,
-                speed: pos.speed,
-                isRetrograde: pos.speed < 0,
-            };
         }
 
         // 3. Calculate Houses (Whole Sign system for compatibility)
