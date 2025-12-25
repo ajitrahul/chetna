@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
         // Handle payment success
         if (event.event === 'payment.captured') {
             const payment = event.payload.payment.entity;
-            const orderId = payment.order_id;
             const userId = payment.notes.userId;
             const productType = payment.notes.productType;
 

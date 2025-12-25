@@ -5,7 +5,7 @@ import { calculateChart, calculateVimsottariDashas } from '@/lib/astrology/calcu
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await auth();
+        await auth();
         const { searchParams } = new URL(req.url);
         const profileId = searchParams.get('profileId');
 

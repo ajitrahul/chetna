@@ -17,10 +17,22 @@
     justify-content: space-between;
 }
 
-.nav {
+.rightSection {
     display: flex;
     align-items: center;
     gap: 32px;
+}
+
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
 .navLink {
@@ -29,6 +41,8 @@
     font-weight: 500;
     transition: color 0.2s ease;
     position: relative;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .navLink::after {
@@ -51,15 +65,17 @@
 }
 
 .loginBtn {
-    padding: 10px 24px;
+    padding: 8px 20px;
     background: var(--foreground);
     color: var(--background);
-    border-radius: 6px;
-    font-size: 0.95rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
     font-weight: 600;
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .loginBtn:hover {
@@ -71,7 +87,7 @@
 .authGroup {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 .signOutBtn {
@@ -84,6 +100,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .signOutBtn:hover {
@@ -95,8 +112,8 @@
 .themeToggle {
     background: transparent;
     border: 1px solid var(--card-border);
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -114,7 +131,11 @@
 
 
 @media (max-width: 968px) {
-    .nav {
+    .navLinks {
+        gap: 20px;
+    }
+
+    .rightSection {
         gap: 20px;
     }
 
@@ -124,7 +145,16 @@
 }
 
 @media (max-width: 768px) {
-    .nav {
+    .navLinks {
         display: none;
+        /* Hide text links on mobile */
+    }
+
+    .container {
+        padding: 12px 16px;
+    }
+
+    .actions {
+        gap: 12px;
     }
 }

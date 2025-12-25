@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
-import type { Metadata } from 'next';
-import Link from 'next/link';
+
 
 declare global {
     interface Window {
-        Razorpay: any;
+        Razorpay: {
+            new(options: Record<string, unknown>): {
+                open: () => void;
+            };
+        };
     }
 }
 
@@ -48,7 +51,7 @@ export default function PricingPage() {
                 name: 'Chetna',
                 description: productName,
                 order_id: order.orderId,
-                handler: function (response: any) {
+                handler: function () {
                     alert('Payment successful! Credits added to your account.');
                     router.push('/clarity');
                 },
@@ -152,7 +155,7 @@ export default function PricingPage() {
                 </div>
 
                 <div className={styles.infoSection}>
-                    <h2>What You're Paying For</h2>
+                    <h2>What You&apos;re Paying For</h2>
                     <ul>
                         <li>Structured astrological interpretation</li>
                         <li>AI-assisted reflection and guidance</li>

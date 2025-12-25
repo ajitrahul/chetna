@@ -4,6 +4,8 @@ import { useState } from 'react';
 import BirthDataForm from '@/components/BirthDataForm';
 import styles from './page.module.css';
 import ChartDisplay from '@/components/ChartDisplay';
+import DashaDisplay from '@/components/DashaDisplay';
+import { ChartData } from '@/lib/astrology/calculator';
 
 type PlacementData = {
     id: string;
@@ -93,9 +95,9 @@ const MOCK_PLACEMENTS: PlacementData[] = [
 
 export default function ChartPage() {
     const [selectedPlacement, setSelectedPlacement] = useState<PlacementData>(MOCK_PLACEMENTS[0]);
-    const [activeChart, setActiveChart] = useState<any>(null);
+    const [activeChart, setActiveChart] = useState<ChartData | null>(null);
 
-    const handleChartGenerated = (data: any) => {
+    const handleChartGenerated = (data: ChartData) => {
         setActiveChart(data);
         // Scroll to chart
         document.getElementById('chart-display-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -112,12 +114,14 @@ export default function ChartPage() {
                 <BirthDataForm onChartGenerated={handleChartGenerated} />
             </div>
 
+
             {activeChart && (
                 <div id="chart-display-section" className={styles.chartSection}>
                     <h2 className={styles.chartTitle}>
                         Your Personal Chart
                     </h2>
                     <ChartDisplay data={activeChart} />
+                    <DashaDisplay dashas={activeChart.dashas} />
                 </div>
             )}
 

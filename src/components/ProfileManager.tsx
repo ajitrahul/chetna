@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
+import { ChartData } from '@/lib/astrology/calculator';
 import styles from './ProfileManager.module.css';
 
 export type UserProfile = {
@@ -12,7 +13,7 @@ export type UserProfile = {
     pob: string;
     lat?: number;
     lng?: number;
-    chartData?: any;
+    chartData?: ChartData;
 };
 
 interface ProfileManagerProps {

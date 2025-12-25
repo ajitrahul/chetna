@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import styles from './JournalWidget.module.css';
@@ -13,18 +13,7 @@ export default function JournalWidget() {
     const [isSaved, setIsSaved] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // Load initial entry
-    useEffect(() => {
-        if (session) {
-            fetchEntryFromDB();
-        } else {
-            if (localEntries[today]) {
-                setCurrentEntry(localEntries[today]);
-            }
-        }
-    }, [session, today]);
-
-    const fetchEntryFromDB = async () => {
+    const fetchEntryFromDB = useCallback(async () => {
         try {
             const res = await fetch(`/api/journal?date=${today}`);
             if (res.ok) {
@@ -35,7 +24,18 @@ export default function JournalWidget() {
         } catch (err) {
             console.error('Failed to fetch from DB:', err);
         }
-    };
+    }, [today]);
+
+    // Load initial entry
+    useEffect(() => {
+        if (session) {
+            fetchEntryFromDB();
+        } else {
+            if (localEntries[today]) {
+                setCurrentEntry(localEntries[today]);
+            }
+        }
+    }, [session, today, fetchEntryFromDB, localEntries]);
 
     const handleSave = async () => {
         setLoading(true);

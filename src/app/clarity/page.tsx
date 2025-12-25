@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './page.module.css';
@@ -24,14 +24,7 @@ function ClarityContent() {
         ethicalClosing: string;
     }>(null);
 
-    // Auto-trigger if question comes from homepage
-    useEffect(() => {
-        if (initialQuery && initialQuery.length >= 10) {
-            triggerAsk(initialQuery);
-        }
-    }, [initialQuery]);
-
-    const triggerAsk = async (q: string) => {
+    const triggerAsk = useCallback(async (q: string) => {
         setIsAnalyzing(true);
         setResult(null);
         setError(null);
@@ -61,12 +54,20 @@ function ClarityContent() {
 
             setResult(data.response);
             setCredits(data.remainingCredits);
-        } catch (err: any) {
-            setError(err.message || 'An unexpected error occurred');
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+            setError(errorMessage);
         } finally {
             setIsAnalyzing(false);
         }
-    };
+    }, [router]);
+
+    // Auto-trigger if question comes from homepage
+    useEffect(() => {
+        if (initialQuery && initialQuery.length >= 10) {
+            triggerAsk(initialQuery);
+        }
+    }, [initialQuery, triggerAsk]);
 
     const handleAsk = (e: React.FormEvent) => {
         e.preventDefault();
@@ -139,7 +140,7 @@ function ClarityContent() {
                     {/* Section A: Question Context */}
                     <div className={styles.section}>
                         <h2 className={styles.sectionTitle}>Your Question</h2>
-                        <p className={styles.questionContext}>"{result.questionContext}"</p>
+                        <p className={styles.questionContext}>&quot;{result.questionContext}&quot;</p>
                     </div>
 
                     {/* Section B: Current Phase Overview */}

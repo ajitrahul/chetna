@@ -18,11 +18,11 @@ export async function GET(req: NextRequest) {
         );
 
         return NextResponse.json(panchang);
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Panchang calculation error:', error);
         return NextResponse.json({
             error: 'Failed to calculate Panchang',
-            details: error.message
+            details: error instanceof Error ? error.message : String(error)
         }, { status: 500 });
     }
 }

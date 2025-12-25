@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ChartData } from '../astrology/calculator';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
@@ -13,7 +14,7 @@ export interface ClarityResponse {
 
 export async function generateClarityResponse(
     question: string,
-    chartData: any
+    chartData: ChartData
 ): Promise<ClarityResponse> {
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
@@ -80,8 +81,6 @@ Generate response following the 6-section structure EXACTLY.`;
 function parseGeminiResponse(text: string, question: string): ClarityResponse {
     // Parse sections from Gemini's response
     // This is a basic implementation - adjust based on actual Gemini output format
-
-    const sections = text.split(/Section [A-F]:/i);
 
     return {
         questionContext: question,

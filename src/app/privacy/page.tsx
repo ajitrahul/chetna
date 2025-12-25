@@ -16,7 +16,7 @@ export default function PrivacyPage() {
                 <section className={styles.section}>
                     <h2>Introduction</h2>
                     <p>
-                        Chetna ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our astrology platform.
+                        Chetna (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our astrology platform.
                     </p>
                 </section>
 

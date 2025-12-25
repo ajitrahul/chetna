@@ -4,10 +4,11 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import ProfileManager, { UserProfile } from './ProfileManager';
+import { ChartData } from '@/lib/astrology/calculator';
 import { INDIAN_CITIES } from '@/lib/indianCities';
 
 interface BirthDataFormProps {
-    onChartGenerated?: (data: any) => void;
+    onChartGenerated?: (data: ChartData) => void;
 }
 
 export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) {
@@ -159,9 +160,10 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
 
             // Successfully generated - no alert needed
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('BirthDataForm Error:', err);
-            setError(err.message || "An error occurred");
+            const message = err instanceof Error ? err.message : String(err);
+            setError(message || "An error occurred");
         } finally {
             setLoading(false);
         }

@@ -20,8 +20,8 @@ class Mutex {
 const calcMutex = new Mutex();
 
 // Singleton instance to avoid re-initializing WASM
-let sweInstance: any = null;
-let swePromise: Promise<any> | null = null;
+let sweInstance: SwissEph | null = null;
+let swePromise: Promise<SwissEph> | null = null;
 
 async function getSwe() {
     if (sweInstance) return sweInstance;
@@ -46,6 +46,8 @@ export interface PlanetPosition {
     speed: number;
     isRetrograde: boolean;
     house?: number;
+    navamsaSign?: string; // D9 Sign
+    dignity?: string;     // Exalted, Debilitated, Own Sign, Great Friend, etc.
 }
 
 export interface ChartData {
@@ -53,6 +55,66 @@ export interface ChartData {
     houses: number[];
     ascendant: number;
     mc: number;
+    navamsaAscendant?: number;
+    dashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>;
+}
+
+// Dignity Configuration
+const PLANET_DIGNITIES: Record<string, { exalted: string, debilitated: string, own: string[] }> = {
+    'Sun': { exalted: 'Aries', debilitated: 'Libra', own: ['Leo'] },
+    'Moon': { exalted: 'Taurus', debilitated: 'Scorpio', own: ['Cancer'] },
+    'Mars': { exalted: 'Capricorn', debilitated: 'Cancer', own: ['Aries', 'Scorpio'] },
+    'Mercury': { exalted: 'Virgo', debilitated: 'Pisces', own: ['Gemini', 'Virgo'] },
+    'Jupiter': { exalted: 'Cancer', debilitated: 'Capricorn', own: ['Sagittarius', 'Pisces'] },
+    'Venus': { exalted: 'Pisces', debilitated: 'Virgo', own: ['Taurus', 'Libra'] },
+    'Saturn': { exalted: 'Libra', debilitated: 'Aries', own: ['Capricorn', 'Aquarius'] },
+    'Rahu': { exalted: 'Taurus', debilitated: 'Scorpio', own: ['Aquarius'] },
+    'Ketu': { exalted: 'Scorpio', debilitated: 'Taurus', own: ['Scorpio'] }
+};
+
+
+export function getNavamsaSign(longitude: number): string {
+    // 1 Navamsa = 3°20' = 3.3333 degrees
+    // Each Sign (30°) has 9 Navamsas
+    // Sequence restarts at Aries, Capricorn, Libra, Cancer (Movable, Fixed, Dual logic simplified)
+
+    // D9 Calc Logic:
+    // Fire Signs (1,5,9): Starts from Aries
+    // Earth Signs (2,6,10): Starts from Capricorn
+    // Air Signs (3,7,11): Starts from Libra
+    // Water Signs (4,8,12): Starts from Cancer
+
+    const signIndex = Math.floor(longitude / 30); // 0 = Aries
+    const navamsaInSign = Math.floor((longitude % 30) / 3.33333333); // 0-8
+
+    let startSignIndex = 0;
+    const element = (signIndex) % 4; // 0=Fire, 1=Earth, 2=Air, 3=Water
+
+    if (element === 0) startSignIndex = 0; // Aries
+    else if (element === 1) startSignIndex = 9; // Capricorn
+    else if (element === 2) startSignIndex = 6; // Libra
+    else if (element === 3) startSignIndex = 3; // Cancer
+
+    const finalSignIndex = (startSignIndex + navamsaInSign) % 12;
+
+    const signs = [
+        'Aries', 'Taurus', 'Gemini', 'Cancer',
+        'Leo', 'Virgo', 'Libra', 'Scorpio',
+        'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+    ];
+
+    return signs[finalSignIndex];
+}
+
+export function getDignity(planetName: string, signName: string): string {
+    const config = PLANET_DIGNITIES[planetName];
+    if (!config) return 'Neutral';
+
+    if (config.exalted === signName) return 'Exalted';
+    if (config.debilitated === signName) return 'Debilitated';
+    if (config.own.includes(signName)) return 'Own Sign';
+
+    return 'Neutral'; // Simplified; typically would check Friends/Enemies
 }
 
 export async function calculateChart(
@@ -67,11 +129,7 @@ export async function calculateChart(
     const unlock = await calcMutex.lock();
     try {
         const swe = await getSwe();
-
-        // Ensure the instance has the required methods
-        if (typeof swe.calc_ut !== 'function') {
-            throw new Error('SwissEph instance not properly initialized: calc_ut missing');
-        }
+        if (typeof swe.calc_ut !== 'function') throw new Error('SwissEph instance not properly initialized: calc_ut missing');
 
         const PLANETS_CONFIG = {
             Sun: swe.SE_SUN ?? 0,
@@ -84,144 +142,122 @@ export async function calculateChart(
             Rahu: swe.SE_MEAN_NODE ?? 10,
         };
 
-        // 1. Convert local time to Julian Day (UTC)
-        // Adjust local hour by timezone to get UTC hour
         const utcHour = hour - timezone;
+        // @ts-expect-error - SwissEph julday might only take 4 args in some versions
         const julianDay = swe.julday(year, month, day, utcHour, swe.SE_GREG_CAL);
+        swe.set_sid_mode(1, 0, 0); // Lahiri
 
-        // 2. Set Sidereal Mode (Lahiri Ayanamsa = 1)
-        // This is critical for Vedic Astrology
-        swe.set_sid_mode(1, 0, 0);
-
-        // 3. Calculate Planets (Sidereal)
-        // SEFLG_SWIEPH (2) | SEFLG_SIDEREAL (64 * 1024 = 65536) = 65538
-        const calcFlags = 65538;
-
+        const calcFlags = 65538; // Speed + Sidereal
         const planets: Record<string, PlanetPosition> = {};
-
-        // Calculate Ayanamsa (needed for Ascendant adjustment if houses returns Tropical)
+        // @ts-expect-error - SwissEph types might not match wasm signature
         const ayanamsa = swe.get_ayanamsa_ut(julianDay);
-        console.log('Ayanamsa:', ayanamsa);
 
         for (const [name, id] of Object.entries(PLANETS_CONFIG)) {
             try {
                 const posArr = swe.calc_ut(julianDay, id, calcFlags);
+                if (!posArr || posArr.length < 3) continue;
 
-                if (!posArr || posArr.length < 3) {
-                    console.warn(`Skipping ${name} due to calculation error`);
-                    continue;
-                }
-
-                // posArr[0] is the Longitude
                 const pos = {
+                    name,
                     longitude: posArr[0],
                     latitude: posArr[1],
                     distance: posArr[2],
-                    speed: posArr[3] || 0
+                    speed: posArr[3] || 0,
+                    isRetrograde: (posArr[3] || 0) < 0,
                 };
 
+                // Add D1 Sign
+                const d1Sign = getZodiacSign(pos.longitude);
+
+                // Add derived data
+                const navamsaSign = getNavamsaSign(pos.longitude);
+                const dignity = getDignity(name, d1Sign);
+
+                planets[name] = { ...pos, house: 0, navamsaSign, dignity };
+
                 if (name === 'Rahu') {
+                    // Ketu is opposite Rahu
+                    const ketuLong = (pos.longitude + 180) % 360;
+                    const ketuD1Sign = getZodiacSign(ketuLong);
+                    const ketuNavamsa = getNavamsaSign(ketuLong);
+                    const ketuDignity = getDignity('Ketu', ketuD1Sign);
+
                     planets['Ketu'] = {
                         name: 'Ketu',
-                        longitude: (pos.longitude + 180) % 360,
+                        longitude: ketuLong,
                         latitude: -pos.latitude,
                         distance: pos.distance,
                         speed: pos.speed,
-                        isRetrograde: pos.speed < 0,
+                        isRetrograde: pos.isRetrograde,
+                        house: 0,
+                        navamsaSign: ketuNavamsa,
+                        dignity: ketuDignity
                     };
                 }
-
-                planets[name] = {
-                    name,
-                    longitude: pos.longitude,
-                    latitude: pos.latitude,
-                    distance: pos.distance,
-                    speed: pos.speed,
-                    isRetrograde: pos.speed < 0,
-                };
             } catch (error) {
                 console.error(`Error calculating ${name}:`, error);
             }
         }
 
-        // 4. Calculate Ascendant & Houses
+        // Ascendant Calc
         let ascendant = 0;
         let mc = 0;
 
         try {
-            // Manual Calculation of Ascendant (Lagna) to bypass flaky WASM house functions
-            // Formula: tan(Asc) = -cos(RAMC) / (sin(RAMC)*cos(E) + tan(Lat)*sin(E))
-
-            // 1. Get GMST (Greenwich Mean Sidereal Time)
             const gmstHours = swe.sidtime(julianDay);
-
-            // 2. Convert to Local Sidereal Time (LST)
-            // LST = GMST + Longitude/15
             let lstHours = gmstHours + (lng / 15.0);
-            // Normalize to 0-24
             while (lstHours < 0) lstHours += 24;
             while (lstHours >= 24) lstHours -= 24;
-
-            // 3. RAMC (Right Ascension of Meridian) in degrees
             const ramc = lstHours * 15.0;
-
-            // 4. Obliquity of Ecliptic (E)
-            // Use standard J2000 epoch approx or calculated
-            const eclObj = swe.calc_ut(julianDay, -1, 0); // SE_ECL_NUT = -1
+            const eclObj = swe.calc_ut(julianDay, -1, 0);
             const eps = (eclObj && eclObj.length) ? eclObj[0] : 23.43758;
-
-            // 5. Math Trigs
             const d2r = Math.PI / 180.0;
             const r2d = 180.0 / Math.PI;
-
             const ramcRad = ramc * d2r;
             const epsRad = eps * d2r;
             const latRad = lat * d2r;
-
-            // 6. Apply Formula
             const y = -Math.cos(ramcRad);
             const x = (Math.sin(ramcRad) * Math.cos(epsRad)) + (Math.tan(latRad) * Math.sin(epsRad));
-
-            let ascRad = Math.atan2(y, x);
-            let ascDeg = (ascRad * r2d) + 180; // Add 180 to correct for quadrant (formula calculated Descendant)
-
-            // Normalize 0-360
+            const ascRad = Math.atan2(y, x);
+            let ascDeg = (ascRad * r2d) + 180;
             ascDeg = (ascDeg % 360 + 360) % 360;
-
-            // 7. Convert Tropical to Sidereal (Lahiri)
             ascendant = (ascDeg - ayanamsa + 360) % 360;
-
-            // MC is roughly RAMC (Tropical) - Ayanamsa
             mc = (ramc - ayanamsa + 360) % 360;
-
-            console.log('Manual Ascendant Calc Success:', {
-                gmst: gmstHours,
-                lst: lstHours,
-                tropicalAsc: ascDeg,
-                siderealAsc: ascendant,
-                ayanamsa
-            });
-
         } catch (err) {
-            console.error('Manual Ascendant calculation failed:', err);
-            // Fallback: Use Sun Sign
-            const sunVal = planets.Sun?.longitude || 0;
-            ascendant = Math.floor(sunVal / 30) * 30;
+            console.error('Ascendant calc error', err);
+            ascendant = planets.Sun?.longitude || 0;
         }
 
-        // 5. Generate Whole Sign Houses relative to Sidereal Ascendant
-        // In Vedic Whole Sign: 1st House starts at 0° of the Ascendant Sign
+        // House Calc (Whole Sign)
         const ascSignStart = Math.floor(ascendant / 30) * 30;
         const houses: number[] = [];
         for (let i = 0; i < 12; i++) {
             houses.push((ascSignStart + i * 30) % 360);
         }
 
+        // Calculate D9 Ascendant
+        // const navamsaAscendantSign = getNavamsaSign(ascendant);
+
+        // Calculate Vimsottari Dashas
+        const birthDateObj = new Date(year, month - 1, day);
+        // Add decimal hour roughly (doesn't need to be perfect sec precision for Dasha dates, usually just Date matters)
+        birthDateObj.setHours(Math.floor(hour), Math.floor((hour % 1) * 60));
+
+        const moonLong = planets['Moon']?.longitude || 0;
+        const dashas = calculateVimsottariDashas(moonLong, birthDateObj);
+
         return {
             planets,
             houses,
             ascendant,
             mc,
+            navamsaAscendant: 0,
+            dashas: dashas.map(d => ({
+                lord: d.lord,
+                start: d.start,
+                end: d.end,
+                isCurrent: d.isCurrent
+            }))
         };
     } finally {
         unlock();
@@ -273,7 +309,7 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
     const remainingRatio = 1 - elapsedRatio;
     const yearsRemaining = lordYears * remainingRatio;
 
-    const dashas: any[] = [];
+    const dashas: Array<{ lord: string; start: Date; end: Date; isCurrent: boolean }> = [];
     let currentDate = new Date(birthDate);
 
     // Find index of starting lord in sequence
@@ -314,13 +350,12 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
     }
 
     const now = new Date();
-    dashas.forEach(d => {
-        if (now >= d.start && now < d.end) {
-            d.isCurrent = true;
-        }
-    });
-
-    return dashas;
+    return dashas.map(d => ({
+        ...d,
+        start: d.start.toISOString(),
+        end: d.end.toISOString(),
+        isCurrent: now >= d.start && now < d.end
+    }));
 }
 
 export function getZodiacSign(longitude: number): string {

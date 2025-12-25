@@ -32,7 +32,7 @@ export default function ContactPage() {
         <div className={styles.container}>
             <h1 className={styles.title}>Contact Us</h1>
             <p className={styles.subtitle}>
-                We're here to help. Send us a message and we'll respond as soon as possible.
+                We&apos;re here to help. Send us a message and we&apos;ll respond as soon as possible.
             </p>
 
             <div className={styles.content}>

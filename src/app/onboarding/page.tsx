@@ -51,7 +51,7 @@ export default function OnboardingPage() {
                 {/* Screen 2: What to Expect */}
                 {currentScreen === 2 && (
                     <div className={styles.screen}>
-                        <h1 className={styles.title}>What You'll Find Here</h1>
+                        <h1 className={styles.title}>What You&apos;ll Find Here</h1>
                         <ul className={styles.featureList}>
                             <li><CheckCircle size={20} /> Insights into your birth chart</li>
                             <li><CheckCircle size={20} /> Understanding of current phases and timing</li>
@@ -88,7 +88,7 @@ export default function OnboardingPage() {
                             <p>✓ Ask focused, reflective questions</p>
                             <p>✓ Use insights as guidance, not instructions</p>
                             <p>✓ Take time to act on awareness</p>
-                            <p>✓ Return when you're ready — not out of urgency</p>
+                            <p>✓ Return when you&apos;re ready — not out of urgency</p>
                         </div>
                         <p className={styles.note}>
                             Astrology works best when paired with conscious action.

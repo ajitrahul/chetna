@@ -5,7 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { Mail, Chrome, AlertCircle } from 'lucide-react';
+import { Mail, AlertCircle } from 'lucide-react';
 
 // Force dynamic rendering to avoid build errors with useSearchParams
 export const dynamic = 'force-dynamic';
@@ -72,7 +72,7 @@ function LoginContent() {
                     }
                 }
             }
-        } catch (err) {
+        } catch {
             setError('An unexpected error occurred');
         } finally {
             setLoading(false);
@@ -83,7 +83,7 @@ function LoginContent() {
         setError('');
         try {
             await signIn('google', { callbackUrl });
-        } catch (err) {
+        } catch {
             setError('Google sign-in failed');
         }
     };

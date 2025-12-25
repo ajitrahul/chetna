@@ -3,9 +3,22 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { User, CreditCard, History, UserCircle, Plus, ChevronRight, MessageSquare } from 'lucide-react';
+import { CreditCard, History, UserCircle, ChevronRight, MessageSquare } from 'lucide-react';
+
+interface UserProfile {
+    id: string;
+    name: string;
+    dateOfBirth: string;
+}
+
+interface UserQuestion {
+    id: string;
+    questionText: string;
+    createdAt: string;
+}
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
@@ -15,8 +28,8 @@ export default function ProfilePage() {
         profilesCount: 0,
         questionsCount: 0
     });
-    const [recentProfiles, setRecentProfiles] = useState<any[]>([]);
-    const [recentQuestions, setRecentQuestions] = useState<any[]>([]);
+    const [recentProfiles, setRecentProfiles] = useState<UserProfile[]>([]);
+    const [recentQuestions, setRecentQuestions] = useState<UserQuestion[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -27,7 +40,7 @@ export default function ProfilePage() {
         if (status === 'authenticated') {
             fetchProfileData();
         }
-    }, [status]);
+    }, [status, router]);
 
     const fetchProfileData = async () => {
         try {
@@ -76,7 +89,7 @@ export default function ProfilePage() {
                 <div className={styles.userBasicInfo}>
                     <div className={styles.avatar}>
                         {session.user?.image ? (
-                            <img src={session.user.image} alt={session.user.name || 'User'} />
+                            <Image src={session.user.image} alt={session.user.name || 'User'} width={64} height={64} className={styles.avatarImage} />
                         ) : (
                             <UserCircle size={64} />
                         )}
@@ -176,7 +189,7 @@ export default function ProfilePage() {
                             ))
                         ) : (
                             <div className={styles.emptyState}>
-                                <p>You haven't asked any clarity questions yet.</p>
+                                <p>You haven&apos;t asked any clarity questions yet.</p>
                                 <Link href="/clarity" className={styles.textLink}>Seek your first insight</Link>
                             </div>
                         )}

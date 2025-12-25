@@ -3,8 +3,15 @@
 import { useState, useEffect } from 'react';
 import styles from './EnergyWidget.module.css';
 
+interface TransitInfo {
+    transit: string;
+    theme: string;
+    prompt: string;
+    error?: string;
+}
+
 export default function EnergyWidget() {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<TransitInfo | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -39,7 +46,7 @@ export default function EnergyWidget() {
 
     return (
         <div className={styles.widget}>
-            <div className={styles.badge}>Today's Energy</div>
+            <div className={styles.badge}>Today&apos;s Energy</div>
             <div className={styles.content}>
                 <div className={styles.iconWrapper}>
                     <div className={styles.moonIcon}></div>

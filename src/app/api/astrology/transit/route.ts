@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { calculateChart, getZodiacSign } from '@/lib/astrology/calculator';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         const now = new Date();
         const year = now.getUTCFullYear();
@@ -39,11 +39,11 @@ export async function GET(req: NextRequest) {
             prompt: currentTheme.prompt,
             timestamp: now.toISOString()
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Transit API error:', error);
         return NextResponse.json({
             error: 'Failed to calculate transit',
-            details: error.message
+            details: error instanceof Error ? error.message : String(error)
         }, { status: 500 });
     }
 }

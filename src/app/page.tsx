@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import styles from './page.module.css';
-import { ArrowRight, TrendingUp, Clock, Heart, Sparkles, MessageSquare } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock, Heart } from 'lucide-react';
 import AIClaritySearchBar from '@/components/AIClaritySearchBar';
 import EnergyWidget from '@/components/EnergyWidget';
 import JournalWidget from '@/components/JournalWidget';

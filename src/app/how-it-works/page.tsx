@@ -18,7 +18,7 @@ export default function HowItWorksPage() {
                     <div className={styles.marker}>2</div>
                     <div className={styles.content}>
                         <h3>Pattern Recognition</h3>
-                        <p>Instead of "good" or "bad" signs, we look for patterns. A specific alignment might indicate "high energy" which could manifest as either productivity (positive) or conflict (negative), depending on your awareness.</p>
+                        <p>Instead of &quot;good&quot; or &quot;bad&quot; signs, we look for patterns. A specific alignment might indicate &quot;high energy&quot; which could manifest as either productivity (positive) or conflict (negative), depending on your awareness.</p>
                     </div>
                 </div>
 
@@ -26,7 +26,7 @@ export default function HowItWorksPage() {
                     <div className={styles.marker}>3</div>
                     <div className={styles.content}>
                         <h3>Timing as Seasons</h3>
-                        <p>We map your "Dashas" (planetary periods) as seasons. You wouldn't plant seeds in winter. Similarly, we help you understand when to act and when to rest.</p>
+                        <p>We map your &quot;Dashas&quot; (planetary periods) as seasons. You wouldn&apos;t plant seeds in winter. Similarly, we help you understand when to act and when to rest.</p>
                     </div>
                 </div>
 

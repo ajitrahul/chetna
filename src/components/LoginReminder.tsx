@@ -22,10 +22,10 @@ export default function LoginReminder() {
                 setIsVisible(true);
             }, 3000); // Show after 3 seconds
             return () => clearTimeout(timer);
-        } else {
-            setIsVisible(false);
+        } else if (isVisible) {
+            requestAnimationFrame(() => setIsVisible(false));
         }
-    }, [status, pathname]);
+    }, [status, pathname, isVisible]);
 
     const handleDismiss = () => {
         setIsVisible(false);

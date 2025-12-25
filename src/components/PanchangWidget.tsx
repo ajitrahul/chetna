@@ -31,8 +31,9 @@ export default function PanchangWidget() {
                 if (json.error) throw new Error(json.error);
 
                 setData(json);
-            } catch (error: any) {
-                console.error('Failed to fetch panchang:', error.message);
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : String(error);
+                console.error('Failed to fetch panchang:', message);
                 // We don't clear the error state here because we want to show nothing (null) 
                 // if it fails, per current UI logic, but now we have better console logs.
             } finally {
@@ -57,7 +58,7 @@ export default function PanchangWidget() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <Compass size={20} className={styles.mainIcon} />
-                <h3 className={styles.title}>Today's Five Elements (Panchang)</h3>
+                <h3 className={styles.title}>Today&apos;s Five Elements (Panchang)</h3>
             </div>
 
             <div className={styles.grid}>

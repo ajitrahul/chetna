@@ -3,9 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import styles from './page.module.css';
-import { Clock, Calendar, Info, ChevronRight, Sparkles } from 'lucide-react';
+import { Clock, Calendar, Info, Sparkles } from 'lucide-react';
 
-const LORD_DESCRIPTIONS: Record<string, any> = {
+interface DashaPeriod {
+    lord: string;
+    start: string;
+    end: string;
+    isCurrent: boolean;
+}
+
+const LORD_DESCRIPTIONS: Record<string, { supports: string, resists: string, themes: string }> = {
     'Jupiter': { supports: 'Growth, wisdom, teaching, expansion.', resists: 'Reckless shortcuts, lack of foundations.', themes: 'Optimism, spiritual seeking.' },
     'Saturn': { supports: 'Discipline, structure, long-term legacy.', resists: 'Laziness, superficial expansion.', themes: 'Duty, maturity, reality checks.' },
     'Mercury': { supports: 'Communication, business, learning.', resists: 'Emotional impulsivity, ignoring details.', themes: 'Intelligence, adaptability.' },
@@ -21,8 +28,8 @@ export default function TimingPage() {
     const { data: session, status } = useSession();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [dashas, setDashas] = useState<any[]>([]);
-    const [currentDasha, setCurrentDasha] = useState<any>(null);
+    const [dashas, setDashas] = useState<DashaPeriod[]>([]);
+    const [currentDasha, setCurrentDasha] = useState<DashaPeriod | null>(null);
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -52,9 +59,10 @@ export default function TimingPage() {
             if (data.error) throw new Error(data.error);
 
             setDashas(data.dashas);
-            setCurrentDasha(data.dashas.find((d: any) => d.isCurrent));
-        } catch (err: any) {
-            setError(err.message || "Failed to load timing data.");
+            setCurrentDasha(data.dashas.find((d: DashaPeriod) => d.isCurrent));
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : "Failed to load timing data.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -72,7 +80,7 @@ export default function TimingPage() {
             <div className={styles.guestState}>
                 <Clock size={48} className={styles.guestIcon} />
                 <h2>Login to View Your Timeline</h2>
-                <p>Track your planetary periods and understand the 'weather' of your life.</p>
+                <p>Track your planetary periods and understand the &apos;weather&apos; of your life.</p>
                 <button onClick={() => window.location.href = '/login'} className={styles.loginBtn}>Login Now</button>
             </div>
         </div>
@@ -96,7 +104,7 @@ export default function TimingPage() {
             <header className={styles.header}>
                 <h1 className={styles.title}>Your Current Timeline</h1>
                 <p className={styles.subtitle}>
-                    Planetary periods (Dashas) are not destiny. They are "seasons" that influence your capacity to act, feel, and perceive.
+                    Planetary periods (Dashas) are not destiny. They are &quot;seasons&quot; that influence your capacity to act, feel, and perceive.
                 </p>
             </header>
 

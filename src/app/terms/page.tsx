@@ -16,7 +16,7 @@ export default function TermsPage() {
                 <section className={styles.section}>
                     <h2>Acceptance of Terms</h2>
                     <p>
-                        By accessing and using Chetna ("the Platform"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
+                        By accessing and using Chetna (&quot;the Platform&quot;), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
                     </p>
                 </section>
 
@@ -72,7 +72,7 @@ export default function TermsPage() {
                 <section className={styles.section}>
                     <h2>Limitation of Liability</h2>
                     <p>
-                        Chetna is provided "as is" without warranties of any kind. We are not liable for:
+                        Chetna is provided &quot;as is&quot; without warranties of any kind. We are not liable for:
                     </p>
                     <ul>
                         <li>Decisions made based on astrological insights</li>

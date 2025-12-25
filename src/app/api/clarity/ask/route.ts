@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { generateClarityResponse, isQuestionSafe } from '@/lib/ai/geminiService';
+import { ChartData } from '@/lib/astrology/calculator';
 
 export async function POST(req: NextRequest) {
     try {
@@ -80,7 +82,7 @@ export async function POST(req: NextRequest) {
         // Generate AI response using Gemini
         const aiResponse = await generateClarityResponse(
             question,
-            profile.chartData
+            profile.chartData as unknown as ChartData
         );
 
         // Deduct credit
@@ -98,8 +100,8 @@ export async function POST(req: NextRequest) {
             data: {
                 userId: session.user.id,
                 questionText: question,
-                response: aiResponse as any,
-                chartSnapshot: profile.chartData as any,
+                response: aiResponse as unknown as Prisma.InputJsonValue,
+                chartSnapshot: profile.chartData as unknown as Prisma.InputJsonValue,
                 isPaid: true,
             },
         });

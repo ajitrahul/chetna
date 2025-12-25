@@ -52,7 +52,7 @@ export default function Footer() {
                 <div className={styles.footerSection}>
                     <h3>Our Philosophy</h3>
                     <p className={styles.productRule}>
-                        "If a feature increases anxiety, dependency, or obsession — it does not belong on Chetna."
+                        &quot;If a feature increases anxiety, dependency, or obsession — it does not belong on Chetna.&quot;
                     </p>
                 </div>
             </div>

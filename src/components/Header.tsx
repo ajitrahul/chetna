@@ -16,29 +16,33 @@ export default function Header() {
           <Logo width={140} height={50} />
         </Link>
 
-        <nav className={styles.nav}>
-          <Link href="/" className={styles.navLink}>Home</Link>
-          <Link href="/how-it-works" className={styles.navLink}>How It Works</Link>
-          <Link href="/chart" className={styles.navLink}>Your Chart</Link>
-          <Link href="/clarity" className={styles.navLink}>Ask for Clarity</Link>
-          <ThemeToggle />
+        <div className={styles.rightSection}>
+          <nav className={styles.navLinks}>
+            <Link href="/" className={styles.navLink}>Home</Link>
+            <Link href="/how-it-works" className={styles.navLink}>How It Works</Link>
+            <Link href="/chart" className={styles.navLink}>Your Chart</Link>
+            <Link href="/clarity" className={styles.navLink}>Ask for Clarity</Link>
+          </nav>
 
-          {status === 'authenticated' ? (
-            <div className={styles.authGroup}>
-              <Link href="/profile" className={styles.navLink}>
-                {session?.user?.name || 'Profile'}
-              </Link>
-              <button
-                onClick={() => signOut({ callbackUrl: '/' })}
-                className={styles.signOutBtn}
-              >
-                Sign Out
-              </button>
-            </div>
-          ) : (
-            <Link href="/login" className={styles.loginBtn}>Login</Link>
-          )}
-        </nav>
+          <div className={styles.actions}>
+            <ThemeToggle />
+            {status === 'authenticated' ? (
+              <div className={styles.authGroup}>
+                <Link href="/profile" className={styles.navLink}>
+                  {session?.user?.name || 'Profile'}
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className={styles.signOutBtn}
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" className={styles.loginBtn}>Login</Link>
+            )}
+          </div>
+        </div>
       </div>
     </header>
   );
