@@ -61,7 +61,8 @@ export async function calculateChart(
     day: number,
     hour: number,
     lat: number,
-    lng: number
+    lng: number,
+    timezone: number = 5.5 // Default to IST (India)
 ): Promise<ChartData> {
     const unlock = await calcMutex.lock();
     try {
@@ -80,33 +81,43 @@ export async function calculateChart(
             Jupiter: swe.SE_JUPITER ?? 5,
             Venus: swe.SE_VENUS ?? 3,
             Saturn: swe.SE_SATURN ?? 6,
-            Rahu: swe.SE_MEAN_NODE ?? 10, // North Node
+            Rahu: swe.SE_MEAN_NODE ?? 10,
         };
 
         // 1. Convert local time to Julian Day (UTC)
-        const julianDay = swe.julday(year, month, day, hour, swe.SE_GREG_CAL);
+        // Adjust local hour by timezone to get UTC hour
+        const utcHour = hour - timezone;
+        const julianDay = swe.julday(year, month, day, utcHour, swe.SE_GREG_CAL);
+
+        // 2. Set Sidereal Mode (Lahiri Ayanamsa = 1)
+        // This is critical for Vedic Astrology
+        swe.set_sid_mode(1, 0, 0);
+
+        // 3. Calculate Planets (Sidereal)
+        // SEFLG_SWIEPH (2) | SEFLG_SIDEREAL (64 * 1024 = 65536) = 65538
+        const calcFlags = 65538;
 
         const planets: Record<string, PlanetPosition> = {};
 
-        // 2. Calculate Planets
-        // SEFLG_SPEED = 256 | SEFLG_SWIEPH = 2 = 258 (safe flag value)
-        const calcFlags = 258; // SEFLG_SWIEPH | SEFLG_SPEED
+        // Calculate Ayanamsa (needed for Ascendant adjustment if houses returns Tropical)
+        const ayanamsa = swe.get_ayanamsa_ut(julianDay);
+        console.log('Ayanamsa:', ayanamsa);
 
         for (const [name, id] of Object.entries(PLANETS_CONFIG)) {
             try {
-                // calc_ut returns Float64Array [long, lat, dist, longSpeed, latSpeed, distSpeed]
                 const posArr = swe.calc_ut(julianDay, id, calcFlags);
 
-                if (!posArr || posArr.length < 4) {
-                    console.error(`Failed to calculate position for ${name}, got:`, posArr);
-                    throw new Error(`Failed to calculate position for ${name}`);
+                if (!posArr || posArr.length < 3) {
+                    console.warn(`Skipping ${name} due to calculation error`);
+                    continue;
                 }
 
+                // posArr[0] is the Longitude
                 const pos = {
                     longitude: posArr[0],
                     latitude: posArr[1],
                     distance: posArr[2],
-                    speed: posArr[3]
+                    speed: posArr[3] || 0
                 };
 
                 if (name === 'Rahu') {
@@ -130,27 +141,81 @@ export async function calculateChart(
                 };
             } catch (error) {
                 console.error(`Error calculating ${name}:`, error);
-                throw new Error(`Failed to calculate ${name}: ${error}`);
             }
         }
 
-        // 3. Calculate Houses (Whole Sign system for compatibility)
-        // The swe.houses() API returns 0 instead of an object in this WASM version
-        // Using Whole Sign houses which are standard for Vedic astrology
+        // 4. Calculate Ascendant & Houses
+        let ascendant = 0;
+        let mc = 0;
 
-        const sunLong = planets.Sun.longitude;
+        try {
+            // Manual Calculation of Ascendant (Lagna) to bypass flaky WASM house functions
+            // Formula: tan(Asc) = -cos(RAMC) / (sin(RAMC)*cos(E) + tan(Lat)*sin(E))
 
-        // Ascendant is the start of the first house (Sun's sign for simplified Panchang)
-        const ascendant = Math.floor(sunLong / 30) * 30;
+            // 1. Get GMST (Greenwich Mean Sidereal Time)
+            const gmstHours = swe.sidtime(julianDay);
 
-        // Generate 12 Whole Sign houses
-        const houses: number[] = [];
-        for (let i = 0; i < 12; i++) {
-            houses.push((ascendant + i * 30) % 360);
+            // 2. Convert to Local Sidereal Time (LST)
+            // LST = GMST + Longitude/15
+            let lstHours = gmstHours + (lng / 15.0);
+            // Normalize to 0-24
+            while (lstHours < 0) lstHours += 24;
+            while (lstHours >= 24) lstHours -= 24;
+
+            // 3. RAMC (Right Ascension of Meridian) in degrees
+            const ramc = lstHours * 15.0;
+
+            // 4. Obliquity of Ecliptic (E)
+            // Use standard J2000 epoch approx or calculated
+            const eclObj = swe.calc_ut(julianDay, -1, 0); // SE_ECL_NUT = -1
+            const eps = (eclObj && eclObj.length) ? eclObj[0] : 23.43758;
+
+            // 5. Math Trigs
+            const d2r = Math.PI / 180.0;
+            const r2d = 180.0 / Math.PI;
+
+            const ramcRad = ramc * d2r;
+            const epsRad = eps * d2r;
+            const latRad = lat * d2r;
+
+            // 6. Apply Formula
+            const y = -Math.cos(ramcRad);
+            const x = (Math.sin(ramcRad) * Math.cos(epsRad)) + (Math.tan(latRad) * Math.sin(epsRad));
+
+            let ascRad = Math.atan2(y, x);
+            let ascDeg = (ascRad * r2d) + 180; // Add 180 to correct for quadrant (formula calculated Descendant)
+
+            // Normalize 0-360
+            ascDeg = (ascDeg % 360 + 360) % 360;
+
+            // 7. Convert Tropical to Sidereal (Lahiri)
+            ascendant = (ascDeg - ayanamsa + 360) % 360;
+
+            // MC is roughly RAMC (Tropical) - Ayanamsa
+            mc = (ramc - ayanamsa + 360) % 360;
+
+            console.log('Manual Ascendant Calc Success:', {
+                gmst: gmstHours,
+                lst: lstHours,
+                tropicalAsc: ascDeg,
+                siderealAsc: ascendant,
+                ayanamsa
+            });
+
+        } catch (err) {
+            console.error('Manual Ascendant calculation failed:', err);
+            // Fallback: Use Sun Sign
+            const sunVal = planets.Sun?.longitude || 0;
+            ascendant = Math.floor(sunVal / 30) * 30;
         }
 
-        // MC is the 10th house cusp
-        const mc = houses[9];
+        // 5. Generate Whole Sign Houses relative to Sidereal Ascendant
+        // In Vedic Whole Sign: 1st House starts at 0° of the Ascendant Sign
+        const ascSignStart = Math.floor(ascendant / 30) * 30;
+        const houses: number[] = [];
+        for (let i = 0; i < 12; i++) {
+            houses.push((ascSignStart + i * 30) % 360);
+        }
 
         return {
             planets,

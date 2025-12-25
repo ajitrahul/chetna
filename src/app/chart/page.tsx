@@ -112,12 +112,14 @@ export default function ChartPage() {
                 <BirthDataForm onChartGenerated={handleChartGenerated} />
             </div>
 
-            <div id="chart-display-section" className={styles.chartSection}>
-                <h2 className={styles.chartTitle}>
-                    {activeChart ? 'Your Personal Chart' : 'Preview Chart Overlay'}
-                </h2>
-                <ChartDisplay data={activeChart} />
-            </div>
+            {activeChart && (
+                <div id="chart-display-section" className={styles.chartSection}>
+                    <h2 className={styles.chartTitle}>
+                        Your Personal Chart
+                    </h2>
+                    <ChartDisplay data={activeChart} />
+                </div>
+            )}
 
             {/* Placement Explanation Tabs */}
             <div className={styles.placementSection}>

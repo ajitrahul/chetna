@@ -24,19 +24,11 @@ const HOUSE_THEMES: Record<number, { title: string, theme: string, awareness: st
 };
 
 export default function ChartDisplay({ data }: ChartDisplayProps) {
-    const [activeHouse, setActiveHouse] = useState<number | null>(1);
+    const [activeHouse, setActiveHouse] = useState<number | null>(null);
 
-    // If no data, use mock for preview or return null
     const planets = data?.planets || {};
-    const ascendant = data?.ascendant || 120; // Default Leo for mock
+    const ascendant = data?.ascendant || 120;
     const lagnaSign = Math.floor(ascendant / 30) + 1;
-
-    const houseCenters = [
-        { x: 200, y: 100 }, { x: 100, y: 50 }, { x: 50, y: 100 },
-        { x: 100, y: 200 }, { x: 50, y: 300 }, { x: 100, y: 350 },
-        { x: 200, y: 300 }, { x: 300, y: 350 }, { x: 350, y: 300 },
-        { x: 300, y: 200 }, { x: 350, y: 100 }, { x: 300, y: 50 },
-    ];
 
     const getHouseSign = (houseIndex: number) => {
         const sign = (lagnaSign + houseIndex) % 12;
@@ -45,87 +37,132 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
 
     const planetsInHouses: Record<number, string[]> = {};
     Object.values(planets).forEach((p: any) => {
-        const diff = (p.longitude - ascendant + 360) % 360;
-        const house = Math.floor(diff / 30) + 1;
+        // Whole Sign House Logic:
+        // House is based on the Sign of the planet relative to the Sign of the Lagna (Ascendant)
+        // 1st House = Same Sign as Lagna
+        const planetSign = Math.floor(p.longitude / 30) + 1;
+        // lagnaSign is already calculated above as Math.floor(ascendant / 30) + 1
+
+        const houseIndex = (planetSign - lagnaSign + 12) % 12; // 0 for 1st house, 1 for 2nd...
+        const house = houseIndex + 1; // 1-12
+
         if (!planetsInHouses[house]) planetsInHouses[house] = [];
         planetsInHouses[house].push(p.name.substring(0, 3));
     });
 
+    const houses = [
+        { num: 1, path: 'M 200,200 L 300,100 L 200,0 L 100,100 Z', textX: 200, textY: 80 },
+        { num: 2, path: 'M 100,100 L 200,0 L 0,0 Z', textX: 85, textY: 35 },     // TextX 100->85 (Left)
+        { num: 3, path: 'M 100,100 L 0,0 L 0,200 Z', textX: 30, textY: 100 },     // TextX 35->30 (Left)
+        { num: 4, path: 'M 200,200 L 100,100 L 0,200 L 100,300 Z', textX: 100, textY: 180 }, // TextY 200->180 (Up)
+        { num: 5, path: 'M 100,300 L 0,200 L 0,400 Z', textX: 30, textY: 300 },   // TextX 35->30 (Left)
+        { num: 6, path: 'M 100,300 L 0,400 L 200,400 Z', textX: 85, textY: 365 }, // TextX 100->85 (Left)
+        { num: 7, path: 'M 200,200 L 100,300 L 200,400 L 300,300 Z', textX: 200, textY: 280 }, // TextY 320->280 (Up)
+        { num: 8, path: 'M 300,300 L 200,400 L 400,400 Z', textX: 315, textY: 365 }, // TextX 300->315 (Right)
+        { num: 9, path: 'M 300,300 L 400,400 L 400,200 Z', textX: 370, textY: 300 }, // TextX 365->370 (Right)
+        { num: 10, path: 'M 200,200 L 300,300 L 400,200 L 300,100 Z', textX: 300, textY: 180 }, // TextY 200->180 (Up)
+        { num: 11, path: 'M 300,100 L 400,200 L 400,0 Z', textX: 370, textY: 100 }, // TextX 365->370 (Right)
+        { num: 12, path: 'M 300,100 L 400,0 L 200,0 Z', textX: 315, textY: 35 },   // TextX 300->315 (Right)
+    ];
+
     return (
-        <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-            <div style={{ marginBottom: '20px', position: 'relative' }}>
-                <svg viewBox="0 0 400 400" style={{ width: '100%', height: 'auto', background: 'transparent' }}>
-                    <rect x="2" y="2" width="396" height="396" fill="rgba(255,255,255,0.02)" stroke="var(--gold)" strokeWidth="1" />
-                    <line x1="0" y1="0" x2="400" y2="400" stroke="var(--gold)" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="400" y1="0" x2="0" y2="400" stroke="var(--gold)" strokeWidth="0.5" opacity="0.3" />
-                    <line x1="200" y1="0" x2="0" y2="200" stroke="var(--gold)" strokeWidth="0.5" opacity="0.4" />
-                    <line x1="0" y1="200" x2="200" y2="400" stroke="var(--gold)" strokeWidth="0.5" opacity="0.4" />
-                    <line x1="200" y1="400" x2="400" y2="200" stroke="var(--gold)" strokeWidth="0.5" opacity="0.4" />
-                    <line x1="400" y1="200" x2="200" y2="0" stroke="var(--gold)" strokeWidth="0.5" opacity="0.4" />
+        <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+            <svg viewBox="-50 -50 500 500" style={{ width: '100%', height: 'auto', background: 'transparent', overflow: 'visible' }}>
 
-                    {houseCenters.map((center, i) => {
-                        const houseNum = i + 1;
-                        const signNum = getHouseSign(i);
-                        const housePlanets = planetsInHouses[houseNum] || [];
-                        const isActive = activeHouse === houseNum;
+                {/* 1. Draw Background Polygons (Fill only) */}
+                {houses.map((house) => {
+                    const isActive = activeHouse === house.num;
+                    return (
+                        <path
+                            key={`bg-${house.num}`}
+                            d={house.path}
+                            fill={isActive ? 'rgba(212, 175, 55, 0.25)' : 'rgba(255,255,255,0.03)'}
+                            stroke="none"
+                            onClick={() => setActiveHouse(house.num)}
+                            style={{ cursor: 'pointer', transition: 'fill 0.2s ease' }}
+                        />
+                    );
+                })}
 
-                        return (
-                            <g
-                                key={i}
-                                onClick={() => setActiveHouse(houseNum)}
-                                style={{ cursor: 'pointer' }}
+                {/* 2. Explicit Grid Lines (Sharp Outlines) */}
+                <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none">
+                    {/* Outer Box */}
+                    <rect x="1.5" y="1.5" width="397" height="397" />
+                    {/* Cross Diagonals */}
+                    <line x1="0" y1="0" x2="400" y2="400" />
+                    <line x1="400" y1="0" x2="0" y2="400" />
+                    {/* Inner Diamond (Midpoints) */}
+                    <path d="M 200,0 L 400,200 L 200,400 L 0,200 Z" />
+                </g>
+
+                {/* 3. Text Content */}
+                {houses.map((house) => {
+                    const signNum = getHouseSign(house.num - 1);
+                    const housePlanets = planetsInHouses[house.num] || [];
+                    const isActive = activeHouse === house.num;
+
+                    return (
+                        <g key={`text-${house.num}`} onClick={() => setActiveHouse(house.num)} style={{ cursor: 'pointer' }}>
+                            {/* Invisible hit area for text group to ensure clicks work easily */}
+                            <path d={house.path} fill="transparent" stroke="none" />
+
+                            <text
+                                x={house.textX}
+                                y={house.textY}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fontSize="20"
+                                fill="var(--accent-gold)"
+                                fontWeight="800"
+                                style={{ pointerEvents: 'none' }}
                             >
-                                {/* Transparent target area for easier clicking */}
-                                <circle cx={center.x} cy={center.y} r="40" fill="transparent" />
+                                {signNum}
+                            </text>
 
-                                {isActive && (
-                                    <circle cx={center.x} cy={center.y} r="45" fill="rgba(212, 175, 55, 0.05)" stroke="var(--gold)" strokeWidth="0.5" strokeDasharray="4 2" />
-                                )}
-
-                                <text x={center.x} y={center.y - 15} textAnchor="middle" fontSize="11" fill="var(--gold)" opacity={isActive ? 1 : 0.6}>
-                                    {signNum}
+                            {housePlanets.map((planetName, idx) => (
+                                <text
+                                    key={idx}
+                                    x={house.textX}
+                                    y={house.textY + 22 + (idx * 16)}
+                                    textAnchor="middle"
+                                    dominantBaseline="middle"
+                                    fontSize="14"
+                                    fill={isActive ? "var(--accent-gold)" : "var(--primary)"}
+                                    fontWeight="700"
+                                    style={{ pointerEvents: 'none' }}
+                                >
+                                    {planetName}
                                 </text>
-
-                                {housePlanets.map((name, pIdx) => (
-                                    <text
-                                        key={pIdx}
-                                        x={center.x}
-                                        y={center.y + (pIdx * 16)}
-                                        textAnchor="middle"
-                                        fontSize="13"
-                                        fill={isActive ? "var(--accent-gold)" : "var(--secondary)"}
-                                        fontWeight={isActive ? "600" : "400"}
-                                    >
-                                        {name}
-                                    </text>
-                                ))}
-                            </g>
-                        );
-                    })}
-                </svg>
-            </div>
+                            ))}
+                        </g>
+                    );
+                })}
+            </svg>
 
             {activeHouse && (
                 <div style={{
-                    padding: '20px',
-                    background: 'rgba(255, 255, 255, 0.03)',
+                    marginTop: '24px',
+                    padding: '24px',
+                    background: 'var(--card-bg)',
                     border: '1px solid var(--card-border)',
-                    borderRadius: '12px',
+                    borderRadius: '16px',
+                    boxShadow: 'var(--glass-shadow)',
                     animation: 'fadeIn 0.3s ease'
                 }}>
-                    <h4 style={{ color: 'var(--accent-gold)', marginBottom: '8px', fontSize: '1rem' }}>
+                    <h4 style={{ color: 'var(--accent-gold)', marginBottom: '8px', fontSize: '1.2rem', fontWeight: '700' }}>
                         {HOUSE_THEMES[activeHouse].title}
                     </h4>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--secondary)', lineHeight: '1.5', marginBottom: '12px' }}>
+                    <p style={{ fontSize: '1rem', color: 'var(--secondary)', lineHeight: '1.6', marginBottom: '16px' }}>
                         {HOUSE_THEMES[activeHouse].theme}
                     </p>
                     <div style={{
-                        fontSize: '0.85rem',
+                        fontSize: '0.95rem',
                         fontStyle: 'italic',
                         color: 'var(--foreground)',
-                        padding: '10px',
-                        borderLeft: '2px solid var(--accent-gold)',
-                        background: 'rgba(212, 175, 55, 0.05)'
+                        padding: '12px 16px',
+                        borderLeft: '3px solid var(--accent-gold)',
+                        background: 'rgba(212, 175, 55, 0.05)',
+                        borderRadius: '0 8px 8px 0'
                     }}>
                         <strong>Awareness:</strong> {HOUSE_THEMES[activeHouse].awareness}
                     </div>
@@ -134,7 +171,7 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
 
             <style jsx>{`
                 @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(5px); }
+                    from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
             `}</style>

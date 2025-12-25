@@ -3,12 +3,13 @@ import { calculateChart } from '@/lib/astrology/calculator';
 import { auth } from '@/auth';
 
 export async function POST(req: NextRequest) {
+    let body: any;
     try {
         const session = await auth();
         // Allow guest calculation? For now let's keep it protected or semi-protected
 
-        const body = await req.json();
-        const { year, month, day, hour, minute, lat, lng } = body;
+        body = await req.json();
+        const { year, month, day, hour, minute, lat, lng, timezone } = body;
 
         if (!year || !month || !day || lat === undefined || lng === undefined) {
             return NextResponse.json(
@@ -28,14 +29,20 @@ export async function POST(req: NextRequest) {
             parseInt(day),
             decimalHour,
             parseFloat(lat),
-            parseFloat(lng)
+            parseFloat(lng),
+            timezone ? parseFloat(timezone) : 5.5 // Default to IST logic if not provided
         );
 
         return NextResponse.json(chartData);
     } catch (error) {
         console.error('Calculation error:', error);
+        console.error('Error details:', error instanceof Error ? error.message : String(error));
+        console.error('Request body:', body);
         return NextResponse.json(
-            { error: 'Failed to calculate astrological chart' },
+            {
+                error: 'Failed to calculate astrological chart',
+                details: error instanceof Error ? error.message : String(error)
+            },
             { status: 500 }
         );
     }

@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import ProfileManager, { UserProfile } from './ProfileManager';
+import { INDIAN_CITIES } from '@/lib/indianCities';
 
 interface BirthDataFormProps {
     onChartGenerated?: (data: any) => void;
@@ -22,6 +23,10 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
     const [profiles, setProfiles] = useLocalStorage<UserProfile[]>('chetna_profiles', []);
     const [saveProfile, setSaveProfile] = useState(false);
 
+    // Autocomplete state
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [filteredCities, setFilteredCities] = useState<string[]>([]);
+
     // Hydration fix for client-only logic
     const [isClient, setIsClient] = useState(false);
     useEffect(() => setIsClient(true), []);
@@ -32,6 +37,22 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+
+        // Filter cities for autocomplete when typing in pob field
+        if (name === 'pob' && value.length >= 2) {
+            const matches = INDIAN_CITIES.filter(city =>
+                city.toLowerCase().includes(value.toLowerCase())
+            ).slice(0, 5); // Show max 5 suggestions
+            setFilteredCities(matches);
+            setShowSuggestions(matches.length > 0);
+        } else if (name === 'pob') {
+            setShowSuggestions(false);
+        }
+    };
+
+    const selectCity = (city: string) => {
+        setFormData(prev => ({ ...prev, pob: city }));
+        setShowSuggestions(false);
     };
 
     const loadProfile = (profile: UserProfile) => {
@@ -83,7 +104,11 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
                 }),
             });
 
-            if (!calcRes.ok) throw new Error("Failed to calculate chart.");
+            if (!calcRes.ok) {
+                const errorData = await calcRes.json().catch(() => ({}));
+                console.error('Chart calculation failed:', errorData);
+                throw new Error(errorData.details || errorData.error || "Failed to calculate chart.");
+            }
             const chartResult = await calcRes.json();
 
             if (onChartGenerated) {
@@ -132,7 +157,7 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
                 }
             }
 
-            alert("Chart Generated Successfully!");
+            // Successfully generated - no alert needed
 
         } catch (err: any) {
             console.error('BirthDataForm Error:', err);
@@ -196,17 +221,54 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
                     </div>
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ position: 'relative' }}>
                     <label className="block mb-2 font-medium text-current">Place of Birth</label>
                     <input
                         type="text"
                         name="pob"
                         value={formData.pob}
                         onChange={handleChange}
-                        placeholder="City, Country"
+                        onFocus={() => formData.pob.length >= 2 && setShowSuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                        placeholder="Start typing city name (e.g., Mumbai, Delhi)..."
                         className="w-full p-3 border border-[var(--card-border)] rounded-[var(--radius-md)] bg-[rgba(255,255,255,0.5)]"
                         required
+                        autoComplete="off"
                     />
+                    {showSuggestions && filteredCities.length > 0 && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            right: 0,
+                            marginTop: '4px',
+                            background: 'var(--card-bg)',
+                            border: '1px solid var(--card-border)',
+                            borderRadius: 'var(--radius-md)',
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            zIndex: 1000,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                        }}>
+                            {filteredCities.map((city, idx) => (
+                                <div
+                                    key={idx}
+                                    onMouseDown={() => selectCity(city)}
+                                    style={{
+                                        padding: '10px 12px',
+                                        cursor: 'pointer',
+                                        borderBottom: idx < filteredCities.length - 1 ? '1px solid var(--card-border)' : 'none',
+                                        color: 'var(--primary)',
+                                        fontSize: '0.95rem'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                >
+                                    {city}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <label className="flex items-center gap-2 text-sm text-[var(--primary)] cursor-pointer mt-2">
@@ -224,15 +286,41 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
                     </div>
                 )}
 
-                <button
-                    type="submit"
-                    className="w-full py-3 mt-4 bg-[var(--primary)] text-white font-medium rounded-[var(--radius-md)] hover:bg-[var(--primary-hover)] transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                    disabled={loading}
-                >
-                    {loading ? 'Calculating Patterns...' : 'View My Chart'}
-                </button>
+                <div className="flex justify-center mt-6">
+                    <button
+                        type="submit"
+                        className="view-chart-btn shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={loading}
+                    >
+                        {loading ? 'Calculating...' : 'View My Chart'}
+                    </button>
+                </div>
 
                 <style jsx>{`
+          .view-chart-btn {
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            color: var(--background);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 32px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+          }
+          .view-chart-btn:hover {
+             filter: brightness(1.35); /* Strong visibility boost */
+             transform: translateY(-2px);
+             box-shadow: 0 8px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+          }
+          .view-chart-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          }
           .flex { display: flex; }
           .flex-col { flex-direction: column; }
           .gap-6 { gap: 24px; }
