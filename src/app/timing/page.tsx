@@ -10,6 +10,7 @@ interface DashaPeriod {
     start: string;
     end: string;
     isCurrent: boolean;
+    antardashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>;
 }
 
 const LORD_DESCRIPTIONS: Record<string, { supports: string, resists: string, themes: string }> = {

@@ -5,6 +5,7 @@ interface DashaPeriod {
     start: string;
     end: string;
     isCurrent: boolean;
+    antardashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>;
 }
 
 interface DashaDisplayProps {
@@ -25,7 +26,7 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
     return (
         <div className="dasha-container">
             <h3 className="section-title">Vimsottari Dasha Timeline</h3>
-            <p className="subtitle">Your soul&apos;s planetary schedule</p>
+            <p className="subtitle">Your soul&apos;s planetary schedule & sub-periods</p>
 
             <div className="timeline">
                 {dashas.map((dasha, idx) => (
@@ -40,6 +41,21 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
                         <div className="dasha-dates">
                             {formatDate(dasha.start)} — {formatDate(dasha.end)}
                         </div>
+
+                        {dasha.antardashas && dasha.antardashas.length > 0 && (
+                            <div className="antardasha-list">
+                                {dasha.isCurrent ? (
+                                    dasha.antardashas.map((ad, adIdx) => (
+                                        <div key={adIdx} className={`antardasha-item ${ad.isCurrent ? 'ad-current' : ''}`}>
+                                            <span className="ad-lord">{ad.lord}</span>
+                                            <span className="ad-dates">{formatDate(ad.start)}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="ad-mini">Includes 9 sub-periods</div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
@@ -124,6 +140,44 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
                     color: var(--foreground);
                     opacity: 0.9;
                     font-family: monospace; /* Gives a technical chart feel */
+                    margin-bottom: 12px;
+                }
+
+                .antardasha-list {
+                    margin-top: 12px;
+                    padding-top: 12px;
+                    border-top: 1px solid rgba(255,255,255,0.05);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+
+                .antardasha-item {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 0.8rem;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    background: rgba(255,255,255,0.02);
+                }
+
+                .ad-current {
+                    background: rgba(212, 175, 55, 0.2);
+                    border: 1px solid rgba(212, 175, 55, 0.3);
+                    color: var(--accent-gold);
+                    font-weight: 700;
+                }
+
+                .ad-dates {
+                    opacity: 0.7;
+                    font-size: 0.75rem;
+                }
+
+                .ad-mini {
+                    font-size: 0.75rem;
+                    color: var(--secondary);
+                    font-style: italic;
+                    opacity: 0.6;
                 }
             `}</style>
         </div>

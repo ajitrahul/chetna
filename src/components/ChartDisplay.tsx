@@ -17,10 +17,11 @@ interface ChartDisplayProps {
         planets: Record<string, PlanetPosition>;
         houses: number[];
         ascendant: number;
-        navamsaAscendant?: number;
+        navamsaAscendant?: string; // Corrected to string (sign name)
         transits?: {
             planets: Record<string, PlanetPosition>;
         };
+        dashas?: any[];
     };
 }
 
@@ -80,7 +81,9 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
         return final + 1; // 1-12
     };
 
-    const D9_AscSign = calcD9Sign(D1_Ascendant);
+    const D9_AscSign = data?.navamsaAscendant
+        ? getSignIndex(data.navamsaAscendant)
+        : calcD9Sign(D1_Ascendant);
 
     const getD9HouseSign = (houseIdx: number) => {
         const sign = (D9_AscSign + houseIdx) % 12;
