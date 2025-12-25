@@ -55,8 +55,14 @@ export interface ChartData {
     houses: number[];
     ascendant: number;
     mc: number;
-    navamsaAscendant?: number;
-    dashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>;
+    navamsaAscendant?: string; // D9 Sign
+    dashas?: Array<{
+        lord: string;
+        start: string;
+        end: string;
+        isCurrent: boolean;
+        antardashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>
+    }>;
 }
 
 // Dignity Configuration
@@ -236,12 +242,10 @@ export async function calculateChart(
         }
 
         // Calculate D9 Ascendant
-        // const navamsaAscendantSign = getNavamsaSign(ascendant);
+        const navamsaAscSign = getNavamsaSign(ascendant);
 
         // Calculate Vimsottari Dashas
-        const birthDateObj = new Date(year, month - 1, day);
-        // Add decimal hour roughly (doesn't need to be perfect sec precision for Dasha dates, usually just Date matters)
-        birthDateObj.setHours(Math.floor(hour), Math.floor((hour % 1) * 60));
+        const birthDateObj = new Date(year, month - 1, day, Math.floor(hour), Math.floor((hour % 1) * 60));
 
         const moonLong = planets['Moon']?.longitude || 0;
         const dashas = calculateVimsottariDashas(moonLong, birthDateObj);
@@ -251,12 +255,13 @@ export async function calculateChart(
             houses,
             ascendant,
             mc,
-            navamsaAscendant: 0,
+            navamsaAscendant: navamsaAscSign,
             dashas: dashas.map(d => ({
                 lord: d.lord,
                 start: d.start,
                 end: d.end,
-                isCurrent: d.isCurrent
+                isCurrent: d.isCurrent,
+                antardashas: d.antardashas
             }))
         };
     } finally {
@@ -309,11 +314,56 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
     const remainingRatio = 1 - elapsedRatio;
     const yearsRemaining = lordYears * remainingRatio;
 
-    const dashas: Array<{ lord: string; start: Date; end: Date; isCurrent: boolean }> = [];
+    const dashas: Array<{
+        lord: string;
+        start: Date;
+        end: Date;
+        isCurrent: boolean;
+        antardashas: Array<{ lord: string; start: Date; end: Date; isCurrent: boolean }>
+    }> = [];
     let currentDate = new Date(birthDate);
 
     // Find index of starting lord in sequence
     let lordIdx = NAKSHATRA_LORDS.indexOf(nak.lord);
+
+    const calculateSubPeriods = (mLord: string, mStart: Date, mEnd: Date) => {
+        const subPeriods = [];
+        let subStart = new Date(mStart);
+        const mYears = DASHA_YEARS[mLord];
+        let subLordIdx = NAKSHATRA_LORDS.indexOf(mLord);
+
+        for (let j = 0; j < 9; j++) {
+            const aLord = NAKSHATRA_LORDS[subLordIdx];
+            const aYears = DASHA_YEARS[aLord];
+
+            // Formula: (Mahadasha Years * Antardasha Years) / 10 = months
+            const totalMonths = (mYears * aYears) / 10;
+            const subEnd = new Date(subStart);
+
+            // More precise month/day calculation
+            const years = Math.floor(totalMonths / 12);
+            const months = Math.floor(totalMonths % 12);
+            const days = Math.round((totalMonths % 1) * 30.4375); // Average month length
+
+            subEnd.setFullYear(subEnd.getFullYear() + years);
+            subEnd.setMonth(subEnd.getMonth() + months);
+            subEnd.setDate(subEnd.getDate() + days);
+
+            // Ensure subEnd doesn't overshoot mEnd significantly due to rounding
+            const finalSubEnd = j === 8 ? new Date(mEnd) : subEnd;
+
+            subPeriods.push({
+                lord: aLord,
+                start: new Date(subStart),
+                end: new Date(finalSubEnd),
+                isCurrent: false
+            });
+
+            subStart = new Date(finalSubEnd);
+            subLordIdx = (subLordIdx + 1) % 9;
+        }
+        return subPeriods;
+    };
 
     // Calculate first partial dasha
     const firstEndDate = new Date(currentDate);
@@ -321,12 +371,15 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
     const remainingDays = (yearsRemaining % 1) * 365.25;
     firstEndDate.setDate(firstEndDate.getDate() + Math.round(remainingDays));
 
-    dashas.push({
+    const firstMahadasha = {
         lord: nak.lord,
         start: new Date(currentDate),
         end: new Date(firstEndDate),
-        isCurrent: false // will set later
-    });
+        isCurrent: false,
+        antardashas: [] as any[]
+    };
+    firstMahadasha.antardashas = calculateSubPeriods(nak.lord, firstMahadasha.start, firstMahadasha.end);
+    dashas.push(firstMahadasha);
 
     currentDate = new Date(firstEndDate);
 
@@ -339,12 +392,15 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
         const endDate = new Date(currentDate);
         endDate.setFullYear(endDate.getFullYear() + years);
 
-        dashas.push({
+        const mahadasha = {
             lord: nextLord,
             start: new Date(currentDate),
             end: new Date(endDate),
-            isCurrent: false
-        });
+            isCurrent: false,
+            antardashas: [] as any[]
+        };
+        mahadasha.antardashas = calculateSubPeriods(nextLord, mahadasha.start, mahadasha.end);
+        dashas.push(mahadasha);
 
         currentDate = new Date(endDate);
     }
@@ -354,7 +410,13 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
         ...d,
         start: d.start.toISOString(),
         end: d.end.toISOString(),
-        isCurrent: now >= d.start && now < d.end
+        isCurrent: now >= d.start && now < d.end,
+        antardashas: d.antardashas.map(ad => ({
+            ...ad,
+            start: ad.start.toISOString(),
+            end: ad.end.toISOString(),
+            isCurrent: now >= ad.start && now < ad.end
+        }))
     }));
 }
 
@@ -379,6 +441,31 @@ export const YOGAS = [
 export const KARANAS = [
     'Bava', 'Balav', 'Kaulav', 'Taitil', 'Gar', 'Vanij', 'Vishti', 'Shakuni', 'Chatushpada', 'Naga', 'Kintughna'
 ];
+
+export const TARA_BALAS = [
+    { name: 'Janma', interpretation: 'Potential physical or emotional intensity. Stay centered.' },
+    { name: 'Sampat', interpretation: 'Wealth - A period of prosperity and tangible gains. Good for progress.' },
+    { name: 'Vipat', interpretation: 'Obstacle - Potential losses or hurdles. Avoid high-risk actions.' },
+    { name: 'Kshema', interpretation: 'Well-being - Protection and comfort. Excellent for health and recovery.' },
+    { name: 'Pratyak', interpretation: 'Opposition - Misunderstandings or friction. Practice patience.' },
+    { name: 'Sadhana', interpretation: 'Success - Favorable for spiritual and professional goals. High fulfillment.' },
+    { name: 'Naidhana', interpretation: 'Destruction - High caution required. End of cycle themes.' },
+    { name: 'Mitra', interpretation: 'Friend - Supportive energy and pleasant interactions.' },
+    { name: 'Parama Mitra', interpretation: 'Best Friend - Great success and effortless flow.' }
+];
+
+export function calculateTaraBala(transitMoonLong: number, natalMoonLong: number) {
+    const transitNakIdx = Math.floor(transitMoonLong / (360 / 27));
+    const natalNakIdx = Math.floor(natalMoonLong / (360 / 27));
+
+    const distance = (transitNakIdx - natalNakIdx + 27) % 27 + 1;
+    const taraIdx = (distance - 1) % 9;
+
+    return {
+        ...TARA_BALAS[taraIdx],
+        score: [1, 3, 5, 7].includes(taraIdx) ? 'challenging' : 'favorable'
+    };
+}
 
 export const VARAS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 

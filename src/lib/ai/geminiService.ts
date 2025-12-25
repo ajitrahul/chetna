@@ -12,6 +12,102 @@ export interface ClarityResponse {
     ethicalClosing: string;
 }
 
+export interface SynastryResponse {
+    connectionOverview: string;
+    magneticPull: string;
+    growthEdges: string[];
+    communicationFlow: string;
+    harmonyTips: string[];
+}
+
+export interface JournalAnalysis {
+    correlation: string;
+    astrologicalContext: string;
+    growthSuggestion: string;
+}
+
+export async function generateJournalAnalysis(
+    content: string,
+    chartData: ChartData,
+    currentDasha: { lord: string, antardasha: string }
+): Promise<JournalAnalysis> {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const systemPrompt = `You are an insightful Vedic astrologer correlating personal reflections with planetary patterns.
+User wrote: "${content}"
+
+Current Timing: ${currentDasha.lord} Mahadasha, ${currentDasha.antardasha} Antardasha.
+Chart Snapshot: ${JSON.stringify(chartData, null, 2)}
+
+TASK:
+1. CORRELATION: How does their internal mood/experience correlate with the current timing lord or house patterns? (2 sentences)
+2. ASTROLOGICAL CONTEXT: Explain the nature of this current phase's energy (e.g., "Jupiter expands", "Saturn disciplines").
+3. GROWTH SUGGESTION: One practical, awareness-based way they can work WITH this energy based on what they wrote.
+
+Keep it brief (under 150 words total). Focus on mirroring their experience through an astrological lens.`;
+
+    try {
+        const result = await model.generateContent(systemPrompt);
+        const text = result.response.text();
+
+        return {
+            correlation: extractSection(text, 'CORRELATION:', 'ASTROLOGICAL CONTEXT') || "Your current experiences are mirroring a time of significant internal shift.",
+            astrologicalContext: extractSection(text, 'ASTROLOGICAL CONTEXT:', 'GROWTH SUGGESTION') || "The current planetary phase emphasizes structural growth and emotional grounding.",
+            growthSuggestion: extractSection(text, 'GROWTH SUGGESTION:') || "Reflect on how your recent observations invite you to practice more patience."
+        };
+    } catch (error) {
+        console.error('Gemini Journal error:', error);
+        throw new Error('Failed to analyze journal entry');
+    }
+}
+
+export async function generateSynastryResponse(
+    chartA: ChartData,
+    chartB: ChartData,
+    names: { a: string, b: string }
+): Promise<SynastryResponse> {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+    const systemPrompt = `You are an ethical Vedic astrologer specializing in relationship dynamics (Synastry).
+Focus on "Awareness, not prediction". Help ${names.a} and ${names.b} understand the energy between them.
+
+CORE PHILOSOPHY:
+- No "soulmate" or "doomed" labels
+- Focus on how their energies interact and what growth is available
+- Use tentative language
+
+RESPONSE STRUCTURE (JSON-like sections):
+1. OVERVIEW: A 2-3 sentence high-level summary of their energetic connection.
+2. MAGNETIC PULL: What naturally draws them together? (Emotional/Spiritual/Intellectual)
+3. GROWTH EDGES (List 2-3): Where do they challenge each other? What are the friction points?
+4. COMMUNICATION: How do their Mercuries or houses of speech interact?
+5. HARMONY TIPS (List 3): Practical ways to nurture this specific connection.
+
+CHART A (${names.a}):
+${JSON.stringify(chartA, null, 2)}
+
+CHART B (${names.b}):
+${JSON.stringify(chartB, null, 2)}
+
+Return the response organized clearly.`;
+
+    try {
+        const result = await model.generateContent(systemPrompt);
+        const text = result.response.text();
+
+        return {
+            connectionOverview: extractSection(text, 'OVERVIEW:', 'MAGNETIC PULL') || "A unique blend of energies that invites mutual exploration and conscious mirroring.",
+            magneticPull: extractSection(text, 'MAGNETIC PULL:', 'GROWTH EDGES') || "There is a natural resonance that allows for deep understanding and shared values.",
+            growthEdges: extractBulletPoints(text, 'GROWTH EDGES:', 'COMMUNICATION') || ["Balancing individual needs with relationship goals", "Navigating different paces of action"],
+            communicationFlow: extractSection(text, 'COMMUNICATION:', 'HARMONY TIPS') || "Communication flows best when both parties remain open to different perspectives and styles.",
+            harmonyTips: extractBulletPoints(text, 'HARMONY TIPS:') || ["Practice active listening", "Honor each other's individual space", "Communicate through small gestures of appreciation"]
+        };
+    } catch (error) {
+        console.error('Gemini Synastry error:', error);
+        throw new Error('Failed to generate synastry response');
+    }
+}
+
 export async function generateClarityResponse(
     question: string,
     chartData: ChartData
@@ -32,12 +128,13 @@ RESPONSE STRUCTURE (6 sections - CRITICAL):
 SECTION B - Current Phase Overview:
 - 2-3 sentences summarizing the astrological phase
 - Neutral, factual tone
-- No predictions, just capacity/resistance themes
+- Mention the current Mahadasha/Antardasha theme if provided
 
 SECTION C - Pattern Insights (4-5 bullet points):
 - Start with "This phase highlights..."
 - Psychological patterns this question reveals
 - Situational tendencies active now
+- Deep Insights: Use D9 (Navamsha) data to explain the "inner strength" or hidden potential of key planets related to the question.
 - Each point starts with a tendency phrase
 
 SECTION D - Action Guidance (4-5 bullet points - MOST VALUABLE):
@@ -57,9 +154,13 @@ SECTION F - Ethical Closing (1 sentence):
 CHART DATA PROVIDED:
 ${JSON.stringify(chartData, null, 2)}
 
+VIMSOTTARI DASHAS (Current Timing):
+${JSON.stringify(chartData.dashas?.filter(d => d.isCurrent), null, 2)}
+
 USER QUESTION:
 ${question}
 
+Vedic Context: Remember D1 is the outer manifestation (the tree), while D9 (Navamsha) represents the inner strength and spiritual fruit. Use both to provide depth.
 Generate response following the 6-section structure EXACTLY.`;
 
     try {
@@ -122,7 +223,7 @@ function extractSection(text: string, startMarker: string, endMarker?: string): 
     return text.substring(contentStart, endIndex !== -1 ? endIndex : text.length).trim();
 }
 
-function extractBulletPoints(text: string, startMarker: string, endMarker: string): string[] {
+function extractBulletPoints(text: string, startMarker: string, endMarker?: string): string[] {
     const section = extractSection(text, startMarker, endMarker);
     if (!section) return [];
 

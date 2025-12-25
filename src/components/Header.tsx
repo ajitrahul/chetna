@@ -19,9 +19,11 @@ export default function Header() {
         <div className={styles.rightSection}>
           <nav className={styles.navLinks}>
             <Link href="/" className={styles.navLink}>Home</Link>
-            <Link href="/how-it-works" className={styles.navLink}>How It Works</Link>
-            <Link href="/chart" className={styles.navLink}>Your Chart</Link>
-            <Link href="/clarity" className={styles.navLink}>Ask for Clarity</Link>
+            <Link href="/chart" className={styles.navLink}>Chart</Link>
+            <Link href="/timing" className={styles.navLink}>Timing</Link>
+            <Link href="/clarity" className={styles.navLink}>Clarity</Link>
+            <Link href="/synastry" className={styles.navLink}>Synastry</Link>
+            <Link href="/pricing" className={styles.navLink}>Pricing</Link>
           </nav>
 
           <div className={styles.actions}>

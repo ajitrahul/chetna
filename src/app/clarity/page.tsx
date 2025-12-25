@@ -67,6 +67,19 @@ function ClarityContent() {
         if (initialQuery && initialQuery.length >= 10) {
             triggerAsk(initialQuery);
         }
+
+        const fetchCredits = async () => {
+            try {
+                const res = await fetch('/api/credits/check');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCredits(data.totalCredits);
+                }
+            } catch (err) {
+                console.error('Failed to fetch credits:', err);
+            }
+        };
+        fetchCredits();
     }, [initialQuery, triggerAsk]);
 
     const handleAsk = (e: React.FormEvent) => {

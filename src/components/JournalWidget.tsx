@@ -11,7 +11,9 @@ export default function JournalWidget() {
     const [localEntries, setLocalEntries] = useLocalStorage<Record<string, string>>('chetna_journal', {});
     const [currentEntry, setCurrentEntry] = useState('');
     const [isSaved, setIsSaved] = useState(false);
+    const [analysis, setAnalysis] = useState<any>(null);
     const [loading, setLoading] = useState(false);
+    const [analyzing, setAnalyzing] = useState(false);
 
     const fetchEntryFromDB = useCallback(async () => {
         try {
@@ -67,6 +69,30 @@ export default function JournalWidget() {
         }
     };
 
+    const handleAnalyze = async () => {
+        if (!currentEntry || currentEntry.length < 10) return;
+        setAnalyzing(true);
+        setAnalysis(null);
+        try {
+            const res = await fetch('/api/journal/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    date: today,
+                    content: currentEntry,
+                }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setAnalysis(data);
+            }
+        } catch (err) {
+            console.error('Analysis failed:', err);
+        } finally {
+            setAnalyzing(false);
+        }
+    };
+
     return (
         <div className={styles.widget}>
             <div className={styles.header}>
@@ -88,14 +114,43 @@ export default function JournalWidget() {
                 <span className={styles.status}>
                     {isSaved ? 'Your reflection is saved' : 'You have unsaved thoughts'}
                 </span>
-                <button
-                    onClick={handleSave}
-                    className={styles.saveBtn}
-                    disabled={isSaved || loading}
-                >
-                    {loading ? 'Saving...' : 'Save Reflection'}
-                </button>
+                <div className={styles.btns}>
+                    {session && (
+                        <button
+                            onClick={handleAnalyze}
+                            className={styles.analyzeBtn}
+                            disabled={analyzing || !currentEntry || currentEntry.length < 10}
+                        >
+                            {analyzing ? 'Analyzing...' : 'Analyze Patterns'}
+                        </button>
+                    )}
+                    <button
+                        onClick={handleSave}
+                        className={styles.saveBtn}
+                        disabled={isSaved || loading}
+                    >
+                        {loading ? 'Saving...' : 'Save Reflection'}
+                    </button>
+                </div>
             </div>
+
+            {analysis && (
+                <div className={styles.analysisBox}>
+                    <h4>Timing Insights</h4>
+                    <div className={styles.insight}>
+                        <span className={styles.insightLabel}>Correlation</span>
+                        <p className={styles.insightText}>{analysis.correlation}</p>
+                    </div>
+                    <div className={styles.insight}>
+                        <span className={styles.insightLabel}>Astrological Phase</span>
+                        <p className={styles.insightText}>{analysis.astrologicalContext}</p>
+                    </div>
+                    <div className={styles.insight}>
+                        <span className={styles.insightLabel}>Growth Guidance</span>
+                        <p className={styles.insightText}>{analysis.growthSuggestion}</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

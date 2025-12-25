@@ -9,16 +9,35 @@ export default function SynastryPage() {
     const [personB, setPersonB] = useState<UserProfile | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showResult, setShowResult] = useState(false);
+    const [result, setResult] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleAnalyze = () => {
+    const handleAnalyze = async () => {
         setIsAnalyzing(true);
         setShowResult(false);
+        setError(null);
 
-        // Mock analysis delay
-        setTimeout(() => {
-            setIsAnalyzing(false);
+        try {
+            const response = await fetch('/api/astrology/synastry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ personA, personB }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Analysis failed');
+            }
+
+            const data = await response.json();
+            setResult(data);
             setShowResult(true);
-        }, 1500);
+        } catch (err: any) {
+            console.error('Synastry error:', err);
+            setError(err.message || 'An unexpected error occurred');
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     return (
@@ -70,13 +89,26 @@ export default function SynastryPage() {
                 {isAnalyzing ? 'Connecting Charts...' : 'Analyze Synergy'}
             </button>
 
-            {showResult && (
+            {error && (
+                <div className={styles.errorBox}>
+                    <p>{error}</p>
+                </div>
+            )}
+
+            {showResult && result && (
                 <div className={styles.resultSection}>
+                    <div className={styles.overviewCard}>
+                        <h3>Energetic Overview</h3>
+                        <p>{result.aiAnalysis.connectionOverview}</p>
+                    </div>
+
                     <div className={styles.vennContainer}>
                         <div className={`${styles.circle} ${styles.circleA}`}>
+                            <div className={styles.planetLabel}>Moon</div>
                             {personA?.name.split(' ')[0]}
                         </div>
                         <div className={`${styles.circle} ${styles.circleB}`}>
+                            <div className={styles.planetLabel}>Moon</div>
                             {personB?.name.split(' ')[0]}
                         </div>
                         <div className={styles.intersectionLabel}>Growth</div>
@@ -85,16 +117,49 @@ export default function SynastryPage() {
                     <div className={styles.insightsList}>
                         <div className={styles.insightCard}>
                             <h4>Magnetic Pull</h4>
-                            <p>Your Moons are in trine, creating an effortless emotional understanding. You instinctively know how the other feels without words.</p>
+                            <p>{result.aiAnalysis.magneticPull}</p>
                         </div>
                         <div className={styles.insightCard}>
-                            <h4>Growth Edge</h4>
-                            <p>Saturn squaring the Sun indicates a relationship where you teach each other responsibility. It may feel heavy at times, but it builds lasting structures.</p>
+                            <h4>Growth Edges</h4>
+                            <ul>
+                                {result.aiAnalysis.growthEdges.map((edge: string, i: number) => (
+                                    <li key={i}>{edge}</li>
+                                ))}
+                            </ul>
                         </div>
                         <div className={styles.insightCard}>
                             <h4>Communication Flow</h4>
-                            <p>Mercury in opposite signs suggests you see the world from different ends of the spectrum. This requires patience but leads to holistic decision making.</p>
+                            <p>{result.aiAnalysis.communicationFlow}</p>
                         </div>
+                    </div>
+
+                    <div className={styles.resonanceSection}>
+                        <h3>Daily Resonance (Tara Bala)</h3>
+                        <div className={styles.resonanceGrid}>
+                            <div className={styles.resCard}>
+                                <h5>{personA?.name}&apos;s Experience of {personB?.name.split(' ')[0]}</h5>
+                                <div className={`${styles.taraBadge} ${styles[result.taraBala.personA_affectedByB.score]}`}>
+                                    {result.taraBala.personA_affectedByB.name}
+                                </div>
+                                <p>{result.taraBala.personA_affectedByB.interpretation}</p>
+                            </div>
+                            <div className={styles.resCard}>
+                                <h5>{personB?.name}&apos;s Experience of {personA?.name.split(' ')[0]}</h5>
+                                <div className={`${styles.taraBadge} ${styles[result.taraBala.personB_affectedByA.score]}`}>
+                                    {result.taraBala.personB_affectedByA.name}
+                                </div>
+                                <p>{result.taraBala.personB_affectedByA.interpretation}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.tipsSection}>
+                        <h3>Nurturing the Connection</h3>
+                        <ul className={styles.tipsList}>
+                            {result.aiAnalysis.harmonyTips.map((tip: string, i: number) => (
+                                <li key={i}>{tip}</li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             )}

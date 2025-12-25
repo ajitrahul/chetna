@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import styles from './page.module.css';
 
 
@@ -81,8 +82,7 @@ export default function PricingPage() {
 
     return (
         <>
-            {/* Load Razorpay script */}
-            <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+            <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
             <div className={styles.container}>
                 <div className={styles.header}>

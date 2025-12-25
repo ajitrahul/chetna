@@ -36,8 +36,19 @@ export async function POST(req: NextRequest) {
             const productType = payment.notes.productType;
 
             // Create credit pack or mark question as paid
-            if (productType === 'CREDIT_PACK_5' || productType === 'CREDIT_PACK_10') {
-                const questionsTotal = productType === 'CREDIT_PACK_5' ? 5 : 10;
+            if (productType === 'CREDIT_PACK_5' || productType === 'CREDIT_PACK_10' || productType === 'SINGLE_QUESTION') {
+                let questionsTotal = 1;
+                if (productType === 'CREDIT_PACK_5') questionsTotal = 5;
+                if (productType === 'CREDIT_PACK_10') questionsTotal = 10;
+
+                // Idempotency check
+                const existingPack = await prisma.creditPack.findFirst({
+                    where: { paymentId: payment.id }
+                });
+
+                if (existingPack) {
+                    return NextResponse.json({ success: true, note: 'Duplicate' });
+                }
 
                 await prisma.creditPack.create({
                     data: {
@@ -49,9 +60,6 @@ export async function POST(req: NextRequest) {
                         amount: payment.amount,
                     },
                 });
-            } else if (productType === 'SINGLE_QUESTION') {
-                // Mark question as paid (implement when question is created)
-                // This will be handled in the clarity API endpoint
             }
 
             return NextResponse.json({ success: true });
