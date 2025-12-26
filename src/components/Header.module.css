@@ -109,6 +109,26 @@
     background: rgba(var(--foreground-rgb), 0.02);
 }
 
+.testBtn {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px dashed var(--accent-gold);
+    color: var(--accent-gold);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.testBtn:hover {
+    background: rgba(var(--accent-gold-rgb), 0.05);
+    border-style: solid;
+    transform: translateY(-1px);
+}
+
 .themeToggle {
     background: transparent;
     border: 1px solid var(--card-border);

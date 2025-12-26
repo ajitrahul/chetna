@@ -30,6 +30,9 @@ export default function Header() {
             <ThemeToggle />
             {status === 'authenticated' ? (
               <div className={styles.authGroup}>
+                <Link href="/api/credits/add-test" className={styles.testBtn}>
+                  + Credits (Test)
+                </Link>
                 <Link href="/profile" className={styles.navLink}>
                   {session?.user?.name || 'Profile'}
                 </Link>
