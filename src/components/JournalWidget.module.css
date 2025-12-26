@@ -155,6 +155,27 @@
     color: var(--primary);
 }
 
+@media (max-width: 480px) {
+    .footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .btns {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .saveBtn,
+    .analyzeBtn {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
