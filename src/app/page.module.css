@@ -342,8 +342,9 @@
 @media (max-width: 968px) {
   .heroContainer {
     grid-template-columns: 1fr;
-    gap: 60px;
+    gap: 40px;
     text-align: center;
+    padding-top: 40px;
   }
 
   .heroContent {
@@ -351,15 +352,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    order: 1;
+  }
+
+  .heroImage {
+    order: 2;
   }
 
   .heroTitle {
-    font-size: 3rem;
+    font-size: 2.8rem;
   }
 
   .heroSubtitle {
     margin-left: auto;
     margin-right: auto;
+    font-size: 1.1rem;
+    margin-bottom: 32px;
   }
 
   .heroActions {
@@ -369,7 +377,7 @@
   /* Dashboard Adjustments */
   .widgetGrid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 24px;
   }
 
   .sideColumn {
@@ -377,22 +385,22 @@
   }
 
   .welcomeText {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 
   .chartCircle {
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
   }
 
   .chartInner {
-    width: 220px;
-    height: 220px;
+    width: 200px;
+    height: 200px;
   }
 
   .featuresContainer {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 24px;
   }
 
   .notDoGrid {
@@ -402,20 +410,39 @@
 
 @media (max-width: 480px) {
   .hero {
-    padding: 60px 20px;
+    padding: 60px 16px;
   }
 
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+    margin-bottom: 24px;
   }
 
   .heroSubtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
   .primaryBtn,
   .secondaryBtn {
     width: 100%;
     justify-content: center;
+    padding: 16px 24px;
+  }
+
+  .dashboard {
+    padding: 40px 16px;
+  }
+
+  .welcomeText {
+    font-size: 1.8rem;
+  }
+
+  .searchSection {
+    padding: 24px 20px;
+  }
+
+  .quickLinkItem {
+    padding: 16px 20px;
   }
 }
