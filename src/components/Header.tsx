@@ -51,9 +51,23 @@ export default function Header() {
             <ThemeToggle />
             {status === 'authenticated' ? (
               <div className={styles.authGroup}>
-                <Link href="/api/credits/add-test" className={styles.testBtn} onClick={() => setIsMenuOpen(false)}>
+                <button
+                  className={styles.testBtn}
+                  onClick={async () => {
+                    setIsMenuOpen(false);
+                    try {
+                      const res = await fetch('/api/credits/add-test', { method: 'POST' });
+                      if (res.ok) {
+                        alert('10 test credits added!');
+                        window.location.reload();
+                      }
+                    } catch (err) {
+                      console.error('Failed to add credits:', err);
+                    }
+                  }}
+                >
                   + Credits (Test)
-                </Link>
+                </button>
                 <Link href="/profile" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
                   {session?.user?.name || 'Profile'}
                 </Link>
