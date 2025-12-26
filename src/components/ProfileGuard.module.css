@@ -1,0 +1,126 @@
+.loadingContainer {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    color: var(--foreground-secondary);
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--card-border);
+    border-top-color: var(--accent-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.guardContainer {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.promptCard {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    max-width: 500px;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.icon {
+    font-size: 4rem;
+    margin-bottom: 24px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--foreground);
+}
+
+.message {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--foreground-secondary);
+    margin-bottom: 32px;
+}
+
+.createButton {
+    display: inline-block;
+    padding: 14px 32px;
+    background: var(--accent-gold);
+    color: black;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.createButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+.homeLink {
+    display: block;
+    color: var(--foreground-secondary);
+    font-size: 0.9rem;
+    margin-top: 16px;
+    transition: color 0.2s ease;
+}
+
+.homeLink:hover {
+    color: var(--accent-gold);
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .promptCard {
+        padding: 32px 24px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+}

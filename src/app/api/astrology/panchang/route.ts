@@ -1,11 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculatePanchang } from '@/lib/astrology/calculator';
+import { auth } from '@/auth';
+import prisma from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
     try {
-        const { searchParams } = new URL(req.url);
-        const lat = parseFloat(searchParams.get('lat') || '28.6139'); // Default New Delhi
-        const lng = parseFloat(searchParams.get('lng') || '77.2090');
+        const session = await auth();
+
+        if (!session?.user?.id) {
+            return NextResponse.json({
+                error: 'Unauthorized',
+                code: 'AUTH_REQUIRED'
+            }, { status: 401 });
+        }
+
+        // Fetch User Profile for Coordinates
+        const profile = await prisma.profile.findFirst({
+            where: { userId: session.user.id }
+        });
+
+        if (!profile) {
+            return NextResponse.json({
+                error: 'Profile not found. Please complete onboarding.',
+                code: 'PROFILE_MISSING'
+            }, { status: 404 });
+        }
+
+        const lat = profile.latitude;
+        const lng = profile.longitude;
 
         const now = new Date();
         const panchang = await calculatePanchang(

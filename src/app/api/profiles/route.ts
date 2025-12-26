@@ -40,14 +40,27 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { name, dateOfBirth, timeOfBirth, placeOfBirth, latitude, longitude, timezone, chartData } = body;
+        const { name, dateOfBirth, timeOfBirth, placeOfBirth, latitude, longitude, timezone, gender, chartData } = body;
 
-        if (!name || !dateOfBirth || !placeOfBirth) {
+        if (!name || !dateOfBirth || !placeOfBirth || !gender) {
             return NextResponse.json(
-                { error: 'Missing required fields' },
+                { error: 'Missing required fields (name, dob, pob, gender)' },
                 { status: 400 }
             );
         }
+
+        // Disable ALL existing active profiles for this user (only one active profile allowed)
+        await prisma.profile.updateMany({
+            where: {
+                userId: session.user.id,
+                isActive: true,
+            },
+            data: {
+                isActive: false,
+                disabledAt: new Date(),
+                disabledReason: 'Replaced by new active profile',
+            },
+        } as any);
 
         const profile = await prisma.profile.create({
             data: {
@@ -59,9 +72,11 @@ export async function POST(req: NextRequest) {
                 latitude,
                 longitude,
                 timezone: timezone || 'UTC',
+                gender,
                 chartData: chartData || {},
+                isActive: true,
             },
-        });
+        } as any);
 
         return NextResponse.json(profile, { status: 201 });
     } catch (error) {

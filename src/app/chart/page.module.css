@@ -133,6 +133,52 @@
     }
 }
 
+.addProfileBtn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #b8860b 100%);
+    color: #101010;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+.addProfileBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+    filter: brightness(1.1);
+}
+
+.addProfileBtn:active {
+    transform: translateY(0);
+}
+
+.backLinkBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid var(--card-border);
+    color: var(--foreground-secondary);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.backLinkBtn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
 .contentBlock {
     margin-bottom: 40px;
 }
@@ -220,5 +266,10 @@
 
     .tabContent {
         padding: 24px;
+    }
+
+    .addProfileBtn {
+        width: 100%;
+        justify-content: center;
     }
 }

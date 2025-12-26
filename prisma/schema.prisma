@@ -71,12 +71,18 @@ model Profile {
   latitude      Float
   longitude     Float
   timezone      String
+  gender        String    @default("other") // Mandatory field: "male", "female", or "other"
   
   chartData     Json      // Complete calculated chart positions
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
+  isActive      Boolean   @default(true)    // Whether this profile is active
+  disabledAt    DateTime?                   // When this profile was disabled
+  disabledReason String?                    // Why it was disabled (e.g., "Overwritten by newer version")
+  
   @@index([userId])
+  @@index([userId, isActive])
 }
 
 // AI Clarity questions

@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './page.module.css';
 
+import ProfileGuard from '@/components/ProfileGuard';
+
 function ClarityContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -229,8 +231,10 @@ function ClarityContent() {
 
 export default function ClarityPage() {
     return (
-        <Suspense fallback={<div className="container">Loading...</div>}>
-            <ClarityContent />
-        </Suspense>
+        <ProfileGuard>
+            <Suspense fallback={<div className="container">Loading...</div>}>
+                <ClarityContent />
+            </Suspense>
+        </ProfileGuard>
     );
 }

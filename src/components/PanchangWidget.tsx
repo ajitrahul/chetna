@@ -18,12 +18,22 @@ export default function PanchangWidget() {
     const [data, setData] = useState<PanchangData | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [setupRequired, setSetupRequired] = useState(false);
+
     useEffect(() => {
         async function fetchPanchang() {
             try {
                 const res = await fetch('/api/astrology/panchang');
+
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({}));
+
+                    // Specific Handling for Missing Profile
+                    if (res.status === 404 && errorData.code === 'PROFILE_MISSING') {
+                        setSetupRequired(true);
+                        return; // Stop here, rendering will handle it
+                    }
+
                     throw new Error(errorData.details || errorData.error || `Server Error (${res.status})`);
                 }
 
@@ -34,8 +44,6 @@ export default function PanchangWidget() {
             } catch (error: unknown) {
                 const message = error instanceof Error ? error.message : String(error);
                 console.error('Failed to fetch panchang:', message);
-                // We don't clear the error state here because we want to show nothing (null) 
-                // if it fails, per current UI logic, but now we have better console logs.
             } finally {
                 setLoading(false);
             }
@@ -44,6 +52,20 @@ export default function PanchangWidget() {
     }, []);
 
     if (loading) return <div className={styles.container + ' ' + styles.shimmer}></div>;
+
+    if (setupRequired) {
+        return (
+            <div className={styles.container}>
+                <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                    <p className="text-[var(--secondary)] mb-2">Location Required</p>
+                    <a href="/chart" className="text-sm underline text-[var(--primary)] font-medium">
+                        Set up your profile to see daily energy
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
     if (!data || !data.tithi) return null;
 
     const elements = [

@@ -6,12 +6,18 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { CreditCard, History, UserCircle, ChevronRight, MessageSquare } from 'lucide-react';
+import { CreditCard, History, UserCircle, ChevronRight, MessageSquare, Trash2 } from 'lucide-react';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface UserProfile {
     id: string;
     name: string;
     dateOfBirth: string;
+    isActive: boolean;
+    disabledAt: string | null;
+    disabledReason: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface UserQuestion {
@@ -31,6 +37,9 @@ export default function ProfilePage() {
     const [recentProfiles, setRecentProfiles] = useState<UserProfile[]>([]);
     const [recentQuestions, setRecentQuestions] = useState<UserQuestion[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -69,6 +78,37 @@ export default function ProfilePage() {
             console.error('Failed to fetch profile data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteClick = (profileId: string) => {
+        setProfileToDelete(profileId);
+        setShowDeleteConfirm(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!profileToDelete) return;
+
+        try {
+            setIsDeleting(true);
+            const res = await fetch(`/api/profiles/${profileToDelete}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                // Refresh data
+                await fetchProfileData();
+                setShowDeleteConfirm(false);
+                setProfileToDelete(null);
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to delete profile');
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            alert('An error occurred while deleting the profile');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -142,14 +182,49 @@ export default function ProfilePage() {
                     <div className={styles.list}>
                         {recentProfiles.length > 0 ? (
                             recentProfiles.map((profile) => (
-                                <div key={profile.id} className={styles.listItem}>
+                                <div key={profile.id} className={`${styles.listItem} ${!profile.isActive ? styles.disabledListItem : ''}`}>
                                     <div className={styles.profileInfo}>
-                                        <span className={styles.name}>{profile.name}</span>
-                                        <span className={styles.details}>{new Date(profile.dateOfBirth).toLocaleDateString()}</span>
+                                        <div className={styles.nameRow}>
+                                            <span className={styles.name}>{profile.name}</span>
+                                            {profile.isActive ? (
+                                                <span className={styles.activeBadge}>Active</span>
+                                            ) : (
+                                                <span className={styles.disabledBadge}>Disabled</span>
+                                            )}
+                                        </div>
+                                        <span className={styles.details}>
+                                            Born: {new Date(profile.dateOfBirth).toLocaleDateString()}
+                                            {' • Created: '}{new Date(profile.createdAt).toLocaleDateString()}
+                                            {!profile.isActive && profile.disabledAt && (
+                                                <>
+                                                    <br />
+                                                    <span className={styles.disableDate}>
+                                                        Disabled: {new Date(profile.disabledAt).toLocaleDateString()}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </span>
                                     </div>
-                                    <Link href={`/chart?profile=${profile.id}`} className={styles.iconLink}>
-                                        <ChevronRight size={18} />
-                                    </Link>
+                                    <div className={styles.actionsGroup}>
+                                        {!profile.isActive && (
+                                            <button
+                                                className={styles.deleteBtn}
+                                                onClick={() => handleDeleteClick(profile.id)}
+                                                title="Delete Profile"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        )}
+                                        {profile.isActive ? (
+                                            <Link href={`/chart?profile=${profile.id}`} className={styles.iconLink}>
+                                                <ChevronRight size={18} />
+                                            </Link>
+                                        ) : (
+                                            <div className={styles.iconLinkDisabled}>
+                                                <ChevronRight size={18} />
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             ))
                         ) : (
@@ -196,6 +271,17 @@ export default function ProfilePage() {
                     </div>
                 </section>
             </div>
+
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                title="Delete Profile?"
+                message="Are you sure you want to delete this profile? This action is permanent and cannot be undone."
+                confirmText={isDeleting ? "Deleting..." : "Yes, Delete"}
+                cancelText="Cancel"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => !isDeleting && setShowDeleteConfirm(false)}
+                variant="danger"
+            />
         </div>
     );
 }

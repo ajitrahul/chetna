@@ -1,78 +1,142 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, FormEvent, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { useLocalStorage } from '@/lib/useLocalStorage';
-import ProfileManager, { UserProfile } from './ProfileManager';
 import { ChartData } from '@/lib/astrology/calculator';
 import { INDIAN_CITIES } from '@/lib/indianCities';
+import ConfirmDialog from './ConfirmDialog';
+import styles from './BirthDataForm.module.css';
 
 interface BirthDataFormProps {
     onChartGenerated?: (data: ChartData) => void;
+    initialData?: UserProfile;
 }
 
-export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) {
+export type UserProfile = {
+    id?: string;
+    name: string;
+    dateOfBirth: string | Date; // handle string from API or Form
+    timeOfBirth: string;
+    placeOfBirth: string;
+    gender: string;
+    latitude?: number;
+    longitude?: number;
+    chartData?: ChartData;
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+};
+
+export default function BirthDataForm({ onChartGenerated, initialData }: BirthDataFormProps) {
     const { data: session } = useSession();
+
+    // Parse initial date if present
+    const parseDate = (d: string | Date | undefined) => {
+        if (!d) return '';
+        if (d instanceof Date) return d.toISOString().split('T')[0];
+        return String(d).split('T')[0];
+    };
+
     const [formData, setFormData] = useState({
-        name: '',
-        dob: '',
-        tob: '',
-        pob: '',
+        name: initialData?.name || '',
+        dob: parseDate(initialData?.dateOfBirth),
+        tob: initialData?.timeOfBirth || '',
+        pob: initialData?.placeOfBirth || '',
+        gender: initialData?.gender || '',
         unknownTime: false
     });
 
-    const [profiles, setProfiles] = useLocalStorage<UserProfile[]>('chetna_profiles', []);
-    const [saveProfile, setSaveProfile] = useState(false);
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                name: initialData.name,
+                dob: parseDate(initialData.dateOfBirth),
+                tob: initialData.timeOfBirth,
+                pob: initialData.placeOfBirth,
+                gender: initialData.gender || '',
+                unknownTime: false
+            });
+        }
+    }, [initialData]);
+
 
     // Autocomplete state
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [filteredCities, setFilteredCities] = useState<string[]>([]);
+    const wrapperRef = useRef<HTMLDivElement>(null);
 
     // Hydration fix for client-only logic
     const [isClient, setIsClient] = useState(false);
     useEffect(() => setIsClient(true), []);
 
+    // Outside click handler for autocomplete
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [wrapperRef]);
+
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
         }));
 
         // Filter cities for autocomplete when typing in pob field
-        if (name === 'pob' && value.length >= 2) {
-            const matches = INDIAN_CITIES.filter(city =>
-                city.toLowerCase().includes(value.toLowerCase())
-            ).slice(0, 5); // Show max 5 suggestions
-            setFilteredCities(matches);
-            setShowSuggestions(matches.length > 0);
-        } else if (name === 'pob') {
-            setShowSuggestions(false);
+        if (name === 'pob') {
+            if (value.length >= 2) {
+                const matches = INDIAN_CITIES.filter(city =>
+                    city.toLowerCase().includes(value.toLowerCase())
+                ).slice(0, 8); // Show max 8 suggestions
+                setFilteredCities(matches);
+                setShowSuggestions(matches.length > 0);
+            } else {
+                setShowSuggestions(false);
+            }
         }
     };
 
     const selectCity = (city: string) => {
         setFormData(prev => ({ ...prev, pob: city }));
         setShowSuggestions(false);
-    };
-
-    const loadProfile = (profile: UserProfile) => {
-        setFormData({
-            name: profile.name,
-            dob: profile.dob,
-            tob: profile.tob,
-            pob: profile.pob,
-            unknownTime: !profile.tob
-        });
+        setFilteredCities([]);
     };
 
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+    const [activeProfile, setActiveProfile] = useState<any>(null);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+    // Fetch active profile on mount
+    useEffect(() => {
+        if (session?.user) {
+            fetch('/api/profiles/active')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && !data.error) {
+                        setActiveProfile(data);
+                    }
+                })
+                .catch(err => console.error('Failed to fetch active profile:', err));
+        }
+    }, [session]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+
+        // Show confirmation dialog first
+        setShowConfirmDialog(true);
+    };
+
+    const saveProfile = async () => {
         setLoading(true);
-        setError(null);
+        setStatusMsg(null);
+        setShowConfirmDialog(false);
 
         try {
             // 1. Geocode the Place of Birth
@@ -80,26 +144,28 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
             const geoData = await geoRes.json();
 
             if (!geoData || geoData.length === 0) {
-                throw new Error("Could not find coordinates for this location.");
+                throw new Error("Could not find coordinates for this location. Please try a major city.");
             }
 
             const lat = parseFloat(geoData[0].lat);
             const lng = parseFloat(geoData[0].lon);
 
             // 2. Parse Date and Time
-            const dobDate = new Date(formData.dob);
+            // Robust parsing: Split string to avoid timezone shifts (e.g. 2023-05-15 becomes May 14 in some TZs)
+            const [year, month, day] = formData.dob.split('-').map(Number);
             const [hours, minutes] = formData.tob.split(':').map(Number);
+            const hasTime = !formData.unknownTime && formData.tob;
 
             // 3. Calculate Chart (API Call)
             const calcRes = await fetch('/api/astrology/calculate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    year: dobDate.getFullYear(),
-                    month: dobDate.getMonth() + 1,
-                    day: dobDate.getDate(),
-                    hour: hours || 12,
-                    minute: minutes || 0,
+                    year: year,
+                    month: month,
+                    day: day,
+                    hour: hasTime ? hours : 12,
+                    minute: hasTime ? minutes : 0,
                     lat,
                     lng
                 }),
@@ -107,164 +173,167 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
 
             if (!calcRes.ok) {
                 const errorData = await calcRes.json().catch(() => ({}));
-                console.error('Chart calculation failed:', errorData);
                 throw new Error(errorData.details || errorData.error || "Failed to calculate chart.");
             }
             const chartResult = await calcRes.json();
+
+            // 4. Save User Profile (Mandatory)
+            if (session?.user) {
+                // Optimize payload: Remove deep Dashas for storage (keep only 2 levels)
+                // This prevents "Unterminated string in JSON" errors and DB size bloat
+                const sanitizedChart = { ...chartResult };
+                if (sanitizedChart.dashas) {
+                    sanitizedChart.dashas = sanitizedChart.dashas.map((mahadasha: any) => ({
+                        ...mahadasha,
+                        antardashas: mahadasha.antardashas?.map((antardasha: any) => ({
+                            ...antardasha,
+                            // Strip anything deeper than Antardasha (Pratyantar, Sookshma, Prana)
+                            pratyantarDashas: undefined
+                        }))
+                    }));
+                }
+
+                const saveRes = await fetch('/api/profiles', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.name,
+                        dateOfBirth: formData.dob,
+                        timeOfBirth: formData.tob || "12:00",
+                        placeOfBirth: formData.pob,
+                        gender: formData.gender,
+                        latitude: lat,
+                        longitude: lng,
+                        chartData: sanitizedChart
+                    }),
+                });
+
+                if (!saveRes.ok) throw new Error("Failed to save profile.");
+                setStatusMsg({ type: 'success', text: 'Profile saved successfully!' });
+            }
 
             if (onChartGenerated) {
                 onChartGenerated(chartResult);
             }
 
-            console.log('Real Chart Generated:', chartResult);
-
-            if (saveProfile && formData.name) {
-                // If logged in, save to DB
-                if (session?.user?.id) {
-                    try {
-                        await fetch('/api/profiles', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                name: formData.name,
-                                dateOfBirth: formData.dob,
-                                timeOfBirth: formData.tob,
-                                placeOfBirth: formData.pob,
-                                latitude: lat,
-                                longitude: lng,
-                                chartData: chartResult
-                            }),
-                        });
-                    } catch (err) {
-                        console.error('Failed to save profile to DB:', err);
-                    }
-                } else {
-                    // Fallback to localStorage for guests
-                    const newProfile: UserProfile = {
-                        id: Date.now().toString(),
-                        name: formData.name,
-                        dob: formData.dob,
-                        tob: formData.tob,
-                        pob: formData.pob,
-                        lat,
-                        lng,
-                        chartData: chartResult
-                    };
-
-                    const exists = profiles.find(p => p.name === newProfile.name && p.dob === newProfile.dob);
-                    if (!exists) {
-                        setProfiles([...profiles, newProfile]);
-                    }
-                }
-            }
-
-            // Successfully generated - no alert needed
-
         } catch (err: unknown) {
             console.error('BirthDataForm Error:', err);
             const message = err instanceof Error ? err.message : String(err);
-            setError(message || "An error occurred");
+            setStatusMsg({ type: 'error', text: message });
         } finally {
             setLoading(false);
         }
     };
 
+    const handleConfirmOverwrite = () => {
+        saveProfile();
+    };
+
+    const handleCancelOverwrite = () => {
+        setShowConfirmDialog(false);
+    };
+
     if (!isClient) return null;
 
     return (
-        <div>
-            <ProfileManager onSelectProfile={loadProfile} />
+        <div className={styles.formContainer}>
+            <form onSubmit={handleSubmit} className={styles.formGrid}>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                <div className="form-group">
-                    <label className="block mb-2 font-medium text-current">Name (for your profile)</label>
+                {/* Name */}
+                <div className={styles.inputGroup}>
+                    <label className={styles.label}>FULL NAME</label>
                     <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="e.g. Rahul"
-                        className="w-full p-3 border border-[var(--card-border)] rounded-[var(--radius-md)] bg-[rgba(255,255,255,0.5)]"
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label className="block mb-2 font-medium text-current">Date of Birth</label>
-                    <input
-                        type="date"
-                        name="dob"
-                        value={formData.dob}
-                        onChange={handleChange}
-                        className="w-full p-3 border border-[var(--card-border)] rounded-[var(--radius-md)] bg-[rgba(255,255,255,0.5)]"
+                        placeholder="e.g. Rahul Sharma"
                         required
+                        className={styles.input}
                     />
                 </div>
 
-                <div className="form-group">
-                    <label className="block mb-2 font-medium text-current">Time of Birth</label>
-                    <div className="flex gap-4">
+                {/* Gender */}
+                <div className={styles.inputGroup}>
+                    <label className={styles.label}>GENDER</label>
+                    <div className={styles.genderOptions}>
+                        {['male', 'female', 'other'].map((g) => (
+                            <label key={g} className={styles.radioLabel}>
+                                <input
+                                    type="radio"
+                                    name="gender"
+                                    value={g}
+                                    checked={formData.gender === g}
+                                    onChange={handleChange}
+                                    required
+                                />
+                                {g.charAt(0).toUpperCase() + g.slice(1)}
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Date and Time Row */}
+                <div className={styles.formRow}>
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>DATE OF BIRTH</label>
+                        <input
+                            type="date"
+                            name="dob"
+                            value={formData.dob}
+                            onChange={handleChange}
+                            required
+                            className={styles.input}
+                        />
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>TIME OF BIRTH</label>
                         <input
                             type="time"
                             name="tob"
                             value={formData.tob}
                             onChange={handleChange}
                             disabled={formData.unknownTime}
-                            className="flex-1 p-3 border border-[var(--card-border)] rounded-[var(--radius-md)] bg-[rgba(255,255,255,0.5)] disabled:opacity-50"
+                            required={!formData.unknownTime}
+                            className={styles.input}
+                            style={{ opacity: formData.unknownTime ? 0.5 : 1 }}
                         />
-                        <label className="flex items-center gap-2 text-sm text-[var(--secondary)] cursor-pointer">
+                        <label className={styles.checkboxLabel}>
                             <input
                                 type="checkbox"
                                 name="unknownTime"
                                 checked={formData.unknownTime}
                                 onChange={handleChange}
                             />
-                            Unknown
+                            I don&apos;t know
                         </label>
                     </div>
                 </div>
 
-                <div className="form-group" style={{ position: 'relative' }}>
-                    <label className="block mb-2 font-medium text-current">Place of Birth</label>
+                {/* Place of Birth */}
+                <div className={styles.inputGroup} ref={wrapperRef}>
+                    <label className={styles.label}>PLACE OF BIRTH</label>
                     <input
                         type="text"
                         name="pob"
                         value={formData.pob}
                         onChange={handleChange}
                         onFocus={() => formData.pob.length >= 2 && setShowSuggestions(true)}
-                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                        placeholder="Start typing city name (e.g., Mumbai, Delhi)..."
-                        className="w-full p-3 border border-[var(--card-border)] rounded-[var(--radius-md)] bg-[rgba(255,255,255,0.5)]"
+                        placeholder="Start typing city..."
                         required
                         autoComplete="off"
+                        className={styles.input}
                     />
+
+                    {/* Suggestions */}
                     {showSuggestions && filteredCities.length > 0 && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            right: 0,
-                            marginTop: '4px',
-                            background: 'var(--card-bg)',
-                            border: '1px solid var(--card-border)',
-                            borderRadius: 'var(--radius-md)',
-                            maxHeight: '200px',
-                            overflowY: 'auto',
-                            zIndex: 1000,
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                        }}>
+                        <div className={styles.suggestions}>
                             {filteredCities.map((city, idx) => (
                                 <div
                                     key={idx}
-                                    onMouseDown={() => selectCity(city)}
-                                    style={{
-                                        padding: '10px 12px',
-                                        cursor: 'pointer',
-                                        borderBottom: idx < filteredCities.length - 1 ? '1px solid var(--card-border)' : 'none',
-                                        color: 'var(--primary)',
-                                        fontSize: '0.95rem'
-                                    }}
-                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                    onClick={() => selectCity(city)}
+                                    className={styles.suggestionItem}
                                 >
                                     {city}
                                 </div>
@@ -273,78 +342,43 @@ export default function BirthDataForm({ onChartGenerated }: BirthDataFormProps) 
                     )}
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-[var(--primary)] cursor-pointer mt-2">
-                    <input
-                        type="checkbox"
-                        checked={saveProfile}
-                        onChange={(e) => setSaveProfile(e.target.checked)}
-                    />
-                    Save this profile to my circle
-                </label>
-
-                {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
-                        {error}
+                {/* Messages */}
+                {statusMsg && (
+                    <div className={`${styles.message} ${statusMsg.type === 'success' ? styles.success : styles.error}`}>
+                        {statusMsg.text}
                     </div>
                 )}
 
-                <div className="flex justify-center mt-6">
-                    <button
-                        type="submit"
-                        className="view-chart-btn shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={loading}
-                    >
-                        {loading ? 'Calculating...' : 'View My Chart'}
-                    </button>
-                </div>
-
-                <style jsx>{`
-          .view-chart-btn {
-            background: linear-gradient(to bottom, var(--primary), var(--secondary));
-            color: var(--background);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 32px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-          }
-          .view-chart-btn:hover {
-             filter: brightness(1.35); /* Strong visibility boost */
-             transform: translateY(-2px);
-             box-shadow: 0 8px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
-          }
-          .view-chart-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-          }
-          .flex { display: flex; }
-          .flex-col { flex-direction: column; }
-          .gap-6 { gap: 24px; }
-          .gap-4 { gap: 16px; }
-          .gap-2 { gap: 8px; }
-          .block { display: block; }
-          .mb-2 { margin-bottom: 8px; }
-          .w-full { width: 100%; }
-          .p-3 { padding: 12px; }
-          .items-center { align-items: center; }
-          .text-sm { font-size: 0.875rem; }
-          .mt-2 { margin-top: 8px; }
-          .mt-4 { margin-top: 16px; }
-          .font-medium { font-weight: 500; }
-          .cursor-pointer { cursor: pointer; }
-          .shadow-lg { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
-          .bg-red-50 { background-color: #fef2f2; }
-          .border-red-200 { border-color: #fecaca; }
-          .text-red-600 { color: #dc2626; }
-          .rounded-md { border-radius: 6px; }
-        `}</style>
+                {/* Submit */}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className={styles.submitBtn}
+                >
+                    {loading ? 'CALCULATING COSMIC MAP...' : (initialData ? 'SAVE NEW PROFILE' : 'BEGIN JOURNEY')}
+                </button>
             </form>
+
+            <ConfirmDialog
+                isOpen={showConfirmDialog}
+                title="Save Profile Configuration?"
+                message={`Please revalidate your input details. Once saved, these details are used for all future astrological checks.
+                
+Name: ${formData.name}
+DOB: ${formData.dob}
+TOB: ${formData.tob || (formData.unknownTime ? 'Unknown' : '12:00')}
+Gender: ${formData.gender}
+Place: ${formData.pob}
+
+${activeProfile ? `Saving this will disable your current active profile ("${activeProfile.name}").` : ''}
+
+Are you sure you want to proceed?`}
+                confirmText="Yes, Save Profile"
+                cancelText="Check Again"
+                onConfirm={handleConfirmOverwrite}
+                onCancel={handleCancelOverwrite}
+                variant="warning"
+            />
         </div>
     );
 }
