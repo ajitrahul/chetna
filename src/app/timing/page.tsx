@@ -5,12 +5,45 @@ import { useSession } from 'next-auth/react';
 import styles from './page.module.css';
 import { Clock, Calendar, Info, Sparkles } from 'lucide-react';
 
+import DashaDisplay from '@/components/DashaDisplay';
+
+interface PranaDasha {
+    lord: string;
+    start: string;
+    end: string;
+    isCurrent: boolean;
+}
+
+interface SookshmaDasha {
+    lord: string;
+    start: string;
+    end: string;
+    isCurrent: boolean;
+    pranaDashas?: PranaDasha[];
+}
+
+interface PratyantarDasha {
+    lord: string;
+    start: string;
+    end: string;
+    isCurrent: boolean;
+    sookshmaDashas?: SookshmaDasha[];
+}
+
+interface Antardasha {
+    lord: string;
+    start: string;
+    end: string;
+    isCurrent: boolean;
+    pratyantarDashas?: PratyantarDasha[];
+}
+
 interface DashaPeriod {
     lord: string;
     start: string;
     end: string;
     isCurrent: boolean;
-    antardashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>;
+    antardashas?: Antardasha[];
 }
 
 const LORD_DESCRIPTIONS: Record<string, { supports: string, resists: string, themes: string }> = {
@@ -43,7 +76,6 @@ export default function TimingPage() {
     const fetchUserDashas = async () => {
         try {
             setLoading(true);
-            // 1. Get primary profile
             const profRes = await fetch('/api/profiles');
             const profiles = await profRes.json();
 
@@ -53,7 +85,6 @@ export default function TimingPage() {
                 return;
             }
 
-            // 2. Get dashas for the latest profile
             const dashaRes = await fetch(`/api/astrology/dashas?profileId=${profiles[0].id}`);
             const data = await dashaRes.json();
 
@@ -147,18 +178,7 @@ export default function TimingPage() {
             </div>
 
             <section className={styles.timelineSection}>
-                <h3 className={styles.sectionTitle}>Your Full Cycle</h3>
-                <div className={styles.timelineList}>
-                    {dashas.map((d, i) => (
-                        <div key={i} className={`${styles.timelineItem} ${d.isCurrent ? styles.activeItem : ''}`}>
-                            <div className={styles.timelineLord}>{d.lord}</div>
-                            <div className={styles.timelineDate}>
-                                {new Date(d.start).getFullYear()} — {new Date(d.end).getFullYear()}
-                            </div>
-                            {d.isCurrent && <span className={styles.currentBadge}>Active Now</span>}
-                        </div>
-                    ))}
-                </div>
+                <DashaDisplay dashas={dashas} />
             </section>
         </div>
     );

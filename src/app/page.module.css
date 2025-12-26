@@ -348,14 +348,36 @@
 
   .heroContent {
     max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .heroTitle {
     font-size: 3rem;
   }
 
+  .heroSubtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .heroActions {
     justify-content: center;
+  }
+
+  /* Dashboard Adjustments */
+  .widgetGrid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .sideColumn {
+    position: static;
+  }
+
+  .welcomeText {
+    font-size: 2.2rem;
   }
 
   .chartCircle {

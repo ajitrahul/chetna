@@ -189,6 +189,71 @@
     color: var(--secondary);
 }
 
+/* Verdict Section */
+.verdictSection {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+    border: 2px solid var(--card-border);
+}
+
+.verdictHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.verdictBadge {
+    padding: 8px 24px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.verdictBadge.act {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.verdictBadge.wait {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--accent-gold);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.verdictBadge.redirect {
+    background: rgba(244, 63, 94, 0.2);
+    color: #f43f5e;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.verdictSubtitle {
+    font-size: 0.9rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--secondary);
+    margin-bottom: 16px;
+    opacity: 0.8;
+}
+
+.treeList {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+}
+
+.treeStep {
+    font-size: 1rem !important;
+    color: var(--primary) !important;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+}
+
 .insightList,
 .actionList,
 .reflectionList {

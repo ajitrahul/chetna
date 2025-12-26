@@ -1,11 +1,35 @@
 import React from 'react';
+import DashaStory from './DashaStory';
 
 interface DashaPeriod {
     lord: string;
     start: string;
     end: string;
     isCurrent: boolean;
-    antardashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>;
+    antardashas?: Array<{
+        lord: string;
+        start: string;
+        end: string;
+        isCurrent: boolean;
+        pratyantarDashas?: Array<{
+            lord: string;
+            start: string;
+            end: string;
+            isCurrent: boolean;
+            sookshmaDashas?: Array<{
+                lord: string;
+                start: string;
+                end: string;
+                isCurrent: boolean;
+                pranaDashas?: Array<{
+                    lord: string;
+                    start: string;
+                    end: string;
+                    isCurrent: boolean;
+                }>;
+            }>;
+        }>;
+    }>;
 }
 
 interface DashaDisplayProps {
@@ -25,8 +49,12 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
 
     return (
         <div className="dasha-container">
-            <h3 className="section-title">Vimsottari Dasha Timeline</h3>
-            <p className="subtitle">Your soul&apos;s planetary schedule & sub-periods</p>
+            <DashaStory dashas={dashas} />
+
+            <div style={{ marginTop: '64px', borderTop: '1px dashed var(--card-border)', paddingTop: '64px' }}>
+                <h3 className="section-title">Technical Timeline</h3>
+                <p className="subtitle">Vimsottari Dasha detail view</p>
+            </div>
 
             <div className="timeline">
                 {dashas.map((dasha, idx) => (

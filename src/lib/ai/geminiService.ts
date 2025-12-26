@@ -6,6 +6,8 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 export interface ClarityResponse {
     questionContext: string;
     phaseOverview: string;
+    decisionTreeSteps: string[];
+    finalVerdict: 'ACT' | 'WAIT' | 'REDIRECT' | string;
     patternInsights: string[];
     actionGuidance: string[];
     reflectiveQuestions: string[];
@@ -31,7 +33,7 @@ export async function generateJournalAnalysis(
     chartData: ChartData,
     currentDasha: { lord: string, antardasha: string }
 ): Promise<JournalAnalysis> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
     const systemPrompt = `You are an insightful Vedic astrologer correlating personal reflections with planetary patterns.
 User wrote: "${content}"
@@ -66,7 +68,7 @@ export async function generateSynastryResponse(
     chartB: ChartData,
     names: { a: string, b: string }
 ): Promise<SynastryResponse> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
     const systemPrompt = `You are an ethical Vedic astrologer specializing in relationship dynamics (Synastry).
 Focus on "Awareness, not prediction". Help ${names.a} and ${names.b} understand the energy between them.
@@ -112,7 +114,7 @@ export async function generateClarityResponse(
     question: string,
     chartData: ChartData
 ): Promise<ClarityResponse> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
     const systemPrompt = `You are an ethical Vedic astrologer focused on awareness and empowerment.
 
@@ -130,6 +132,16 @@ SECTION B - Current Phase Overview:
 - Neutral, factual tone
 - Mention the current Mahadasha/Antardasha theme if provided
 
+SECTION BA - The Decision Tree (Act • Wait • Redirect):
+You MUST apply the "Vimshottari Decision Tree" framework to the user's question:
+1. MAHADASHA GATE: Does the current MD lord support the question's domain (Career, Love, etc.)? If No -> REDIRECT.
+2. ANTARDASHA FILTER: Is this life area active? (Planet houses/rhythms). If No -> WAIT.
+3. PRATYANTAR SWITCH: Action (Mars/Sun), Communication (Merc/Ven), or Processing (Moon/Jup)? If Processing/Karma (Sat/Rahu/Ketu) -> WAIT.
+4. SOOKSHMA MIRROR: Emotional readiness. Stable (Merc/Ven/Jup) or Reactive/Impulsive (Moon/Mars/Sat)? If Unstable -> WAIT.
+5. PRANA TRIGGER: Today's pulse. Does the current Hour/Prana planet support immediate action? (Sat/Rahu/Ketu usually mean Wait/Observe).
+
+FINAL VERDICT: Start this section with a clear "ACT", "WAIT", or "REDIRECT" badge based on these 5 steps.
+
 SECTION C - Pattern Insights (4-5 bullet points):
 - Start with "This phase highlights..."
 - Psychological patterns this question reveals
@@ -138,7 +150,7 @@ SECTION C - Pattern Insights (4-5 bullet points):
 - Each point starts with a tendency phrase
 
 SECTION D - Action Guidance (4-5 bullet points - MOST VALUABLE):
-- Concrete actions that work WITH the patterns
+- Concrete actions that work WITH the patterns and the Decision Tree verdict
 - What supports clarity vs. confusion
 - Behavioral choices that improve outcomes
 - End with "These are actions, not predictions"
@@ -154,14 +166,14 @@ SECTION F - Ethical Closing (1 sentence):
 CHART DATA PROVIDED:
 ${JSON.stringify(chartData, null, 2)}
 
-VIMSOTTARI DASHAS (Current Timing):
-${JSON.stringify(chartData.dashas?.filter(d => d.isCurrent), null, 2)}
+VIMSOTTARI DASHAS (Current 5-Level Timing):
+${JSON.stringify(chartData.dashas?.find(d => d.isCurrent), null, 2)}
 
 USER QUESTION:
 ${question}
 
-Vedic Context: Remember D1 is the outer manifestation (the tree), while D9 (Navamsha) represents the inner strength and spiritual fruit. Use both to provide depth.
-Generate response following the 6-section structure EXACTLY.`;
+Vedic Context: Remember D1 is the outer manifestation (the tree), while D9 (Navamsha) represents the inner strength and spiritual fruit. Use the Vimshottari Decision Tree steps to categorize your guidance.
+Generate response following the 7-section structure (including SECTION BA) EXACTLY.`;
 
     try {
         const result = await model.generateContent(systemPrompt);
@@ -180,13 +192,23 @@ Generate response following the 6-section structure EXACTLY.`;
 }
 
 function parseGeminiResponse(text: string, question: string): ClarityResponse {
-    // Parse sections from Gemini's response
-    // This is a basic implementation - adjust based on actual Gemini output format
+    const finalVerdictMatch = text.match(/FINAL VERDICT:\s*(ACT|WAIT|REDIRECT)/i);
+    const finalVerdict = finalVerdictMatch ? finalVerdictMatch[1].toUpperCase() : 'WAIT';
 
     return {
         questionContext: question,
-        phaseOverview: extractSection(text, 'SECTION B', 'SECTION C') ||
+        phaseOverview: extractSection(text, 'SECTION B', 'SECTION BA') ||
             "This phase emphasizes awareness and conscious choice. Patterns are emerging that invite reflection rather than reaction.",
+
+        decisionTreeSteps: extractBulletPoints(text, 'SECTION BA', 'FINAL VERDICT') || [
+            "Analyzing Mahadasha Gate...",
+            "Checking Antardasha Filter...",
+            "Evaluating Pratyantar Switch...",
+            "Mirroring Sookshma Readiness...",
+            "Triggering Prana Pulse..."
+        ],
+
+        finalVerdict,
 
         patternInsights: extractBulletPoints(text, 'SECTION C', 'SECTION D') || [
             "Tendency to revisit familiar patterns",

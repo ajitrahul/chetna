@@ -61,7 +61,30 @@ export interface ChartData {
         start: string;
         end: string;
         isCurrent: boolean;
-        antardashas?: Array<{ lord: string; start: string; end: string; isCurrent: boolean }>
+        antardashas: Array<{
+            lord: string;
+            start: string;
+            end: string;
+            isCurrent: boolean;
+            pratyantarDashas?: Array<{
+                lord: string;
+                start: string;
+                end: string;
+                isCurrent: boolean;
+                sookshmaDashas?: Array<{
+                    lord: string;
+                    start: string;
+                    end: string;
+                    isCurrent: boolean;
+                    pranaDashas?: Array<{
+                        lord: string;
+                        start: string;
+                        end: string;
+                        isCurrent: boolean;
+                    }>;
+                }>;
+            }>;
+        }>;
     }>;
 }
 
@@ -326,39 +349,38 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
     // Find index of starting lord in sequence
     let lordIdx = NAKSHATRA_LORDS.indexOf(nak.lord);
 
-    const calculateSubPeriods = (mLord: string, mStart: Date, mEnd: Date) => {
+    const calculateSubPeriods = (mLord: string, mStart: Date, mEnd: Date, level: number = 1): any[] => {
         const subPeriods = [];
         let subStart = new Date(mStart);
-        const mYears = DASHA_YEARS[mLord];
         let subLordIdx = NAKSHATRA_LORDS.indexOf(mLord);
 
         for (let j = 0; j < 9; j++) {
             const aLord = NAKSHATRA_LORDS[subLordIdx];
             const aYears = DASHA_YEARS[aLord];
 
-            // Formula: (Mahadasha Years * Antardasha Years) / 10 = months
-            const totalMonths = (mYears * aYears) / 10;
-            const subEnd = new Date(subStart);
+            // Formula: Parent Duration * (Years / 120)
+            const parentDurationDays = (mEnd.getTime() - mStart.getTime()) / (1000 * 60 * 60 * 24);
+            const totalDays = (parentDurationDays * aYears) / 120;
 
-            // More precise month/day calculation
-            const years = Math.floor(totalMonths / 12);
-            const months = Math.floor(totalMonths % 12);
-            const days = Math.round((totalMonths % 1) * 30.4375); // Average month length
-
-            subEnd.setFullYear(subEnd.getFullYear() + years);
-            subEnd.setMonth(subEnd.getMonth() + months);
-            subEnd.setDate(subEnd.getDate() + days);
-
-            // Ensure subEnd doesn't overshoot mEnd significantly due to rounding
+            const subEnd = new Date(subStart.getTime() + totalDays * 24 * 60 * 60 * 1000);
             const finalSubEnd = j === 8 ? new Date(mEnd) : subEnd;
 
-            subPeriods.push({
+            const period: any = {
                 lord: aLord,
                 start: new Date(subStart),
                 end: new Date(finalSubEnd),
                 isCurrent: false
-            });
+            };
 
+            // Recursive call for next levels up to Prana (Level 4)
+            if (level < 4) {
+                const subKey = level === 1 ? 'pratyantarDashas' :
+                    level === 2 ? 'sookshmaDashas' :
+                        'pranaDashas';
+                period[subKey] = calculateSubPeriods(aLord, period.start, period.end, level + 1);
+            }
+
+            subPeriods.push(period);
             subStart = new Date(finalSubEnd);
             subLordIdx = (subLordIdx + 1) % 9;
         }
@@ -406,18 +428,30 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
     }
 
     const now = new Date();
-    return dashas.map(d => ({
-        ...d,
-        start: d.start.toISOString(),
-        end: d.end.toISOString(),
-        isCurrent: now >= d.start && now < d.end,
-        antardashas: d.antardashas.map(ad => ({
-            ...ad,
-            start: ad.start.toISOString(),
-            end: ad.end.toISOString(),
-            isCurrent: now >= ad.start && now < ad.end
-        }))
-    }));
+    const mapPeriod = (p: any): any => ({
+        ...p,
+        start: p.start.toISOString(),
+        end: p.end.toISOString(),
+        isCurrent: now >= p.start && now < p.end,
+        antardashas: p.antardashas?.map(mapLevel),
+        pratyantarDashas: p.pratyantarDashas?.map(mapLevel),
+        sookshmaDashas: p.sookshmaDashas?.map(mapLevel),
+        pranaDashas: p.pranaDashas?.map(mapLevel)
+    });
+
+    function mapLevel(level: any): any {
+        return {
+            ...level,
+            start: level.start.toISOString(),
+            end: level.end.toISOString(),
+            isCurrent: now >= level.start && now < level.end,
+            pratyantarDashas: level.pratyantarDashas?.map(mapLevel),
+            sookshmaDashas: level.sookshmaDashas?.map(mapLevel),
+            pranaDashas: level.pranaDashas?.map(mapLevel)
+        };
+    }
+
+    return dashas.map(mapPeriod);
 }
 
 export function getZodiacSign(longitude: number): string {

@@ -18,6 +18,8 @@ function ClarityContent() {
     const [result, setResult] = useState<null | {
         questionContext: string;
         phaseOverview: string;
+        decisionTreeSteps: string[];
+        finalVerdict: string;
         patternInsights: string[];
         actionGuidance: string[];
         reflectiveQuestions: string[];
@@ -156,9 +158,25 @@ function ClarityContent() {
                         <p className={styles.questionContext}>&quot;{result.questionContext}&quot;</p>
                     </div>
 
+                    {/* Section BA: Decision Tree Verdict */}
+                    <div className={`${styles.section} ${styles.verdictSection}`}>
+                        <div className={styles.verdictHeader}>
+                            <h2 className={styles.sectionTitle}>Action Verdict</h2>
+                            <div className={`${styles.verdictBadge} ${styles[result.finalVerdict.toLowerCase()]}`}>
+                                {result.finalVerdict}
+                            </div>
+                        </div>
+                        <p className={styles.verdictSubtitle}>Vimshottari Decision Tree Analysis:</p>
+                        <ul className={styles.treeList}>
+                            {result.decisionTreeSteps.map((step, i) => (
+                                <li key={i} className={styles.treeStep}>{step}</li>
+                            ))}
+                        </ul>
+                    </div>
+
                     {/* Section B: Current Phase Overview */}
                     <div className={`${styles.section} ${styles.phaseSection}`}>
-                        <h2 className={styles.sectionTitle}>Current Phase Overview</h2>
+                        <h2 className={styles.sectionTitle}>Current Timing Overview</h2>
                         <p>{result.phaseOverview}</p>
                     </div>
 
