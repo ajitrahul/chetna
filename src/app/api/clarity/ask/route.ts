@@ -64,7 +64,10 @@ export async function POST(req: NextRequest) {
 
         // Get user's most recent chart data
         const profile = await prisma.profile.findFirst({
-            where: { userId: session.user.id },
+            where: {
+                userId: session.user.id,
+                isActive: true
+            },
             orderBy: { createdAt: 'desc' },
         });
 

@@ -12,7 +12,13 @@ export async function GET(req: NextRequest) {
 
         // Fetch the user's single profile
         const profile = await prisma.profile.findFirst({
-            where: { userId: session.user.id }
+            where: {
+                userId: session.user.id,
+                isActive: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
         });
 
         if (!profile) {
@@ -47,7 +53,10 @@ export async function POST(req: NextRequest) {
         // Since schema is: model Profile { ... userId String ... }, let's check first.
 
         const existingProfile = await prisma.profile.findFirst({
-            where: { userId: session.user.id }
+            where: {
+                userId: session.user.id,
+                isActive: true
+            }
         });
 
         let profile;

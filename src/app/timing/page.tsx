@@ -76,16 +76,16 @@ export default function TimingPage() {
     const fetchUserDashas = async () => {
         try {
             setLoading(true);
-            const profRes = await fetch('/api/profiles');
-            const profiles = await profRes.json();
+            const profRes = await fetch('/api/profiles/active');
+            const activeProfile = await profRes.json();
 
-            if (!profiles || profiles.length === 0) {
-                setError("No birth profiles found. Please create one in 'Your Chart' first.");
+            if (!activeProfile || activeProfile.error) {
+                setError("No active profile found. Please create one in 'Your Chart' first.");
                 setLoading(false);
                 return;
             }
 
-            const dashaRes = await fetch(`/api/astrology/dashas?profileId=${profiles[0].id}`);
+            const dashaRes = await fetch(`/api/astrology/dashas?profileId=${activeProfile.id}`);
             const data = await dashaRes.json();
 
             if (data.error) throw new Error(data.error);

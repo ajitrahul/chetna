@@ -48,10 +48,25 @@ export default function ChartPage() {
         fetchProfile();
     }, [status]);
 
-    const handleChartGenerated = (data: ChartData) => {
-        // This callback is triggered after form submit (which also saves to DB)
-        // We reload the profile to ensure synchronization
-        window.location.reload();
+    const handleChartGenerated = async (data: ChartData) => {
+        // Fetch the latest profile data to get the full updated object (name, dates, etc.)
+        try {
+            setLoading(true);
+            const res = await fetch('/api/user/profile');
+            if (res.ok) {
+                const updatedProfile = await res.json();
+                setProfile({
+                    ...updatedProfile,
+                    dateOfBirth: new Date(updatedProfile.dateOfBirth),
+                    chartData: updatedProfile.chartData as ChartData
+                });
+                setIsEditing(false); // Close the form
+            }
+        } catch (error) {
+            console.error('Failed to refresh profile:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (loading || status === 'loading') {
