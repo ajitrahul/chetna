@@ -97,7 +97,7 @@ async function getSwe() {
                     const fs = require('fs');
                     const dataBuffer = fs.readFileSync(dataFilePath);
                     dataBinary = new Uint8Array(dataBuffer).buffer;
-                    console.log(`[SwissEph] Loaded DATA file into buffer: ${dataBinary.byteLength} bytes`);
+                    console.log(`[SwissEph] Loaded DATA file into buffer: ${dataBinary?.byteLength} bytes`);
                 } catch (e) {
                     console.error('[SwissEph] Failed to read DATA file:', e);
                 }
