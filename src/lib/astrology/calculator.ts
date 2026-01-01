@@ -81,7 +81,14 @@ async function getSwe() {
                 wasmBinary: wasmBinary ? new Uint8Array(wasmBinary) : undefined,
                 // Some versions accept 'ephe' or 'data' for the ephemeris data
                 ephe: dataBinary ? new Uint8Array(dataBinary) : undefined,
-
+                // Provide the pre-loaded data package to Emscripten
+                getPreloadedPackage: (name: string, size: number) => {
+                    if (name.endsWith('.data') && dataBinary) {
+                        console.log(`[SwissEph] Providing pre-loaded package: ${name}`);
+                        return dataBinary;
+                    }
+                    return null;
+                },
                 locateFile: (path: string, scriptDirectory: string) => {
                     if (path.endsWith('.wasm')) {
                         console.log('[SwissEph] LocateFile requested WASM: ' + path);
