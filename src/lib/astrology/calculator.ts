@@ -51,7 +51,7 @@ async function getSwe() {
 
             try {
                 // @ts-ignore
-                const { swissephWasm, swissephData } = require('../swisseph-binaries');
+                const { swissephWasm, swissephData } = require('./swisseph-binaries');
                 console.log('[SwissEph] Decoding bundled binaries...');
                 wasmBinary = decodeBase64(swissephWasm);
                 dataBinary = decodeBase64(swissephData);
@@ -82,15 +82,16 @@ async function getSwe() {
                 // Some versions accept 'ephe' or 'data' for the ephemeris data
                 ephe: dataBinary ? new Uint8Array(dataBinary) : undefined,
 
-                locateFile: (path: string) => {
+                locateFile: (path: string, scriptDirectory: string) => {
                     if (path.endsWith('.wasm')) {
                         console.log('[SwissEph] LocateFile requested WASM: ' + path);
+                        // If we have a file path from fs search, return it.
+                        // Otherwise return the simple filename and hope the binary buffer we passed works.
                         if (wasmFilePath) return wasmFilePath;
                         return '/swisseph.wasm';
                     }
                     if (path.endsWith('.data')) {
                         console.log('[SwissEph] LocateFile requested DATA: ' + path);
-                        if (dataFilePath) return dataFilePath;
                         return '/swisseph.data';
                     }
                     return path;
