@@ -16,37 +16,35 @@ const nextConfig: NextConfig = {
       ...config.experiments,
       asyncWebAssembly: true,
     };
-
-    // Fix for WASM not found in production
-    // We copy the swisseph.wasm file to the output directory
     const CopyPlugin = require("copy-webpack-plugin");
     const path = require("path");
+    const webpack = require("webpack");
+    // Configure alias to ignore swisseph.data
+    // This makes require('./swisseph.data') return an empty object
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      [path.join(__dirname, "node_modules/swisseph-wasm/wsam/swisseph.data")]: false,
+    };
 
+    // Copy WASM files to public directory for runtime access
     config.plugins.push(
       new CopyPlugin({
         patterns: [
           {
             from: path.join(__dirname, "node_modules/swisseph-wasm/wsam/swisseph.wasm"),
-            to: path.join(__dirname, ".next/server/chunks"), // Tried location for serverless
-            noErrorOnMissing: true,
-          },
-          // Also copy to public/static/wasm just in case it tries to fetch via http
-          {
-            from: path.join(__dirname, "node_modules/swisseph-wasm/wsam/swisseph.wasm"),
             to: path.join(__dirname, "public/swisseph.wasm"),
-            noErrorOnMissing: true,
+            noErrorOnMissing: false,
+          },
+          {
+            from: path.join(__dirname, "node_modules/swisseph-wasm/wsam/swisseph.data"),
+            to: path.join(__dirname, "public/swisseph.data"),
+            noErrorOnMissing: false,
           },
         ],
       })
     );
 
-    // Also tried:
-    // https://github.com/vercel/next.js/issues/25852#issuecomment-1057059000
-    if (isServer) {
-      config.output.webassemblyModuleFilename = './../static/wasm/[modulehash].wasm';
-    } else {
-      config.output.webassemblyModuleFilename = 'static/wasm/[modulehash].wasm';
-    }
+    // Don't set webassemblyModuleFilename - let Next.js handle it
 
     return config;
   },

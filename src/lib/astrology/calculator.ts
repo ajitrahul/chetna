@@ -28,8 +28,121 @@ async function getSwe() {
 
     if (!swePromise) {
         swePromise = (async () => {
+            let wasmBinary: ArrayBuffer | undefined;
+            let dataFilePath: string | undefined;
+            let wasmFilePath: string | undefined;
+
+            // Server-side: Read files from filesystem
+            if (typeof window === 'undefined') {
+                try {
+                    const fs = require('fs');
+                    const path = require('path');
+
+                    // Try to find files in likely locations
+                    const possibleWasmPaths = [
+                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.wasm'),
+                        path.join(process.cwd(), 'public/swisseph.wasm'),
+                    ];
+
+                    const possibleDataPaths = [
+                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.data'),
+                        path.join(process.cwd(), 'public/swisseph.data'),
+                    ];
+
+                    // Find WASM file
+                    for (const wasmPath of possibleWasmPaths) {
+                        if (fs.existsSync(wasmPath)) {
+                            console.log('[SwissEph] Found WASM at:', wasmPath);
+                            const fileBuffer = fs.readFileSync(wasmPath);
+                            wasmBinary = new Uint8Array(fileBuffer).buffer;
+                            wasmFilePath = wasmPath;
+                            break;
+                        }
+                    }
+
+                    // Find DATA file
+                    for (const dataPath of possibleDataPaths) {
+                        if (fs.existsSync(dataPath)) {
+                            console.log('[SwissEph] Found DATA at:', dataPath);
+                            dataFilePath = dataPath;
+                            break;
+                        }
+                    }
+
+                    if (!wasmBinary) {
+                        console.warn('[SwissEph] WASM file not found on filesystem. Will try runtime fetch.');
+                    }
+                    if (!dataFilePath) {
+                        console.warn('[SwissEph] DATA file not found on filesystem. Will try runtime fetch.');
+                    }
+                } catch (e) {
+                    console.error('[SwissEph] Error reading files from filesystem:', e);
+                }
+            }
+
+            // Initialize SwissEph manually to bypass library's ignoring of options
+            // Use local vendored file to ensure CommonJS compatibility
+            // @ts-ignore
+            let WasamSwissEph = require('../swisseph-custom.js');
+
+            // Handle ES Module default export
+            if (typeof WasamSwissEph !== 'function' && WasamSwissEph.default) {
+                WasamSwissEph = WasamSwissEph.default;
+            }
+
+            // Read DATA file if found
+            let dataBinary: ArrayBuffer | undefined;
+            if (dataFilePath && typeof window === 'undefined') {
+                try {
+                    const fs = require('fs');
+                    const dataBuffer = fs.readFileSync(dataFilePath);
+                    dataBinary = new Uint8Array(dataBuffer).buffer;
+                    console.log(`[SwissEph] Loaded DATA file into buffer: ${dataBinary.byteLength} bytes`);
+                } catch (e) {
+                    console.error('[SwissEph] Failed to read DATA file:', e);
+                }
+            }
+
+            console.log(`[SwissEph] Instantiating Module manually. hasWasm: ${!!wasmBinary}, hasData: ${!!dataBinary}`);
+
+            const moduleOptions = {
+                // Pass Uint8Array directly
+                wasmBinary: wasmBinary ? new Uint8Array(wasmBinary) : undefined,
+                // Some versions accept 'ephe' or 'data' for the ephemeris data
+                ephe: dataBinary ? new Uint8Array(dataBinary) : undefined,
+
+                locateFile: (path: string) => {
+                    if (path.endsWith('.wasm')) {
+                        console.log('[SwissEph] LocateFile requested WASM: ' + path);
+                        if (wasmFilePath) return wasmFilePath;
+                        return '/swisseph.wasm';
+                    }
+                    if (path.endsWith('.data')) {
+                        console.log('[SwissEph] LocateFile requested DATA: ' + path);
+                        if (dataFilePath) return dataFilePath;
+                        return '/swisseph.data';
+                    }
+                    return path;
+                },
+                print: (str: string) => console.log('[SwissEph stdout]', str),
+                printErr: (str: string) => console.error('[SwissEph stderr]', str)
+            };
+
+            // Initialize the module directly
+            const sweModule = await WasamSwissEph(moduleOptions);
+
+            // Create wrapper instance and inject the initialized module
+            // @ts-ignore
             const instance = new SwissEph();
-            await instance.initSwissEph();
+            // @ts-ignore
+            instance.SweModule = sweModule;
+
+            // Manually set ephe path (logic from library's initSwissEph)
+            // @ts-ignore
+            instance.set_ephe_path('sweph');
+
+            console.log('[SwissEph] Initialization complete!');
+
             sweInstance = instance;
             return instance;
         })();
