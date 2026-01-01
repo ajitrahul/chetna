@@ -50,14 +50,17 @@ async function getSwe() {
             let dataBinary: ArrayBuffer | undefined;
 
             try {
+                const startTime = Date.now();
                 // @ts-ignore
                 const { swissephWasm, swissephData } = require('./swisseph-binaries');
-                console.log('[SwissEph] Decoding bundled binaries...');
+                console.log(`[SwissEph] Binaries required in ${Date.now() - startTime}ms. Decoding...`);
+
+                const decodeStart = Date.now();
                 wasmBinary = decodeBase64(swissephWasm);
                 dataBinary = decodeBase64(swissephData);
-                console.log(`[SwissEph] Successfully decoded bundled binaries. WASM: ${wasmBinary.byteLength}, DATA: ${dataBinary.byteLength}`);
+                console.log(`[SwissEph] Decoded in ${Date.now() - decodeStart}ms. WASM: ${wasmBinary.byteLength}, DATA: ${dataBinary.byteLength}`);
             } catch (e) {
-                console.error('[SwissEph] Failed to decode bundled binaries:', e);
+                console.error('[SwissEph] Failed to load/decode bundled binaries:', e);
             }
 
             // Fallback: file system reading (should rarely be reached if bundle exists)
@@ -371,13 +374,7 @@ export async function calculateChart(
             ascendant,
             mc,
             navamsaAscendant: navamsaAscSign,
-            dashas: dashas.map(d => ({
-                lord: d.lord,
-                start: d.start,
-                end: d.end,
-                isCurrent: d.isCurrent,
-                antardashas: d.antardashas
-            }))
+            dashas: dashas
         };
     } finally {
         unlock();
@@ -441,7 +438,7 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
     // Find index of starting lord in sequence
     let lordIdx = NAKSHATRA_LORDS.indexOf(nak.lord);
 
-    const calculateSubPeriods = (mLord: string, mStart: Date, mEnd: Date, level: number = 1): any[] => {
+    const calculateSubPeriods = (mLord: string, mStart: Date, mEnd: Date, level: number = 1, maxLevel: number = 3): any[] => {
         const subPeriods = [];
         let subStart = new Date(mStart);
         let subLordIdx = NAKSHATRA_LORDS.indexOf(mLord);
@@ -464,8 +461,8 @@ export function calculateVimsottariDashas(moonLong: number, birthDate: Date) {
                 isCurrent: false
             };
 
-            // Recursive call for next levels up to Prana (Level 4)
-            if (level < 4) {
+            // Recursive call for next levels up to maxLevel (Default 3: Pratyantar)
+            if (level < maxLevel) {
                 const subKey = level === 1 ? 'pratyantarDashas' :
                     level === 2 ? 'sookshmaDashas' :
                         'pranaDashas';
