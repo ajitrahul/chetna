@@ -28,61 +28,41 @@ async function getSwe() {
 
     if (!swePromise) {
         swePromise = (async () => {
-            let wasmBinary: ArrayBuffer | undefined;
-            let dataFilePath: string | undefined;
-            let wasmFilePath: string | undefined;
-
-            // Server-side: Read files from filesystem
-            if (typeof window === 'undefined') {
-                try {
-                    const fs = require('fs');
-                    const path = require('path');
-
-                    // Try to find files in likely locations - Prioritize public/ for production
-                    const possibleWasmPaths = [
-                        path.join(process.cwd(), 'public/swisseph.wasm'),
-                        path.join(process.cwd(), 'swisseph.wasm'), // Fallback for standalone build root
-                        path.join(process.cwd(), '.next/server/public/swisseph.wasm'), // Vercel specific
-                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.wasm'), // Dev fallback
-                    ];
-
-                    const possibleDataPaths = [
-                        path.join(process.cwd(), 'public/swisseph.data'),
-                        path.join(process.cwd(), 'swisseph.data'),
-                        path.join(process.cwd(), '.next/server/public/swisseph.data'),
-                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.data'),
-                    ];
-
-                    // Find WASM file
-                    for (const wasmPath of possibleWasmPaths) {
-                        if (fs.existsSync(wasmPath)) {
-                            console.log('[SwissEph] Found WASM at:', wasmPath);
-                            const fileBuffer = fs.readFileSync(wasmPath);
-                            wasmBinary = new Uint8Array(fileBuffer).buffer;
-                            wasmFilePath = wasmPath;
-                            break;
-                        }
+            // Base64 decoding helper
+            const decodeBase64 = (str: string): ArrayBuffer => {
+                if (typeof Buffer !== 'undefined') {
+                    return Buffer.from(str, 'base64').buffer;
+                } else {
+                    const binaryString = atob(str);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
                     }
-
-                    // Find DATA file
-                    for (const dataPath of possibleDataPaths) {
-                        if (fs.existsSync(dataPath)) {
-                            console.log('[SwissEph] Found DATA at:', dataPath);
-                            dataFilePath = dataPath;
-                            break;
-                        }
-                    }
-
-                    if (!wasmBinary) {
-                        console.warn('[SwissEph] WASM file not found on filesystem. Will try runtime fetch.');
-                    }
-                    if (!dataFilePath) {
-                        console.warn('[SwissEph] DATA file not found on filesystem. Will try runtime fetch.');
-                    }
-                } catch (e) {
-                    console.error('[SwissEph] Error reading files from filesystem:', e);
+                    return bytes.buffer;
                 }
+            };
+
+            // Load binaries from bundled Base64 strings (Nuclear Option)
+            // This guarantees availability in production serverless environments
+            // @ts-ignore
+            let wasmBinary: ArrayBuffer | undefined;
+            // @ts-ignore
+            let dataBinary: ArrayBuffer | undefined;
+
+            try {
+                // @ts-ignore
+                const { swissephWasm, swissephData } = require('../swisseph-binaries');
+                console.log('[SwissEph] Decoding bundled binaries...');
+                wasmBinary = decodeBase64(swissephWasm);
+                dataBinary = decodeBase64(swissephData);
+                console.log(`[SwissEph] Successfully decoded bundled binaries. WASM: ${wasmBinary.byteLength}, DATA: ${dataBinary.byteLength}`);
+            } catch (e) {
+                console.error('[SwissEph] Failed to decode bundled binaries:', e);
             }
+
+            // Fallback: file system reading (should rarely be reached if bundle exists)
+            // Only keeping minimal logic here just in case, but bundle is primary.
+            let wasmFilePath: string | undefined;
 
             // Initialize SwissEph manually to bypass library's ignoring of options
             // Use local vendored file to ensure CommonJS compatibility
@@ -92,19 +72,6 @@ async function getSwe() {
             // Handle ES Module default export
             if (typeof WasamSwissEph !== 'function' && WasamSwissEph.default) {
                 WasamSwissEph = WasamSwissEph.default;
-            }
-
-            // Read DATA file if found
-            let dataBinary: ArrayBuffer | undefined;
-            if (dataFilePath && typeof window === 'undefined') {
-                try {
-                    const fs = require('fs');
-                    const dataBuffer = fs.readFileSync(dataFilePath);
-                    dataBinary = new Uint8Array(dataBuffer).buffer;
-                    console.log(`[SwissEph] Loaded DATA file into buffer: ${dataBinary?.byteLength} bytes`);
-                } catch (e) {
-                    console.error('[SwissEph] Failed to read DATA file:', e);
-                }
             }
 
             console.log(`[SwissEph] Instantiating Module manually. hasWasm: ${!!wasmBinary}, hasData: ${!!dataBinary}`);
