@@ -70,7 +70,20 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ...chartData, transits: transitData });
     } catch (error) {
         console.error('Calculation error:', error);
-        console.error('Error details:', error instanceof Error ? error.message : String(error));
+        // Standard error logging
+        if (error instanceof Error) {
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            console.error('Error name:', error.name);
+        } else {
+            console.error('Unknown error type:', String(error));
+        }
+
+        // Specific WASM hints
+        if (String(error).includes('swisseph')) {
+            console.error('POTENTIAL WASM ISSUE: swisseph-wasm module failed to load or execute. Check next.config.ts for asyncWebAssembly support.');
+        }
+
         console.error('Request body:', body);
         return NextResponse.json(
             {

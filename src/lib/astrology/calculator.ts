@@ -511,7 +511,10 @@ export async function calculatePanchang(
     lat: number,
     lng: number
 ) {
-    const chart = await calculateChart(year, month, day, hour, lat, lng);
+    // Use timezone = 0 because inputs are already in UTC (implied by usage in route.ts)
+    // Or we should update the function signature to accept timezone.
+    // However, looking at route.ts, we pass UTC time. So let's force timezone 0 here to avoid double subtraction.
+    const chart = await calculateChart(year, month, day, hour, lat, lng, 0);
     const sunLong = chart.planets.Sun.longitude;
     const moonLong = chart.planets.Moon.longitude;
 

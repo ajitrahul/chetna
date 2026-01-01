@@ -81,6 +81,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(profile, { status: 201 });
     } catch (error) {
         console.error('Failed to create profile:', error);
+        if (error instanceof Error) {
+            console.error('Error stack:', error.stack);
+        }
         return NextResponse.json(
             { error: 'Failed to create profile' },
             { status: 500 }

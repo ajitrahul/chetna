@@ -42,6 +42,15 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(panchang);
     } catch (error: unknown) {
         console.error('Panchang calculation error:', error);
+
+        if (error instanceof Error) {
+            console.error('Error stack:', error.stack);
+        }
+
+        if (String(error).includes('swisseph')) {
+            console.error('POTENTIAL WASM ISSUE in Panchang: swisseph-wasm module failed. Check Webpack config.');
+        }
+
         return NextResponse.json({
             error: 'Failed to calculate Panchang',
             details: error instanceof Error ? error.message : String(error)
