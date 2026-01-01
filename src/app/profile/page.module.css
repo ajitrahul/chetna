@@ -174,7 +174,31 @@
     border-color: var(--accent-gold);
 }
 
-.profileInfo {
+.profileActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reportTagBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #000;
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    padding: 4px 10px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.reportTagBtn:hover {
+    transform: scale(1.05);
+}
+
+.profileLink {
     display: flex;
     flex-direction: column;
 }

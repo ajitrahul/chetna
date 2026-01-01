@@ -1,7 +1,113 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 import { ChartData } from '../astrology/calculator';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+
+// DeepSeek Client
+const deepseek = new OpenAI({
+    apiKey: process.env.DEEPSEEK_API_KEY,
+    baseURL: 'https://api.deepseek.com',
+});
+
+// Official OpenAI Client
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
+/**
+ * Utility to get the correct model name based on provider and complexity
+ * Now supports a "HYBRID" strategy to use best-of-breed for each feature
+ */
+function getModel(feature: 'REPORT' | 'CLARITY' | 'SYNASTRY' | 'JOURNAL') {
+    const strategy = process.env.AI_STRATEGY || 'HYBRID';
+
+    // Default provider mapping for SINGLE mode
+    const defaultProvider = process.env.REPORT_LLM_PROVIDER || 'gemini';
+
+    // Best-of-Breed Mapping for HYBRID mode
+    const bestOfBreed = {
+        REPORT: { provider: 'gemini', model: 'gemini-2.5-pro' },   // Narrative depth
+        CLARITY: { provider: 'openai', model: 'gpt-4o' },         // Logical reasoning
+        SYNASTRY: { provider: 'gemini', model: 'gemini-2.5-pro' }, // Poetic empathy
+        JOURNAL: { provider: 'deepseek', model: 'deepseek-chat' } // Performance/Cost
+    };
+
+    if (strategy === 'HYBRID') {
+        const result = bestOfBreed[feature];
+        // Fallback check: if the required API key is missing, fallback to gemini
+        if (result.provider === 'openai' && !process.env.OPENAI_API_KEY) return { provider: 'gemini', modelName: 'gemini-2.5-pro' };
+        if (result.provider === 'deepseek' && !process.env.DEEPSEEK_API_KEY) return { provider: 'gemini', modelName: 'gemini-2.5-flash' };
+        return { provider: result.provider, modelName: result.model };
+    }
+
+    // SINGLE mode logic
+    const config = {
+        gemini: {
+            HIGH: 'gemini-2.5-pro',
+            STANDARD: 'gemini-2.5-flash'
+        },
+        openai: {
+            HIGH: 'gpt-4o',
+            STANDARD: 'gpt-4o-mini'
+        },
+        deepseek: {
+            HIGH: 'deepseek-chat', // maps to V3 model
+            STANDARD: 'deepseek-chat'
+        }
+    };
+
+    const complexity = (feature === 'REPORT' || feature === 'CLARITY' || feature === 'SYNASTRY') ? 'HIGH' : 'STANDARD';
+    return {
+        provider: defaultProvider,
+        modelName: config[defaultProvider as keyof typeof config]?.[complexity] || config.gemini[complexity]
+    };
+}
+
+/**
+ * Generic caller for different providers
+ */
+async function callAI(prompt: string, feature: 'REPORT' | 'CLARITY' | 'SYNASTRY' | 'JOURNAL', isJson: boolean = false) {
+    const { provider, modelName } = getModel(feature);
+
+    try {
+        if (provider === 'gemini') {
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+            return isJson ? text.replace(/```json|```/g, "").trim() : text;
+        } else {
+            const client = provider === 'deepseek' ? deepseek : openai;
+            const response = await client.chat.completions.create({
+                model: modelName,
+                messages: [{ role: "user", content: prompt }],
+                ...(isJson && { response_format: { type: 'json_object' } })
+            });
+            return response.choices[0].message.content || "";
+        }
+    } catch (error: any) {
+        const isQuotaError = error.status === 429 || error.message?.includes('429') || error.message?.includes('quota');
+        console.error(`${provider.toUpperCase()} AI Error:`, error);
+
+        // If we hit a quota limit and we have a secondary provider available, try a high-quality fallback
+        if (isQuotaError && provider === 'gemini' && process.env.OPENAI_API_KEY) {
+            console.warn("Gemini Quota hit. Attempting premium fallback to OpenAI GPT-4o...");
+            const secondaryClient = openai;
+            const response = await secondaryClient.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [{ role: "user", content: prompt }],
+                ...(isJson && { response_format: { type: 'json_object' } })
+            });
+            return response.choices[0].message.content || "";
+        }
+
+        if (isQuotaError) {
+            throw new Error(`AI Quota Exceeded (${provider}). Please enable billing in your AI Dashboard or wait a minute.`);
+        }
+
+        throw error;
+    }
+}
 
 export interface ClarityResponse {
     questionContext: string;
@@ -28,249 +134,252 @@ export interface JournalAnalysis {
     growthSuggestion: string;
 }
 
+/**
+ * 1. JOURNAL ANALYSIS
+ */
 export async function generateJournalAnalysis(
     content: string,
     chartData: ChartData,
     currentDasha: { lord: string, antardasha: string }
 ): Promise<JournalAnalysis> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-
-    const systemPrompt = `You are an insightful Vedic astrologer correlating personal reflections with planetary patterns.
+    const sanitizedChart = sanitizeChartData(chartData);
+    const prompt = `You are an insightful Vedic astrologer correlating personal reflections with planetary patterns.
 User wrote: "${content}"
 
 Current Timing: ${currentDasha.lord} Mahadasha, ${currentDasha.antardasha} Antardasha.
-Chart Snapshot: ${JSON.stringify(chartData, null, 2)}
+Chart Snapshot: ${JSON.stringify(sanitizedChart, null, 2)}
 
 TASK:
 1. CORRELATION: How does their internal mood/experience correlate with the current timing lord or house patterns? (2 sentences)
 2. ASTROLOGICAL CONTEXT: Explain the nature of this current phase's energy (e.g., "Jupiter expands", "Saturn disciplines").
 3. GROWTH SUGGESTION: One practical, awareness-based way they can work WITH this energy based on what they wrote.
 
-Keep it brief (under 150 words total). Focus on mirroring their experience through an astrological lens.`;
+Keep it brief (under 150 words total). Return the sections clearly marked with the headers CORRELATION:, ASTROLOGICAL CONTEXT:, and GROWTH SUGGESTION:.`;
 
     try {
-        const result = await model.generateContent(systemPrompt);
-        const text = result.response.text();
-
+        const text = await callAI(prompt, 'JOURNAL');
         return {
-            correlation: extractSection(text, 'CORRELATION:', 'ASTROLOGICAL CONTEXT') || "Your current experiences are mirroring a time of significant internal shift.",
-            astrologicalContext: extractSection(text, 'ASTROLOGICAL CONTEXT:', 'GROWTH SUGGESTION') || "The current planetary phase emphasizes structural growth and emotional grounding.",
-            growthSuggestion: extractSection(text, 'GROWTH SUGGESTION:') || "Reflect on how your recent observations invite you to practice more patience."
+            correlation: extractSection(text, 'CORRELATION:', 'ASTROLOGICAL CONTEXT') || "Reflecting your internal shift.",
+            astrologicalContext: extractSection(text, 'ASTROLOGICAL CONTEXT:', 'GROWTH SUGGESTION') || "Planetary phase of grounding.",
+            growthSuggestion: extractSection(text, 'GROWTH SUGGESTION:') || "Practice patience today."
         };
     } catch (error) {
-        console.error('Gemini Journal error:', error);
-        throw new Error('Failed to analyze journal entry');
+        throw new Error('Failed to analyze journal');
     }
 }
 
+/**
+ * 2. SYNASTRY (RELATIONSHIP)
+ */
 export async function generateSynastryResponse(
     chartA: ChartData,
     chartB: ChartData,
     names: { a: string, b: string }
 ): Promise<SynastryResponse> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const sanitizedA = sanitizeChartData(chartA);
+    const sanitizedB = sanitizeChartData(chartB);
+    const prompt = `You are an ethical Vedic astrologer specializing in relationship dynamics.
+"Awareness, not prediction". Help ${names.a} and ${names.b} understand their interaction.
 
-    const systemPrompt = `You are an ethical Vedic astrologer specializing in relationship dynamics (Synastry).
-Focus on "Awareness, not prediction". Help ${names.a} and ${names.b} understand the energy between them.
+RESPONSE STRUCTURE:
+1. OVERVIEW: High-level summary.
+2. MAGNETIC PULL: Natural draw.
+3. GROWTH EDGES (List): Friction points.
+4. COMMUNICATION: Mercury/speech interaction.
+5. HARMONY TIPS (List): Practical advice.
 
-CORE PHILOSOPHY:
-- No "soulmate" or "doomed" labels
-- Focus on how their energies interact and what growth is available
-- Use tentative language
+CHART A: ${JSON.stringify(sanitizedA, null, 2)}
+CHART B: ${JSON.stringify(sanitizedB, null, 2)}
 
-RESPONSE STRUCTURE (JSON-like sections):
-1. OVERVIEW: A 2-3 sentence high-level summary of their energetic connection.
-2. MAGNETIC PULL: What naturally draws them together? (Emotional/Spiritual/Intellectual)
-3. GROWTH EDGES (List 2-3): Where do they challenge each other? What are the friction points?
-4. COMMUNICATION: How do their Mercuries or houses of speech interact?
-5. HARMONY TIPS (List 3): Practical ways to nurture this specific connection.
-
-CHART A (${names.a}):
-${JSON.stringify(chartA, null, 2)}
-
-CHART B (${names.b}):
-${JSON.stringify(chartB, null, 2)}
-
-Return the response organized clearly.`;
+Return sections with headers OVERVIEW:, MAGNETIC PULL:, GROWTH EDGES:, COMMUNICATION:, HARMONY TIPS:.`;
 
     try {
-        const result = await model.generateContent(systemPrompt);
-        const text = result.response.text();
-
+        const text = await callAI(prompt, 'SYNASTRY');
         return {
-            connectionOverview: extractSection(text, 'OVERVIEW:', 'MAGNETIC PULL') || "A unique blend of energies that invites mutual exploration and conscious mirroring.",
-            magneticPull: extractSection(text, 'MAGNETIC PULL:', 'GROWTH EDGES') || "There is a natural resonance that allows for deep understanding and shared values.",
-            growthEdges: extractBulletPoints(text, 'GROWTH EDGES:', 'COMMUNICATION') || ["Balancing individual needs with relationship goals", "Navigating different paces of action"],
-            communicationFlow: extractSection(text, 'COMMUNICATION:', 'HARMONY TIPS') || "Communication flows best when both parties remain open to different perspectives and styles.",
-            harmonyTips: extractBulletPoints(text, 'HARMONY TIPS:') || ["Practice active listening", "Honor each other's individual space", "Communicate through small gestures of appreciation"]
+            connectionOverview: extractSection(text, 'OVERVIEW:', 'MAGNETIC PULL') || "Unique energetic blend.",
+            magneticPull: extractSection(text, 'MAGNETIC PULL:', 'GROWTH EDGES') || "Natural resonance exists.",
+            growthEdges: extractBulletPoints(text, 'GROWTH EDGES:', 'COMMUNICATION') || ["Balancing needs"],
+            communicationFlow: extractSection(text, 'COMMUNICATION:', 'HARMONY TIPS') || "Open styles support flow.",
+            harmonyTips: extractBulletPoints(text, 'HARMONY TIPS:') || ["Active listening"]
         };
     } catch (error) {
-        console.error('Gemini Synastry error:', error);
-        throw new Error('Failed to generate synastry response');
+        throw new Error('Failed to generate synastry');
     }
 }
 
+/**
+ * 3. CLARITY (SEARCH)
+ */
 export async function generateClarityResponse(
     question: string,
     chartData: ChartData
 ): Promise<ClarityResponse> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const sanitizedChart = sanitizeChartData(chartData);
+    const prompt = `Vedic Astrologer. Focus on patterns and tendencies.
+    
+CHART DATA: ${JSON.stringify(sanitizedChart, null, 2)}
+TIMING: ${JSON.stringify(sanitizedChart.dashas?.find((d: any) => d.isCurrent), null, 2)}
+QUESTION: ${question}
 
-    const systemPrompt = `You are an ethical Vedic astrologer focused on awareness and empowerment.
-
-CORE PHILOSOPHY:
-- Astrology shows PATTERNS and TENDENCIES, not fixed outcomes
-- Focus on psychological insights and timing awareness
-- Never make predictions or guarantees
-- Support free will and conscious choice
-- Use tentative language: "tends to", "often", "may" (never "will", "must", "always")
-
-RESPONSE STRUCTURE (6 sections - CRITICAL):
-
-SECTION B - Current Phase Overview:
-- 2-3 sentences summarizing the astrological phase
-- Neutral, factual tone
-- Mention the current Mahadasha/Antardasha theme if provided
-
-SECTION BA - The Decision Tree (Act • Wait • Redirect):
-You MUST apply the "Vimshottari Decision Tree" framework to the user's question:
-1. MAHADASHA GATE: Does the current MD lord support the question's domain (Career, Love, etc.)? If No -> REDIRECT.
-2. ANTARDASHA FILTER: Is this life area active? (Planet houses/rhythms). If No -> WAIT.
-3. PRATYANTAR SWITCH: Action (Mars/Sun), Communication (Merc/Ven), or Processing (Moon/Jup)? If Processing/Karma (Sat/Rahu/Ketu) -> WAIT.
-4. SOOKSHMA MIRROR: Emotional readiness. Stable (Merc/Ven/Jup) or Reactive/Impulsive (Moon/Mars/Sat)? If Unstable -> WAIT.
-5. PRANA TRIGGER: Today's pulse. Does the current Hour/Prana planet support immediate action? (Sat/Rahu/Ketu usually mean Wait/Observe).
-
-FINAL VERDICT: Start this section with a clear "ACT", "WAIT", or "REDIRECT" badge based on these 5 steps.
-
-SECTION C - Pattern Insights (4-5 bullet points):
-- Start with "This phase highlights..."
-- Psychological patterns this question reveals
-- Situational tendencies active now
-- Deep Insights: Use D9 (Navamsha) data to explain the "inner strength" or hidden potential of key planets related to the question.
-- Each point starts with a tendency phrase
-
-SECTION D - Action Guidance (4-5 bullet points - MOST VALUABLE):
-- Concrete actions that work WITH the patterns and the Decision Tree verdict
-- What supports clarity vs. confusion
-- Behavioral choices that improve outcomes
-- End with "These are actions, not predictions"
-
-SECTION E - Reflective Questions (3 questions):
-- Questions that deepen self-awareness
-- Prompt user to examine motivations
-- Support conscious decision-making
-
-SECTION F - Ethical Closing (1 sentence):
-- "This guidance reflects tendencies, not certainty. Outcomes depend on awareness and action."
-
-CHART DATA PROVIDED:
-${JSON.stringify(chartData, null, 2)}
-
-VIMSOTTARI DASHAS (Current 5-Level Timing):
-${JSON.stringify(chartData.dashas?.find(d => d.isCurrent), null, 2)}
-
-USER QUESTION:
-${question}
-
-Vedic Context: Remember D1 is the outer manifestation (the tree), while D9 (Navamsha) represents the inner strength and spiritual fruit. Use the Vimshottari Decision Tree steps to categorize your guidance.
-Generate response following the 7-section structure (including SECTION BA) EXACTLY.`;
+STRUCTURE:
+SECTION B - Phase Overview
+SECTION BA - The Decision Tree (Result: ACT/WAIT/REDIRECT)
+SECTION C - Pattern Insights (Bullets)
+SECTION D - Action Guidance (Bullets)
+SECTION E - Reflective Questions (Bullets)
+SECTION F - Ethical Closing`;
 
     try {
-        const result = await model.generateContent(systemPrompt);
-        const response = result.response;
-        const text = response.text();
+        const text = await callAI(prompt, 'CLARITY');
+        const finalVerdictMatch = text.match(/FINAL VERDICT:\s*(ACT|WAIT|REDIRECT)/i);
+        const finalVerdict = finalVerdictMatch ? finalVerdictMatch[1].toUpperCase() : 'WAIT';
 
-        // Parse the AI response into structured format
-        // This is a simplified parser - you may want to make it more robust
-        const parsed = parseGeminiResponse(text, question);
-
-        return parsed;
+        return {
+            questionContext: question,
+            phaseOverview: extractSection(text, 'SECTION B', 'SECTION BA') || "Patterns of conscious choice.",
+            decisionTreeSteps: extractBulletPoints(text, 'SECTION BA', 'FINAL VERDICT') || ["Analyzing timing..."],
+            finalVerdict,
+            patternInsights: extractBulletPoints(text, 'SECTION C', 'SECTION D') || ["Tendency to revisit familiar patterns"],
+            actionGuidance: extractBulletPoints(text, 'SECTION D', 'SECTION E') || ["Choose awareness"],
+            reflectiveQuestions: extractBulletPoints(text, 'SECTION E', 'SECTION F') || ["What am I controlling?"],
+            ethicalClosing: extractSection(text, 'SECTION F') || "Guidance reflects tendencies."
+        };
     } catch (error) {
-        console.error('Gemini API error:', error);
-        throw new Error('Failed to generate clarity response');
+        throw new Error('Failed to generate clarity');
     }
 }
 
-function parseGeminiResponse(text: string, question: string): ClarityResponse {
-    const finalVerdictMatch = text.match(/FINAL VERDICT:\s*(ACT|WAIT|REDIRECT)/i);
-    const finalVerdict = finalVerdictMatch ? finalVerdictMatch[1].toUpperCase() : 'WAIT';
+/**
+ * 4. PREMIUM LIFE REPORT (Overhauled for 2026 Launch)
+ */
+export async function generateReportChapters(data: { name: string; gender: string; chartData: any }) {
+    const sanitizedChart = sanitizeChartData(data.chartData);
 
-    return {
-        questionContext: question,
-        phaseOverview: extractSection(text, 'SECTION B', 'SECTION BA') ||
-            "This phase emphasizes awareness and conscious choice. Patterns are emerging that invite reflection rather than reaction.",
+    const promptPart1 = `You are a Master Vedic Sage. Creating PART 1 (Chapters 1-5) of a Premium Life Report for ${data.name}.
+    CONTEXT: ${JSON.stringify(sanitizedChart)}
+    
+    RETURN JSON with these keys:
+    {
+        "chapter1_SoulPurpose": "Inner calling (D9 focus). 500+ words.",
+        "chapter2_CareerSuccess": "Professional destiny (D10 focus). 500+ words.",
+        "chapter3_LoveAndConnection": "Relationships. 500+ words.",
+        "chapter4_HealthAndVitality": "Health & Balance. 500+ words.",
+        "chapter5_YearlyHorizon": "Next 12 Months timing. 500+ words."
+    }`;
 
-        decisionTreeSteps: extractBulletPoints(text, 'SECTION BA', 'FINAL VERDICT') || [
-            "Analyzing Mahadasha Gate...",
-            "Checking Antardasha Filter...",
-            "Evaluating Pratyantar Switch...",
-            "Mirroring Sookshma Readiness...",
-            "Triggering Prana Pulse..."
-        ],
+    const promptPart2 = `You are a Master Vedic Sage. Creating PART 2 (Chapters 6-10) of a Premium Life Report for ${data.name}.
+    CONTEXT: ${JSON.stringify(sanitizedChart)}
+    
+    RETURN JSON with these keys:
+    {
+        "chapter6_Strengths": "Core strengths. 400+ words.",
+        "chapter7_Bottlenecks": "Shadows & Pitfalls. 400+ words.",
+        "chapter8_KarmicLessons": "Spiritual lessons. 400+ words.",
+        "chapter9_PracticalWisdom": "Remedies & Rituals. 500+ words.",
+        "chapter10_SagesClosing": "Poetic sizing. 300+ words."
+    }`;
 
-        finalVerdict,
+    try {
+        console.log("Starting parallel synthesis for report...");
+        const [text1, text2] = await Promise.all([
+            callAI(promptPart1, 'REPORT', true),
+            callAI(promptPart2, 'REPORT', true)
+        ]);
 
-        patternInsights: extractBulletPoints(text, 'SECTION C', 'SECTION D') || [
-            "Tendency to revisit familiar patterns",
-            "Need for structure and clarity",
-            "Importance of mindful communication",
-            "This is a phase for observation over action"
-        ],
+        console.log("Synthesis complete. Parsing...");
+        const json1 = JSON.parse(text1);
+        const json2 = JSON.parse(text2);
 
-        actionGuidance: extractBulletPoints(text, 'SECTION D', 'SECTION E') || [
-            "Choose awareness over automatic reactions",
-            "Create space before responding",
-            "Seek understanding rather than quick solutions",
-            "These are suggestions, not requirements"
-        ],
+        return { ...json1, ...json2 };
+    } catch (error: any) {
+        console.error("Cosmic synthesis failed:", error.message || error);
+        // Fallback: If one failed, try to return what we have or a partial error
+        // But for now, throw detailed error
+        throw new Error(`Cosmic synthesis failed: ${error.message}`);
+    }
+}
 
-        reflectiveQuestions: extractBulletPoints(text, 'SECTION E', 'SECTION F') || [
-            "What am I trying to control here?",
-            "What response honors my values?",
-            "Where can patience serve me better?"
-        ],
+/**
+ * UTILS
+ */
+function sanitizeChartData(data: any): any {
+    if (!data) return data;
 
-        ethicalClosing: extractSection(text, 'SECTION F') ||
-            "This guidance reflects tendencies, not certainty. Outcomes depend on awareness and action."
+    // 1. Create a lean version of the chart data
+    const sanitized: any = {
+        ascendant: data.ascendant ? Number(data.ascendant.toFixed(2)) : undefined,
+        navamsaAscendant: data.navamsaAscendant,
+        planets: {}
     };
+
+    // 2. Sanitize Planets: Keep only essential fields and round values
+    if (data.planets) {
+        for (const [name, pos] of Object.entries(data.planets as Record<string, any>)) {
+            sanitized.planets[name] = {
+                longitude: Number(pos.longitude.toFixed(2)),
+                isRetrograde: pos.isRetrograde,
+                house: pos.house,
+                navamsaSign: pos.navamsaSign,
+                dignity: pos.dignity
+                // Stripped: latitude, distance, speed, latitude_speed etc.
+            };
+        }
+    }
+
+    // 3. Selective Dasha: Only send the CURRENT Mahadasha context
+    if (data.dashas) {
+        const currentMaha = data.dashas.find((d: any) => d.isCurrent) || data.dashas[0];
+        if (currentMaha) {
+            sanitized.dashas = [{
+                lord: currentMaha.lord,
+                start: currentMaha.start,
+                end: currentMaha.end,
+                isCurrent: true,
+                antardashas: currentMaha.antardashas?.map((ad: any) => ({
+                    lord: ad.lord,
+                    start: ad.start,
+                    end: ad.end,
+                    isCurrent: ad.isCurrent
+                }))
+            }];
+        }
+    }
+
+    // 4. Handle Vargas for deep analysis (D9/D10)
+    if (data.vargas) {
+        sanitized.vargas = {};
+        if (data.vargas.d9) sanitized.vargas.d9 = sanitizeChartData(data.vargas.d9);
+        if (data.vargas.d10) sanitized.vargas.d10 = sanitizeChartData(data.vargas.d10);
+    }
+
+    return sanitized;
 }
 
 function extractSection(text: string, startMarker: string, endMarker?: string): string {
     const startIndex = text.indexOf(startMarker);
     if (startIndex === -1) return '';
-
     const contentStart = startIndex + startMarker.length;
     const endIndex = endMarker ? text.indexOf(endMarker, contentStart) : text.length;
-
     return text.substring(contentStart, endIndex !== -1 ? endIndex : text.length).trim();
 }
 
 function extractBulletPoints(text: string, startMarker: string, endMarker?: string): string[] {
     const section = extractSection(text, startMarker, endMarker);
     if (!section) return [];
-
-    // Match bullet points with various formats (-, *, •, numbers)
     const bullets = section.match(/^[\s]*[-*•\d.]+\s+(.+)$/gm);
     return bullets ? bullets.map(b => b.replace(/^[\s]*[-*•\d.]+\s+/, '').trim()) : [];
 }
 
-// Safety filter to detect unsafe questions
 export function isQuestionSafe(question: string): { safe: boolean; reason?: string } {
-    const lowerQuestion = question.toLowerCase();
-
-    const unsafePatterns = [
-        { pattern: /when will (i|he|she|they) die/i, reason: 'Questions about death are not supported' },
-        { pattern: /will (i|he|she|they) get (cancer|disease|sick)/i, reason: 'Medical predictions are not provided' },
-        { pattern: /should i (divorce|leave|break up)/i, reason: 'Major life decisions require professional counseling, not astrology' },
-        { pattern: /lottery|gambling|stocks/i, reason: 'Financial predictions are not provided' },
-        { pattern: /pregnancy|pregnant/i, reason: 'Medical questions require a healthcare provider' },
+    const lower = question.toLowerCase();
+    const unsafe = [
+        { pattern: /when will .* die/i, reason: 'Death predictions not supported' },
+        { pattern: /cancer|disease|sick|pregnant|pregnancy/i, reason: 'Medical advice not provided' },
+        { pattern: /divorce|leave|break up/i, reason: 'Relationship counseling recommended' },
+        { pattern: /lottery|gambling|stocks/i, reason: 'Financial predictions not provided' }
     ];
-
-    for (const { pattern, reason } of unsafePatterns) {
-        if (pattern.test(lowerQuestion)) {
-            return { safe: false, reason };
-        }
+    for (const { pattern, reason } of unsafe) {
+        if (pattern.test(lower)) return { safe: false, reason };
     }
-
     return { safe: true };
 }

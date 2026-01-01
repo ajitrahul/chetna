@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { CreditCard, History, UserCircle, ChevronRight, MessageSquare, Trash2 } from 'lucide-react';
+import { CreditCard, History, UserCircle, ChevronRight, MessageSquare, Trash2, Crown } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface UserProfile {
@@ -193,16 +193,7 @@ export default function ProfilePage() {
                                             )}
                                         </div>
                                         <span className={styles.details}>
-                                            Born: {new Date(profile.dateOfBirth).toLocaleDateString()}
-                                            {' • Created: '}{new Date(profile.createdAt).toLocaleDateString()}
-                                            {!profile.isActive && profile.disabledAt && (
-                                                <>
-                                                    <br />
-                                                    <span className={styles.disableDate}>
-                                                        Disabled: {new Date(profile.disabledAt).toLocaleDateString()}
-                                                    </span>
-                                                </>
-                                            )}
+                                            {new Date(profile.dateOfBirth).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                                         </span>
                                     </div>
                                     <div className={styles.actionsGroup}>
@@ -216,9 +207,14 @@ export default function ProfilePage() {
                                             </button>
                                         )}
                                         {profile.isActive ? (
-                                            <Link href={`/chart?profile=${profile.id}`} className={styles.iconLink}>
-                                                <ChevronRight size={18} />
-                                            </Link>
+                                            <div className={styles.profileActions}>
+                                                <Link href={`/report/${profile.id}`} className={styles.reportTagBtn}>
+                                                    <Crown size={12} /> Life Report
+                                                </Link>
+                                                <Link href={`/chart?profileId=${profile.id}`} className={styles.profileLink}>
+                                                    View Chart <ChevronRight size={16} />
+                                                </Link>
+                                            </div>
                                         ) : (
                                             <div className={styles.iconLinkDisabled}>
                                                 <ChevronRight size={18} />

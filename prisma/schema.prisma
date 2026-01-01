@@ -73,16 +73,26 @@ model Profile {
   timezone      String
   gender        String    @default("other") // Mandatory field: "male", "female", or "other"
   
-  chartData     Json      // Complete calculated chart positions
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
+  chartData     Json?     // Complete calculated chart positions
+  report        Report?
   isActive      Boolean   @default(true)    // Whether this profile is active
   disabledAt    DateTime?                   // When this profile was disabled
   disabledReason String?                    // Why it was disabled (e.g., "Overwritten by newer version")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   
   @@index([userId])
   @@index([userId, isActive])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  profileId String   @unique
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  status    String   @default("pending") // pending, purchased, generated
+  content   Json?    // Cached AI report content
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // AI Clarity questions

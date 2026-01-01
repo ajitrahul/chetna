@@ -164,10 +164,15 @@ export default function AllProfilesPage() {
                                         {' • Created: '}{new Date(profile.createdAt).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <Link href={`/chart?profile=${profile.id}`} className={styles.viewButton}>
-                                    View Chart
-                                    <ChevronRight size={18} />
-                                </Link>
+                                <div className={styles.actionsGroup}>
+                                    <Link href={`/report/${profile.id}`} className={styles.reportBtn}>
+                                        <Crown size={14} /> Life Report
+                                    </Link>
+                                    <Link href={`/chart?profileId=${profile.id}`} className={styles.viewBtn}>
+                                        View Chart
+                                        <ChevronRight size={18} />
+                                    </Link>
+                                </div>
                             </div>
                         ))}
                     </div>
