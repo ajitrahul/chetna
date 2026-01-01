@@ -38,15 +38,19 @@ async function getSwe() {
                     const fs = require('fs');
                     const path = require('path');
 
-                    // Try to find files in likely locations
+                    // Try to find files in likely locations - Prioritize public/ for production
                     const possibleWasmPaths = [
-                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.wasm'),
                         path.join(process.cwd(), 'public/swisseph.wasm'),
+                        path.join(process.cwd(), 'swisseph.wasm'), // Fallback for standalone build root
+                        path.join(process.cwd(), '.next/server/public/swisseph.wasm'), // Vercel specific
+                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.wasm'), // Dev fallback
                     ];
 
                     const possibleDataPaths = [
-                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.data'),
                         path.join(process.cwd(), 'public/swisseph.data'),
+                        path.join(process.cwd(), 'swisseph.data'),
+                        path.join(process.cwd(), '.next/server/public/swisseph.data'),
+                        path.join(process.cwd(), 'node_modules/swisseph-wasm/wsam/swisseph.data'),
                     ];
 
                     // Find WASM file
