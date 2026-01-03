@@ -1,0 +1,676 @@
+.layout {
+    display: flex;
+    gap: 40px;
+}
+
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: sticky;
+    top: 100px;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: var(--secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.navItem:hover {
+    background: rgba(var(--foreground-rgb), 0.05);
+    color: var(--foreground);
+}
+
+.activeNav {
+    background: var(--card-bg) !important;
+    border-color: var(--accent-gold) !important;
+    color: var(--accent-gold) !important;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.mainContent {
+    flex-grow: 1;
+    min-height: 500px;
+}
+
+/* Overview Styles */
+.overviewGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.heroSection {
+    background: linear-gradient(135deg, rgba(var(--bg-soft-rgb), 0.8), rgba(var(--bg-soft-rgb), 0.4));
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.heroSection h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    color: var(--foreground);
+}
+
+.heroSection p {
+    color: var(--secondary);
+    margin-bottom: 32px;
+    font-size: 1.1rem;
+}
+
+.heroActions {
+    display: flex;
+    gap: 16px;
+}
+
+.secondaryBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--foreground);
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.secondaryBtn:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+.quickStats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+
+.quickStatCard {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.quickStatCard h3 {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.miniList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.miniRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(var(--foreground-rgb), 0.03);
+    border-radius: 10px;
+    color: var(--foreground);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.miniRow:hover {
+    background: rgba(var(--foreground-rgb), 0.06);
+    transform: translateX(4px);
+}
+
+.miniText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+}
+
+/* Section Specifics */
+.fullSection {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.creditsDisplay {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.creditValueLarge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--accent-gold);
+}
+
+.creditValueLarge span {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.creditValueLarge label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 8px;
+    color: var(--secondary);
+}
+
+.historyList {
+    width: 100%;
+}
+
+.historyList h3 {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 10px;
+}
+
+.headerActions {
+    display: flex;
+    gap: 12px;
+}
+
+.bulkDeleteBtn {
+    background: rgba(255, 71, 71, 0.1);
+    color: #ff4747;
+    border: 1px solid rgba(255, 71, 71, 0.2);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.bulkDeleteBtn:hover:not(:disabled) {
+    background: rgba(255, 71, 71, 0.2);
+    transform: translateY(-2px);
+}
+
+.bulkDeleteBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Life Report Card */
+.lifeReportCard {
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+    border: 1px solid rgba(244, 196, 48, 0.3);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.lifeReportBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(244, 196, 48, 0.15);
+    color: var(--accent-gold);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+.lifeReportContent h3 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    color: var(--foreground);
+}
+
+.lifeReportContent p {
+    color: var(--secondary);
+    max-width: 500px;
+    margin-bottom: 24px;
+    background: var(--accent-gold);
+    color: black;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.reportBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(244, 196, 48, 0.2);
+}
+
+.actionBtn {
+    background: var(--primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.actionBtnSecondary {
+    background: rgba(255, 71, 71, 0.1);
+    color: #ff4747;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.actionBtnSecondary:hover {
+    background: #ff4747;
+    color: white;
+}
+
+.actionBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(244, 196, 48, 0.2);
+}
+
+.lifeReportIcon {
+    color: rgba(244, 196, 48, 0.1);
+    transform: rotate(15deg);
+}
+
+/* Profile Grid */
+.profileControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.profileCount {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.profileGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.profileCard {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.profileCard:hover {
+    border-color: var(--accent-gold);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.selectedCard {
+    border-color: var(--accent-gold) !important;
+    background: rgba(var(--accent-gold-rgb), 0.05);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.checkbox {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.selectedCard .checkbox {
+    color: var(--accent-gold);
+}
+
+.profileName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--foreground);
+}
+
+.detailList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.detailItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--secondary);
+    font-size: 0.9rem;
+}
+
+.timeLabel {
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+.cardActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-soft);
+    padding-top: 16px;
+}
+
+.viewLink {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+}
+
+.iconDeleteBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s ease;
+}
+
+.iconDeleteBtn:hover {
+    color: #ff4747;
+}
+
+.disabledCard {
+    opacity: 0.7;
+}
+
+/* Export History */
+.exportItemActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.trashBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.trashBtn:hover {
+    background: rgba(255, 71, 71, 0.1);
+    color: #ff4747;
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    margin-top: 20px;
+}
+
+.exportTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.exportTable th {
+    padding: 16px 24px;
+    background: rgba(var(--foreground-rgb), 0.03);
+    color: var(--accent-gold);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.exportTable td {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--foreground);
+    vertical-align: middle;
+}
+
+.exportTable tr:last-child td {
+    border-bottom: none;
+}
+
+.exportTable tr:hover {
+    background: rgba(var(--primary-rgb), 0.03);
+}
+
+.selectedRow {
+    background: rgba(var(--accent-gold-rgb), 0.08) !important;
+}
+
+.selectedRow:hover {
+    background: rgba(var(--accent-gold-rgb), 0.12) !important;
+}
+
+.exportTypeCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.exportTypeCell span {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.dateCell {
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+
+.actionCell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.miniDownloadBtn {
+    background: var(--accent-gold);
+    color: black;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.miniDownloadBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 196, 48, 0.2);
+}
+
+.miniTrashBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.miniTrashBtn:hover {
+    background: rgba(255, 71, 71, 0.1);
+    color: #ff4747;
+}
+
+.miniIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.amountCell {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.infoNote {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(var(--foreground-rgb), 0.03);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 24px;
+    color: var(--secondary);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 968px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 12px;
+        position: static;
+    }
+
+    .navItem {
+        white-space: nowrap;
+        width: auto;
+    }
+
+    .lifeReportCard {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .lifeReportIcon {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .quickStats {
+        grid-template-columns: 1fr;
+    }
+
+    .heroSection {
+        padding: 24px;
+    }
+
+    .heroSection h2 {
+        font-size: 1.5rem;
+    }
+
+    .heroActions {
+        flex-direction: column;
+    }
+
+    .sectionHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .headerActions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .profileGrid {
+        grid-template-columns: 1fr;
+    }
+}

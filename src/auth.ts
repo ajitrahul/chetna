@@ -67,9 +67,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         async session({ session, token }) {
             if (session.user) {
-                session.user.id = token.id as string
+                session.user.id = token.id as string;
+
+                // Server-side check for admin status
+                const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+                const userEmail = session.user.email?.toLowerCase();
+
+                console.log('--- ADMIN CHECK ---');
+                console.log('User Email:', userEmail);
+                console.log('Admin Emails:', adminEmails);
+
+                session.user.isAdmin = !!userEmail && adminEmails.includes(userEmail);
+                console.log('Is Admin:', session.user.isAdmin);
             }
             return session
         },
     },
 })
+
+// Add type declaration for isAdmin
+declare module "next-auth" {
+    interface Session {
+        user: {
+            id: string;
+            isAdmin?: boolean;
+            name?: string | null;
+            email?: string | null;
+            image?: string | null;
+        }
+    }
+}

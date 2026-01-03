@@ -22,6 +22,7 @@ export type UserProfile = {
     latitude?: number;
     longitude?: number;
     chartData?: ChartData;
+    unlockedCharts?: any[]; // Array of chart keys like ["D2", "D10"]
     createdAt?: string | Date;
     updatedAt?: string | Date;
 };
@@ -209,7 +210,7 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                 });
 
                 if (!saveRes.ok) throw new Error("Failed to save profile.");
-                setStatusMsg({ type: 'success', text: 'Profile saved successfully!' });
+                setStatusMsg({ type: 'success', text: 'Profile saved successfully! Check your details in the Dashboard.' });
             }
 
             if (onChartGenerated) {

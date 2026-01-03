@@ -151,6 +151,11 @@ export interface ChartData {
     ascendant: number;
     mc: number;
     navamsaAscendant?: string; // D9 Sign
+    vargas?: Record<string, {
+        planets: Record<string, PlanetPosition>;
+        ascendant: number;
+        houses: number[];
+    }>;
     dashas?: Array<{
         lord: string;
         start: string;
@@ -197,29 +202,129 @@ const PLANET_DIGNITIES: Record<string, { exalted: string, debilitated: string, o
 };
 
 
-export function getNavamsaSign(longitude: number): string {
-    // 1 Navamsa = 3°20' = 3.3333 degrees
-    // Each Sign (30°) has 9 Navamsas
-    // Sequence restarts at Aries, Capricorn, Libra, Cancer (Movable, Fixed, Dual logic simplified)
+export function getVargaSign(longitude: number, division: number): { sign: string, signIndex: number } {
+    const totalDivisions = 12 * division;
+    const divisionSize = 360 / totalDivisions;
+    const vargaIndex = Math.floor(longitude / divisionSize);
 
-    // D9 Calc Logic:
-    // Fire Signs (1,5,9): Starts from Aries
-    // Earth Signs (2,6,10): Starts from Capricorn
-    // Air Signs (3,7,11): Starts from Libra
-    // Water Signs (4,8,12): Starts from Cancer
+    // Standard Varga Calculation logic varies by division.
+    // For many (D3, D7, D9, D12, D30), it follows specific cyclic rules.
+    // Standard rule for most: (Starting Sign + remainder) % 12
 
-    const signIndex = Math.floor(longitude / 30); // 0 = Aries
-    const navamsaInSign = Math.floor((longitude % 30) / 3.33333333); // 0-8
+    const rasiIndex = Math.floor(longitude / 30);
+    const partInRasi = Math.floor((longitude % 30) / (30 / division));
 
-    let startSignIndex = 0;
-    const element = (signIndex) % 4; // 0=Fire, 1=Earth, 2=Air, 3=Water
+    let finalSignIndex = 0;
 
-    if (element === 0) startSignIndex = 0; // Aries
-    else if (element === 1) startSignIndex = 9; // Capricorn
-    else if (element === 2) startSignIndex = 6; // Libra
-    else if (element === 3) startSignIndex = 3; // Cancer
-
-    const finalSignIndex = (startSignIndex + navamsaInSign) % 12;
+    switch (division) {
+        case 1: // Rashi
+            finalSignIndex = rasiIndex;
+            break;
+        case 2: // Hora (D2)
+            // Odd signs: Sun (Leo) first 15, Moon (Cancer) next 15
+            // Even signs: Moon (Cancer) first 15, Sun (Leo) next 15
+            const isOdd = (rasiIndex % 2) === 0; // 0=Aries (Odd)
+            const isFirstHalf = (longitude % 30) < 15;
+            if (isOdd) {
+                finalSignIndex = isFirstHalf ? 4 : 3; // Leo : Cancer
+            } else {
+                finalSignIndex = isFirstHalf ? 3 : 4; // Cancer : Leo
+            }
+            break;
+        case 3: // Drekkana (D3)
+            // 1st part: Same Sign
+            // 2nd part: 5th from it
+            // 3rd part: 9th from it
+            finalSignIndex = (rasiIndex + partInRasi * 4) % 12;
+            break;
+        case 4: // Chaturamsa (D4)
+            // 1st, 2nd, 3rd, 4th parts: 1, 4, 7, 10 signs away
+            finalSignIndex = (rasiIndex + partInRasi * 3) % 12;
+            break;
+        case 7: // Saptamsa (D7)
+            // Odd signs: Start from same sign
+            // Even signs: Start from 7th sign
+            const isOddSignD7 = (rasiIndex % 2) === 0;
+            const startD7 = isOddSignD7 ? rasiIndex : (rasiIndex + 6) % 12;
+            finalSignIndex = (startD7 + partInRasi) % 12;
+            break;
+        case 9: // Navamsa (D9)
+            // Fire: Aries, Earth: Capricorn, Air: Libra, Water: Cancer
+            const element = rasiIndex % 4;
+            let startD9 = 0;
+            if (element === 0) startD9 = 0; // Fire -> Aries
+            else if (element === 1) startD9 = 9; // Earth -> Capricorn
+            else if (element === 2) startD9 = 6; // Air -> Libra
+            else if (element === 3) startD9 = 3; // Water -> Cancer
+            finalSignIndex = (startD9 + partInRasi) % 12;
+            break;
+        case 10: // Dasamsa (D10)
+            // Odd signs: Start from same sign
+            // Even signs: Start from 9th sign
+            const isOddSignD10 = (rasiIndex % 2) === 0;
+            const startD10 = isOddSignD10 ? rasiIndex : (rasiIndex + 8) % 12;
+            finalSignIndex = (startD10 + partInRasi) % 12;
+            break;
+        case 12: // Dwadashamsa (D12)
+            // Start from same sign
+            finalSignIndex = (rasiIndex + partInRasi) % 12;
+            break;
+        case 16: // Shodashamsa (D16)
+            // Movable: Aries, Fixed: Leo, Dual: Sagittarius
+            const mobilityD16 = rasiIndex % 3;
+            let startD16 = 0;
+            if (mobilityD16 === 0) startD16 = 0; // Movable -> Aries
+            else if (mobilityD16 === 1) startD16 = 4; // Fixed -> Leo
+            else if (mobilityD16 === 2) startD16 = 8; // Dual -> Sag
+            finalSignIndex = (startD16 + partInRasi) % 12;
+            break;
+        case 20: // Vimsamsa (D20)
+            // Movable: Aries, Fixed: Sagittarius, Dual: Leo
+            const mobilityD20 = rasiIndex % 3;
+            let startD20 = 0;
+            if (mobilityD20 === 0) startD20 = 0;
+            else if (mobilityD20 === 1) startD20 = 8;
+            else if (mobilityD20 === 2) startD20 = 4;
+            finalSignIndex = (startD20 + partInRasi) % 12;
+            break;
+        case 24: // Chaturvimsamsa (D24)
+            // Odd: Leo, Even: Cancer
+            const startD24 = (rasiIndex % 2 === 0) ? 4 : 3;
+            finalSignIndex = (startD24 + partInRasi) % 12;
+            break;
+        case 27: // Saptavimsamsa (D27)
+            // Fire: Aries, Earth: Cancer, Air: Libra, Water: Capricorn
+            const elementD27 = rasiIndex % 4;
+            let startD27 = 0;
+            if (elementD27 === 0) startD27 = 0;
+            else if (elementD27 === 1) startD27 = 3;
+            else if (elementD27 === 2) startD27 = 6;
+            else if (elementD27 === 3) startD27 = 9;
+            finalSignIndex = (startD27 + partInRasi) % 12;
+            break;
+        case 30: // Trimsamsa (D30)
+            // This one has unique irregular bounds. Let's approximate or use standard parashari cycle for now
+            // Parashari Trimsamsa:
+            // Odd signs: Mars (0-5), Sat (5-10), Jup (10-18), Merc (18-25), Ven (25-30)
+            // Even signs: Ven (0-5), Merc (5-12), Jup (12-20), Sat (20-25), Mars (25-30)
+            const deg = longitude % 30;
+            if (rasiIndex % 2 === 0) { // Odd
+                if (deg < 5) finalSignIndex = 0; // Aries (Mars)
+                else if (deg < 10) finalSignIndex = 10; // Aquarius (Sat)
+                else if (deg < 18) finalSignIndex = 8; // Sag (Jup)
+                else if (deg < 25) finalSignIndex = 5; // Virgo (Merc)
+                else finalSignIndex = 1; // Taurus (Ven)
+            } else { // Even
+                if (deg < 5) finalSignIndex = 6; // Libra (Ven)
+                else if (deg < 12) finalSignIndex = 2; // Gemini (Merc)
+                else if (deg < 20) finalSignIndex = 11; // Pisces (Jup)
+                else if (deg < 25) finalSignIndex = 9; // Cap (Sat)
+                else finalSignIndex = 7; // Scorpio (Mars)
+            }
+            break;
+        default:
+            finalSignIndex = (rasiIndex + partInRasi) % 12;
+    }
 
     const signs = [
         'Aries', 'Taurus', 'Gemini', 'Cancer',
@@ -227,7 +332,11 @@ export function getNavamsaSign(longitude: number): string {
         'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
     ];
 
-    return signs[finalSignIndex];
+    return { sign: signs[finalSignIndex], signIndex: finalSignIndex };
+}
+
+export function getNavamsaSign(longitude: number): string {
+    return getVargaSign(longitude, 9).sign;
 }
 
 export function getDignity(planetName: string, signName: string): string {
@@ -359,13 +468,50 @@ export async function calculateChart(
             houses.push((ascSignStart + i * 30) % 360);
         }
 
-        // Calculate D9 Ascendant
-        const navamsaAscSign = getNavamsaSign(ascendant);
+        // Calculate all Vargas
+        const divisionsData: Record<string, { planets: Record<string, PlanetPosition>, ascendant: number, houses: number[] }> = {};
+        const vargaList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 16, 20, 24, 27, 30];
+
+        for (const div of vargaList) {
+            const vPlanets: Record<string, PlanetPosition> = {};
+            for (const [name, p] of Object.entries(planets)) {
+                vPlanets[name] = {
+                    ...p,
+                    longitude: (getVargaSign(p.longitude, div).signIndex * 30 + (p.longitude % (30 / div)) * div) % 360,
+                    house: 0 // Will handle later
+                };
+            }
+            const vAsc = (getVargaSign(ascendant, div).signIndex * 30 + (ascendant % (30 / div)) * div) % 360;
+
+            // House Calc (Whole Sign)
+            const vAscSignStart = Math.floor(vAsc / 30) * 30;
+            const vHouses: number[] = [];
+            for (let i = 0; i < 12; i++) {
+                vHouses.push((vAscSignStart + i * 30) % 360);
+            }
+
+            divisionsData[div === 1 ? 'D1' : `D${div}`] = {
+                planets: vPlanets,
+                ascendant: vAsc,
+                houses: vHouses
+            };
+        }
+
+        // Moon Chart (Chandra Kundli) - Moon becomes Ascendant
+        const moonLong = planets['Moon']?.longitude || 0;
+        const moonSignStart = Math.floor(moonLong / 30) * 30;
+        const moonHouses: number[] = [];
+        for (let i = 0; i < 12; i++) {
+            moonHouses.push((moonSignStart + i * 30) % 360);
+        }
+        divisionsData['Moon'] = {
+            planets,
+            ascendant: moonLong,
+            houses: moonHouses
+        };
 
         // Calculate Vimsottari Dashas
         const birthDateObj = new Date(year, month - 1, day, Math.floor(hour), Math.floor((hour % 1) * 60));
-
-        const moonLong = planets['Moon']?.longitude || 0;
         const dashas = calculateVimsottariDashas(moonLong, birthDateObj);
 
         return {
@@ -373,7 +519,8 @@ export async function calculateChart(
             houses,
             ascendant,
             mc,
-            navamsaAscendant: navamsaAscSign,
+            navamsaAscendant: divisionsData['D9'].ascendant.toString(), // Keep for legacy if needed
+            vargas: divisionsData,
             dashas: dashas
         };
     } finally {

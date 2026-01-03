@@ -19,7 +19,8 @@ function LoginContent() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        name: ''
+        name: '',
+        isSubscribed: true // Default to true as requested
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -49,7 +50,12 @@ function LoginContent() {
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({
+                        email: formData.email,
+                        password: formData.password,
+                        name: formData.name,
+                        isSubscribed: formData.isSubscribed
+                    }),
                 });
 
                 const data = await response.json();
@@ -145,6 +151,19 @@ function LoginContent() {
                             minLength={6}
                         />
                     </div>
+
+                    {!isLogin && (
+                        <div className={styles.checkboxGroup}>
+                            <label className={styles.checkboxLabel}>
+                                <input
+                                    type="checkbox"
+                                    checked={formData.isSubscribed}
+                                    onChange={(e) => setFormData({ ...formData, isSubscribed: e.target.checked })}
+                                />
+                                <span>Subscribe to newsletter for cosmic updates</span>
+                            </label>
+                        </div>
+                    )}
 
                     <button type="submit" className={styles.submitBtn} disabled={loading}>
                         <Mail size={18} />

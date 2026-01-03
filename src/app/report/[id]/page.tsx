@@ -90,7 +90,7 @@ function ReportContent({ params }: ReportPageProps) {
     return (
         <div className={styles.reportPage}>
             <header className={styles.header}>
-                <Link href="/profile" className={styles.backLink}>
+                <Link href="/dashboard" className={styles.backLink}>
                     <ArrowLeft size={16} />
                     Back to Dashboard
                 </Link>

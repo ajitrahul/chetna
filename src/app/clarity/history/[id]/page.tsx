@@ -63,7 +63,7 @@ function HistoryDetailContent({ params }: { params: Promise<{ id: string }> }) {
             <div className={`container ${styles.pageContainer}`}>
                 <div className={styles.errorBox}>
                     <p>{error || 'Insight not found'}</p>
-                    <Link href="/profile" className={styles.actionLink}>Back to Profile</Link>
+                    <Link href="/dashboard" className={styles.actionLink}>Back to Dashboard</Link>
                 </div>
             </div>
         );
@@ -72,7 +72,7 @@ function HistoryDetailContent({ params }: { params: Promise<{ id: string }> }) {
     return (
         <div className={`container ${styles.pageContainer}`}>
             <div className={styles.historyHeader}>
-                <Link href="/profile" className={styles.backLink}>
+                <Link href="/dashboard" className={styles.backLink}>
                     <ArrowLeft size={16} />
                     Back to History
                 </Link>

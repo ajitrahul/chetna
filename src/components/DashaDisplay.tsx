@@ -91,8 +91,8 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
             <style jsx>{`
                 .dasha-container {
                     margin-top: 40px;
-                    padding: 24px;
-                    background: var(--card-bg); /* Keeping it subtle */
+                    padding: clamp(16px, 4vw, 32px);
+                    background: var(--card-bg);
                     border-radius: 16px;
                     border: 1px solid var(--card-border);
                 }
@@ -100,7 +100,7 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
                 .section-title {
                     color: var(--primary);
                     font-family: var(--font-heading);
-                    font-size: 1.5rem;
+                    font-size: clamp(1.2rem, 5vw, 1.8rem);
                     text-align: center;
                     margin-bottom: 8px;
                 }
@@ -109,13 +109,19 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
                     text-align: center;
                     color: var(--secondary);
                     font-size: 0.95rem;
-                    margin-bottom: 24px;
+                    margin-bottom: 32px;
                 }
 
                 .timeline {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    grid-template-columns: repeat(auto-fit, minmax(max(280px, 100%), 1fr));
                     gap: 16px;
+                }
+
+                @media (min-width: 640px) {
+                    .timeline {
+                        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    }
                 }
 
                 .dasha-card {

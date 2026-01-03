@@ -5,15 +5,15 @@ import { Sun, Moon } from 'lucide-react';
 import styles from './ThemeToggle.module.css';
 
 export default function ThemeToggle() {
-    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('chetna-theme') as 'light' | 'dark';
         if (savedTheme && savedTheme !== theme) {
             requestAnimationFrame(() => setTheme(savedTheme));
             document.documentElement.setAttribute('data-theme', savedTheme);
-        } else if (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches && theme !== 'dark') {
-            requestAnimationFrame(() => setTheme('dark'));
+        } else if (!savedTheme) {
+            // Default to dark if no preference is saved
             document.documentElement.setAttribute('data-theme', 'dark');
         }
     }, [theme]);

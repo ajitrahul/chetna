@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import styles from './Footer.module.css';
 import { Mail, Twitter, Instagram } from 'lucide-react';
@@ -48,12 +50,50 @@ export default function Footer() {
                     </ul>
                 </div>
 
-                {/* Philosophy */}
+                {/* Newsletter Section */}
                 <div className={styles.footerSection}>
-                    <h3>Our Philosophy</h3>
-                    <p className={styles.productRule}>
-                        &quot;If a feature increases anxiety, dependency, or obsession — it does not belong on Chetna.&quot;
+                    <h3>Cosmic Updates</h3>
+                    <p className={styles.newsletterText}>
+                        Receive weekly insights on planetary movements and cosmic energy.
                     </p>
+                    <form className={styles.subscribeForm} onSubmit={async (e) => {
+                        e.preventDefault();
+                        const email = (e.target as any).email.value;
+                        if (!email) return;
+
+                        const btn = (e.target as any).querySelector('button');
+                        const originalText = btn.innerText;
+                        btn.disabled = true;
+                        btn.innerText = '...';
+
+                        try {
+                            const res = await fetch('/api/newsletter/subscribe', {
+                                method: 'POST',
+                                body: JSON.stringify({ email }),
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                            if (res.ok) {
+                                alert('Subscribed! Welcome to Chetna.');
+                                (e.target as any).reset();
+                            } else {
+                                alert('Something went wrong. Please try again.');
+                            }
+                        } catch (err) {
+                            alert('Something went wrong. Please try again.');
+                        } finally {
+                            btn.disabled = false;
+                            btn.innerText = originalText;
+                        }
+                    }}>
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email address"
+                            required
+                            className={styles.subscribeInput}
+                        />
+                        <button type="submit" className={styles.subscribeBtn}>Join</button>
+                    </form>
                 </div>
             </div>
 

@@ -17,98 +17,93 @@ interface ChartDisplayProps {
         planets: Record<string, PlanetPosition>;
         houses: number[];
         ascendant: number;
-        navamsaAscendant?: string; // Corrected to string (sign name)
-        transits?: {
-            planets: Record<string, PlanetPosition>;
-        };
-        dashas?: any[];
+        navamsaAscendant?: string; // Legacy
     };
+    isMoonChart?: boolean;
+    width?: number | string;
+    height?: number | string;
 }
 
 const HOUSE_THEMES: Record<number, { title: string, theme: string, awareness: string }> = {
-    1: { title: '1st House: Self & Vitality', theme: 'Identity, appearance, and how you meet the world.', awareness: 'Are you mask-wearing or being authentic?' },
-    2: { title: '2nd House: Values & Resource', theme: 'Personal finances, speech, and family traditions.', awareness: 'What truly nourishes your sense of stability?' },
-    3: { title: '3rd House: Skill & Courage', theme: 'Communication, siblings, and self-effort.', awareness: 'Are your actions driven by curiosity or competition?' },
-    4: { title: '4th House: Inner Peace', theme: 'Home, mother, emotions, and private life.', awareness: 'Where do you find refuge within yourself?' },
-    5: { title: '5th House: Creative Flow', theme: 'Intelligence, children, and creative output.', awareness: 'Is your joy conditional or a natural state?' },
-    6: { title: '6th House: Service & Health', theme: 'Discipline, daily work, and overcoming obstacles.', awareness: 'Are you managing difficulties or ignoring them?' },
-    7: { title: '7th House: Partnership', theme: 'Marriage, business partners, and the "Other".', awareness: 'Do you see others as they are, or as you wish them to be?' },
-    8: { title: '8th House: Transformation', theme: 'Longevity, intuition, and shared resources.', awareness: 'What are you resisting letting go of?' },
-    9: { title: '9th House: Higher Wisdom', theme: 'Belief systems, father, and long-distance travel.', awareness: 'Whose truths are you living by?' },
-    10: { title: '10th House: Action & Impact', theme: 'Public status, career, and karmic deeds.', awareness: 'Does your work reflect your integrity?' },
-    11: { title: '11th House: Social Gains', theme: 'Networks, friendships, and fulfillment of desires.', awareness: 'Are you contributing to the collective or just consuming?' },
-    12: { title: '12th House: Release', theme: 'Loss, solitude, subconscious, and liberation.', awareness: 'What is asking to be surrendered for your peace?' },
+    1: {
+        title: '1st House: Self & Vitality',
+        theme: 'This house represents your core identity, physical appearance, vitality, and the initial impression you make on the world. It is the lens through which you view all of life and how others first perceive you. The first house governs your body, temperament, and the natural energy you carry into every situation. A strong first house indicates robust health, confidence, and a clear sense of purpose, while challenges here may manifest as identity confusion or low vitality.',
+        awareness: 'Are you truly expressing your authentic self, or are you wearing masks to please others? Consider whether your outer presentation aligns with your inner truth and values.'
+    },
+    2: {
+        title: '2nd House: Values & Resource',
+        theme: 'This house governs your relationship with material resources, personal values, speech, family wealth, and what you consider truly valuable in life. It reflects how you earn, save, and spend money, as well as the quality of your communication. The second house also indicates your self-worth and the childhood conditioning around abundance. It reveals whether you feel inherently deserving of prosperity or carry limiting beliefs about money and security.',
+        awareness: 'What truly nourishes your sense of stability and security? Reflect on whether your pursuit of wealth is aligned with your deeper values or driven by fear and external expectations.'
+    },
+    3: {
+        title: '3rd House: Skill & Courage',
+        theme: 'This house represents your courage, communication skills, short journeys, siblings, neighbors, and all forms of self-initiated effort. It is the domain of your hands—your ability to create, write, perform, and take action. The third house reveals your mental curiosity, adaptability, and willingness to step outside your comfort zone. It also indicates the nature of your relationship with brothers, sisters, and your immediate community.',
+        awareness: 'Are your actions driven by genuine curiosity and passion, or are you competing and comparing yourself with others? Consider whether you are taking risks from a place of courage or reacting from insecurity.'
+    },
+    4: {
+        title: '4th House: Inner Peace',
+        theme: 'This house governs your emotional foundation, relationship with your mother, your home environment, private life, and inner sense of security. It represents your roots, ancestry, land, property, and the place you retreat to for comfort. The fourth house is the deepest part of your chart, reflecting your subconscious mind and emotional well-being. A strong fourth house provides psychological stability, while challenges here can manifest as homelessness—external or internal.',
+        awareness: 'Where do you find true refuge within yourself when the outer world becomes chaotic? Reflect on whether you are seeking peace externally or cultivating it from within your own heart.'
+    },
+    5: {
+        title: '5th House: Creative Flow',
+        theme: 'This house represents intelligence, creativity, children, romance, speculation, and all pursuits that bring spontaneous joy. It is the domain of your inner child, revealing how you play, create, and express your unique talents. The fifth house also governs progeny—both biological children and creative projects. It indicates whether you approach life with optimism and delight or whether duty has overshadowed your natural playfulness and inventive spirit.',
+        awareness: 'Is your joy conditional on external outcomes, or is it a natural, unconditional state of being? Consider whether you are allowing yourself to create freely without judgment or attachment to results.'
+    },
+    6: {
+        title: '6th House: Service & Health',
+        theme: 'This house governs daily routines, health, work, service, employees, debts, enemies, and obstacles. It reveals how you manage challenges, serve others, and maintain your physical well-being. The sixth house is where we confront our limitations and learn the discipline required to overcome adversity. It shows your relationship with illness, conflict, and competition, as well as your capacity to turn obstacles into opportunities for growth through dedicated effort.',
+        awareness: 'Are you consciously managing your difficulties and transmuting them into wisdom, or are you avoiding and suppressing them? Reflect on whether your daily habits support your health or undermine it.'
+    },
+    7: {
+        title: '7th House: Partnership',
+        theme: 'This house represents marriage, business partnerships, contracts, open enemies, and your relationship with the "Other." It is the mirror that reflects back the qualities you project onto others. The seventh house reveals the characteristics you seek in a life partner and the dynamics of all one-on-one relationships. It also governs legal agreements and public interactions. A balanced seventh house fosters mutual respect, while imbalances can lead to codependency or conflict.',
+        awareness: 'Do you see others as they truly are, or are you projecting your own desires and fears onto them? Consider whether you are seeking completion in another person or honoring their independent existence.'
+    },
+    8: {
+        title: '8th House: Transformation',
+        theme: 'This house governs longevity, transformation, sudden events, inheritance, shared resources, occult knowledge, and the mysteries of life and death. It is the realm of deep psychological change, where we confront our shadows and emerge reborn. The eighth house reveals your capacity for intimacy, trust, and surrender. It also indicates financial gains through others—such as insurance, loans, or inheritances—and your relationship with the unknown and the unseen dimensions of reality.',
+        awareness: 'What are you resisting letting go of that is preventing your transformation and growth? Reflect on whether you are controlling outcomes out of fear or surrendering to the natural flow of life.'
+    },
+    9: {
+        title: '9th House: Higher Wisdom',
+        theme: 'This house represents dharma, higher education, philosophy, religion, long-distance travel, teachers, and your father. It is the domain of your belief systems and your search for ultimate truth. The ninth house reveals how you expand your worldview, connect with the divine, and seek meaning beyond the material. It indicates your moral compass, spiritual practices, and the wisdom traditions that resonate with your soul. A strong ninth house brings grace, optimism, and the guidance of mentors.',
+        awareness: 'Whose truths are you living by—your own or those inherited from family and culture? Consider whether your beliefs serve your evolution or limit your perception of reality.'
+    },
+    10: {
+        title: '10th House: Action & Impact',
+        theme: 'This house governs career, public reputation, authority, status, and your contributions to society. It represents the zenith of your chart—your highest potential achievement in the external world. The tenth house reveals how you are seen by the public, your relationship with power, and the legacy you leave behind. It also indicates your karma through action (Karma Yoga) and the quality of your professional reputation. A strong tenth house brings recognition and respect.',
+        awareness: 'Does your work in the world reflect your deepest integrity and values, or are you pursuing status for external validation? Reflect on whether your career serves your soul\'s purpose or merely your ego.'
+    },
+    11: {
+        title: '11th House: Social Gains',
+        theme: 'This house represents friendships, social networks, aspirations, gains, income from career, elder siblings, and the fulfillment of desires. It is the domain of your hopes, dreams, and your contribution to collective causes. The eleventh house reveals the quality of your friendships and your capacity to work within groups for shared goals. It also indicates financial windfalls and the realization of long-term ambitions. A strong eleventh house brings abundance and supportive community.',
+        awareness: 'Are you genuinely contributing to the collective well-being, or are you merely consuming from the network without giving back? Consider whether your desires are aligned with the greater good.'
+    },
+    12: {
+        title: '12th House: Release',
+        theme: 'This house governs loss, liberation, isolation, foreign lands, spirituality, the subconscious mind, hidden enemies, expenses, and moksha (spiritual liberation). It is the realm of surrender, where we release attachments and dissolve the ego. The twelfth house reveals your capacity for meditation, solitude, and transcendence. It also indicates expenses, confinement, and the need for retreat from worldly life. A balanced twelfth house brings spiritual wisdom and compassionate service.',
+        awareness: 'What is asking to be surrendered for your ultimate peace and liberation? Reflect on whether you are clinging to the material world or allowing yourself to merge with the infinite mystery.'
+    },
 };
 
-export default function ChartDisplay({ data }: ChartDisplayProps) {
-    const [viewMode, setViewMode] = useState<'D1' | 'D9'>('D1');
-    const [showTransits, setShowTransits] = useState(false);
+export default function ChartDisplay({ data, isMoonChart, width = '100%', height = 'auto' }: ChartDisplayProps) {
     const [activeHouse, setActiveHouse] = useState<number | null>(null);
 
     const planets = data?.planets || {};
-    const transits = data?.transits?.planets || {};
+    const ascendant = data?.ascendant || 0;
 
-    const D1_Ascendant = data?.ascendant || 0;
-    // const D9_AscendantSign = data?.navamsaAscendant || 1;
+    // Fixed Whole Sign logic: First house starts at 0 degree of the sign containing Ascendant
+    const ascSignIdx = Math.floor(ascendant / 30);
 
-    // Calculate Signs for D1 Houses
-    const D1_AscSign = Math.floor(D1_Ascendant / 30) + 1;
-    const getD1HouseSign = (houseIdx: number) => {
-        const sign = (D1_AscSign + houseIdx) % 12;
-        return sign === 0 ? 12 : sign;
-    };
-
-    // Calculate Signs for D9 Houses
-    const SIGN_MAP: Record<string, number> = {
-        'Aries': 1, 'Taurus': 2, 'Gemini': 3, 'Cancer': 4,
-        'Leo': 5, 'Virgo': 6, 'Libra': 7, 'Scorpio': 8,
-        'Sagittarius': 9, 'Capricorn': 10, 'Aquarius': 11, 'Pisces': 12
-    };
-
-    const getSignIndex = (name: string) => SIGN_MAP[name] || 1;
-
-    // D9 Logic
-    const calcD9Sign = (deg: number) => {
-        const signIdx = Math.floor(deg / 30);
-        const navInSign = Math.floor((deg % 30) / 3.333333);
-        const element = signIdx % 4; // 0=Fire(Aries), 1=Earth(Cap), 2=Air(Lib), 3=Water(Can)
-        let start = 0;
-        if (element === 0) start = 0;
-        if (element === 1) start = 9;
-        if (element === 2) start = 6;
-        if (element === 3) start = 3;
-        const final = (start + navInSign) % 12;
-        return final + 1; // 1-12
-    };
-
-    const D9_AscSign = data?.navamsaAscendant
-        ? getSignIndex(data.navamsaAscendant)
-        : calcD9Sign(D1_Ascendant);
-
-    const getD9HouseSign = (houseIdx: number) => {
-        const sign = (D9_AscSign + houseIdx) % 12;
-        return sign === 0 ? 12 : sign;
-    };
-
-    // Distribute Planets
+    // Distribute Planets into houses
     const planetsInHouses: Record<number, { name: string, isTransit: boolean }[]> = {};
     const houseDignities: Record<number, string[]> = {};
 
-    // 1. Birth Planets
     Object.values(planets).forEach((p) => {
-        let houseNum = 1;
-
-        if (viewMode === 'D1') {
-            const pSign = Math.floor(p.longitude / 30) + 1;
-            const hIdx = (pSign - D1_AscSign + 12) % 12;
-            houseNum = hIdx + 1;
-        } else {
-            // D9 Mode
-            const pD9SignName = p.navamsaSign || 'Aries';
-            const pD9SignIdx = getSignIndex(pD9SignName);
-            const hIdx = (pD9SignIdx - D9_AscSign + 12) % 12;
-            houseNum = hIdx + 1;
-        }
+        const pSignIdx = Math.floor(p.longitude / 30);
+        const houseIdx = (pSignIdx - ascSignIdx + 12) % 12;
+        const houseNum = houseIdx + 1;
 
         if (!planetsInHouses[houseNum]) planetsInHouses[houseNum] = [];
         planetsInHouses[houseNum].push({ name: p.name.substring(0, 2), isTransit: false });
@@ -118,21 +113,6 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
             houseDignities[houseNum].push(`${p.name}: ${p.dignity}`);
         }
     });
-
-    // 2. Transit Planets (Only if enabled and in D1 mode usually, but can work in D9 too)
-    if (showTransits && viewMode === 'D1') {
-        Object.values(transits).forEach((p) => {
-            const pSign = Math.floor(p.longitude / 30) + 1;
-            // Transit House is relative to BIRTH Ascendant (Gochar from Lagna)
-            // Some traditions use Gochar from Moon (Chandra Lagna), but default is Lagna for chart overlay.
-            const hIdx = (pSign - D1_AscSign + 12) % 12;
-            const houseNum = hIdx + 1;
-
-            if (!planetsInHouses[houseNum]) planetsInHouses[houseNum] = [];
-            // Check if already exists to avoid clutter? No, show all.
-            planetsInHouses[houseNum].push({ name: p.name.substring(0, 2), isTransit: true });
-        });
-    }
 
     const houses = [
         { num: 1, path: 'M 200,200 L 300,100 L 200,0 L 100,100 Z', textX: 200, textY: 80 },
@@ -150,32 +130,19 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
     ];
 
     return (
-        <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+        <div style={{ width: typeof width === 'number' ? `${width}px` : width, margin: '0 auto' }}>
 
-            {/* View Toggle */}
-            <div className="toggle-container">
-                <button
-                    onClick={() => { setViewMode('D1'); setShowTransits(false); }}
-                    className={`toggle-btn ${viewMode === 'D1' && !showTransits ? 'active' : ''}`}
-                >
-                    Rasi (D1)
-                </button>
-                <button
-                    onClick={() => { setViewMode('D9'); setShowTransits(false); }}
-                    className={`toggle-btn ${viewMode === 'D9' ? 'active' : ''}`}
-                >
-                    Navamsa (D9)
-                </button>
-                <button
-                    onClick={() => { setViewMode('D1'); setShowTransits(true); }}
-                    className={`toggle-btn ${showTransits ? 'active' : ''}`}
-                    style={showTransits ? { background: 'var(--cyan)', color: '#000' } : {}}
-                >
-                    Gochar (Transits)
-                </button>
-            </div>
-
-            <svg viewBox="-50 -50 500 500" style={{ width: '100%', height: 'auto', background: 'transparent', overflow: 'visible' }}>
+            <svg viewBox="-50 -50 500 500" style={{ width: '100%', height: typeof height === 'number' ? `${height}px` : height, background: 'transparent', overflow: 'visible' }}>
+                <defs>
+                    <linearGradient id="houseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="rgba(212, 175, 55, 0.05)" />
+                        <stop offset="100%" stopColor="rgba(212, 175, 55, 0.15)" />
+                    </linearGradient>
+                    <linearGradient id="activeHouseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="rgba(212, 175, 55, 0.2)" />
+                        <stop offset="100%" stopColor="rgba(212, 175, 55, 0.4)" />
+                    </linearGradient>
+                </defs>
 
                 {/* 1. Draw Background Polygons */}
                 {houses.map((house) => {
@@ -184,17 +151,18 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
                         <path
                             key={`bg-${house.num}`}
                             d={house.path}
-                            fill={isActive ? 'rgba(212, 175, 55, 0.25)' : 'rgba(255,255,255,0.03)'}
-                            stroke="none"
+                            fill={isActive ? 'url(#activeHouseGradient)' : 'rgba(255,255,255,0.02)'}
+                            stroke="rgba(212, 175, 55, 0.1)"
+                            strokeWidth="1"
                             onClick={() => setActiveHouse(house.num)}
-                            style={{ cursor: 'pointer', transition: 'fill 0.2s ease' }}
+                            style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
                         />
                     );
                 })}
 
                 {/* 2. Grid Lines */}
-                <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none">
-                    <rect x="1.5" y="1.5" width="397" height="397" />
+                <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8">
+                    <rect x="1" y="1" width="398" height="398" />
                     <line x1="0" y1="0" x2="400" y2="400" />
                     <line x1="400" y1="0" x2="0" y2="400" />
                     <path d="M 200,0 L 400,200 L 200,400 L 0,200 Z" />
@@ -202,9 +170,7 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
 
                 {/* 3. Text Content */}
                 {houses.map((house) => {
-                    // Sign depends on View Mode
-                    const signNum = viewMode === 'D1' ? getD1HouseSign(house.num - 1) : getD9HouseSign(house.num - 1);
-
+                    const signNum = ((ascSignIdx + house.num - 1) % 12) + 1;
                     const housePlanets = planetsInHouses[house.num] || [];
                     const isActive = activeHouse === house.num;
 
@@ -212,29 +178,28 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
                         <g key={`text-${house.num}`} onClick={() => setActiveHouse(house.num)} style={{ cursor: 'pointer' }}>
                             <path d={house.path} fill="transparent" stroke="none" />
 
-                            {/* House Label (Fixed) */}
                             <text
                                 x={house.textX + (house.num === 1 ? 0 : (house.num >= 8 && house.num <= 12 ? 30 : -30))}
                                 y={house.textY + (house.num === 1 ? -40 : (house.num >= 4 && house.num <= 9 ? 30 : -20))}
                                 textAnchor="middle"
                                 fontSize="10"
                                 fill="var(--secondary)"
-                                opacity="0.7"
+                                opacity="0.6"
+                                fontWeight="600"
                                 style={{ pointerEvents: 'none' }}
                             >
                                 H{house.num}
                             </text>
 
-                            {/* Sign Number */}
                             <text
                                 x={house.textX}
                                 y={house.textY}
                                 textAnchor="middle"
                                 dominantBaseline="middle"
-                                fontSize="20"
+                                fontSize="18"
                                 fill="var(--accent-gold)"
-                                fontWeight="800"
-                                style={{ pointerEvents: 'none' }}
+                                fontWeight="900"
+                                style={{ pointerEvents: 'none', filter: 'drop-shadow(0 0 2px rgba(212, 175, 55, 0.3))' }}
                             >
                                 {signNum}
                             </text>
@@ -243,18 +208,15 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
                                 <text
                                     key={idx}
                                     x={house.textX}
-                                    y={house.textY + 22 + (idx * 16)}
+                                    y={house.textY + 24 + (idx * 16)}
                                     textAnchor="middle"
                                     dominantBaseline="middle"
-                                    fontSize="14"
-                                    fill={planetObj.isTransit ? "var(--cyan)" : (isActive ? "var(--accent-gold)" : "var(--primary)")}
+                                    fontSize="13"
+                                    fill={isActive ? "#fff" : "var(--primary)"}
                                     fontWeight="700"
-                                    style={{
-                                        pointerEvents: 'none',
-                                        filter: planetObj.isTransit ? 'drop-shadow(0 0 2px rgba(0,255,255,0.5))' : 'none'
-                                    }}
+                                    style={{ pointerEvents: 'none', transition: 'fill 0.3s ease' }}
                                 >
-                                    {planetObj.name}{planetObj.isTransit ? '*' : ''}
+                                    {planetObj.name}
                                 </text>
                             ))}
                         </g>
@@ -265,27 +227,99 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
             {activeHouse && (
                 <div style={{
                     marginTop: '24px',
-                    padding: '24px',
+                    padding: '28px 32px',
                     background: 'var(--card-bg)',
-                    border: '1px solid var(--card-border)',
+                    border: '1px solid rgba(212, 175, 55, 0.3)',
                     borderRadius: '16px',
-                    boxShadow: 'var(--glass-shadow)',
-                    animation: 'fadeIn 0.3s ease'
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                    animation: 'fadeIn 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    backdropFilter: 'blur(12px)'
                 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                            <h4 style={{ color: 'var(--accent-gold)', marginBottom: '8px', fontSize: '1.2rem', fontWeight: '700' }}>
+                    {/* Close Button */}
+                    <button
+                        onClick={() => setActiveHouse(null)}
+                        style={{
+                            position: 'absolute',
+                            top: '16px',
+                            right: '16px',
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            border: '1px solid rgba(212, 175, 55, 0.3)',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            color: 'var(--secondary)',
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                            padding: 0
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.2)';
+                            e.currentTarget.style.borderColor = 'var(--accent-gold)';
+                            e.currentTarget.style.color = 'var(--accent-gold)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                            e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+                            e.currentTarget.style.color = 'var(--secondary)';
+                        }}
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
+
+                    {/* Educational Note */}
+                    <div style={{
+                        background: 'rgba(212, 175, 55, 0.1)',
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        border: '1px solid rgba(212, 175, 55, 0.25)'
+                    }}>
+                        <p style={{
+                            fontSize: '0.88rem',
+                            color: 'var(--accent-gold)',
+                            margin: 0,
+                            lineHeight: '1.7',
+                            fontStyle: 'italic'
+                        }}>
+                            📍 <strong>Note:</strong> House numbers (1-12) remain consistent across all divisional charts, but the zodiac signs and planets within each house change based on the chart type. Each divisional chart has a different ascendant, revealing unique insights for specific life areas.
+                        </p>
+                    </div>
+
+                    <div className="house-detail-container">
+                        <div style={{ flex: 1 }}>
+                            <h4 style={{
+                                color: 'var(--accent-gold)',
+                                marginBottom: '16px',
+                                fontSize: '1.4rem',
+                                fontWeight: '700',
+                                letterSpacing: '0.5px'
+                            }}>
                                 {HOUSE_THEMES[activeHouse].title}
                             </h4>
-                            <p style={{ fontSize: '1rem', color: 'var(--secondary)', lineHeight: '1.6', marginBottom: '16px' }}>
+                            <p style={{
+                                fontSize: '1.05rem',
+                                color: 'var(--primary)',
+                                lineHeight: '1.9',
+                                marginBottom: '20px',
+                                textAlign: 'justify',
+                                textJustify: 'inter-word'
+                            }}>
                                 {HOUSE_THEMES[activeHouse].theme}
                             </p>
                         </div>
                         {/* Dignity Badge */}
                         {houseDignities[activeHouse] && houseDignities[activeHouse].length > 0 && (
-                            <div className="flex flex-col gap-1 items-end">
+                            <div className="dignity-badge-group">
                                 {houseDignities[activeHouse].map((dig, i) => (
-                                    <span key={i} className="px-2 py-1 rounded text-xs font-bold bg-[var(--accent-gold)] text-white">
+                                    <span key={i} className="dignity-badge-item">
                                         {dig}
                                     </span>
                                 ))}
@@ -294,15 +328,19 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
                     </div>
 
                     <div style={{
-                        fontSize: '0.95rem',
+                        marginTop: '24px',
+                        fontSize: '1rem',
                         fontStyle: 'italic',
                         color: 'var(--foreground)',
-                        padding: '12px 16px',
-                        borderLeft: '3px solid var(--accent-gold)',
-                        background: 'rgba(212, 175, 55, 0.05)',
-                        borderRadius: '0 8px 8px 0'
+                        padding: '16px 20px',
+                        borderLeft: '4px solid var(--accent-gold)',
+                        background: 'rgba(212, 175, 55, 0.08)',
+                        borderRadius: '0 12px 12px 0',
+                        lineHeight: '1.8',
+                        textAlign: 'justify',
+                        textJustify: 'inter-word'
                     }}>
-                        <strong>Awareness:</strong> {HOUSE_THEMES[activeHouse].awareness}
+                        <strong style={{ color: 'var(--accent-gold)', fontSize: '1.05rem' }}>Awareness:</strong> {HOUSE_THEMES[activeHouse].awareness}
                     </div>
                 </div>
             )}
@@ -318,7 +356,7 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
                     justify-content: center;
                     gap: 8px;
                     margin-bottom: 24px;
-                    background: rgba(0,0,0,0.2);
+                    background: var(--card-bg);
                     padding: 4px;
                     border-radius: 50px;
                     width: max-content;
@@ -364,6 +402,40 @@ export default function ChartDisplay({ data }: ChartDisplayProps) {
                     background: var(--primary);
                     color: var(--background);
                     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                }
+
+                .house-detail-container {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    gap: 16px;
+                }
+
+                .dignity-badge-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    align-items: flex-end;
+                }
+
+                .dignity-badge-item {
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    font-size: 0.75rem;
+                    font-weight: bold;
+                    background: var(--accent-gold);
+                    color: #000;
+                    white-space: nowrap;
+                }
+
+                @media (max-width: 480px) {
+                    .house-detail-container {
+                        flex-direction: column;
+                    }
+                    .dignity-badge-group {
+                        align-items: flex-start;
+                        width: 100%;
+                    }
                 }
             `}</style>
         </div >

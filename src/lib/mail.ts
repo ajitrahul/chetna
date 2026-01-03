@@ -41,7 +41,7 @@ export async function sendLifeReportEmail(to: string, userName: string, reportCo
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="${process.env.NEXTAUTH_URL}/profile" style="background: #d4af37; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">Login to Dashboard</a>
+                    <a href="${process.env.NEXTAUTH_URL}/dashboard" style="background: #d4af37; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">Login to Dashboard</a>
                 </div>
                 
                 <p style="margin-top: 40px; font-size: 0.8rem; color: #999; text-align: center; font-style: italic;">
@@ -61,9 +61,39 @@ export async function sendLifeReportEmail(to: string, userName: string, reportCo
     try {
         await transporter.sendMail(mailOptions);
         console.log(`Email sent successfully with PDF to ${to}`);
-        return { success: true };
+        return { success: true }; // Corrected line
     } catch (error) {
         console.error('Email sending error:', error);
+        return { success: false, error };
+    }
+}
+
+export async function sendNewsletter(to: string[], subject: string, content: string) {
+    if (to.length === 0) return { success: true, count: 0 };
+
+    try {
+        await transporter.sendMail({
+            from: `"Chetna Updates" <${process.env.GMAIL_USER}>`,
+            bcc: to, // Array of emails
+            subject: subject,
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="margin-bottom: 20px; text-align: center;">
+                        <h2 style="color: #d4af37;">CHETNA</h2>
+                    </div>
+                    <div style="color: #333; line-height: 1.6;">
+                        ${content}
+                    </div>
+                    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 0.8rem; color: #999; text-align: center;">
+                        <p>You are receiving this because you subscribed to Chetna updates.</p>
+                        <p>"Awareness, not prediction."</p>
+                    </div>
+                </div>
+            `
+        });
+        return { success: true, count: to.length };
+    } catch (error) {
+        console.error('Newsletter Error:', error);
         return { success: false, error };
     }
 }

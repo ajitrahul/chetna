@@ -113,7 +113,7 @@ export default function TimingPage() {
                 <Clock size={48} className={styles.guestIcon} />
                 <h2>Login to View Your Timeline</h2>
                 <p>Track your planetary periods and understand the &apos;weather&apos; of your life.</p>
-                <button onClick={() => window.location.href = '/login'} className={styles.loginBtn}>Login Now</button>
+                <button onClick={() => window.location.href = '/login?callbackUrl=/dashboard'} className={styles.loginBtn}>Login Now</button>
             </div>
         </div>
     );

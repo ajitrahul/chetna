@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { auth } from '@/auth';
+import prisma from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
     try {
@@ -26,25 +27,38 @@ export async function POST(req: NextRequest) {
             key_secret: process.env.RAZORPAY_KEY_SECRET,
         });
 
-        const { amount, productType, productName } = await req.json();
+        const { productKey, productName } = await req.json();
 
-        // Validate amount
-        if (!amount || amount <= 0) {
+        if (!productKey) {
             return NextResponse.json(
-                { error: 'Invalid amount' },
+                { error: 'Product key is required' },
                 { status: 400 }
             );
         }
 
+        // Fetch price from DB to prevent tampering
+        const plan = await prisma.pricingPlan.findUnique({
+            where: { key: productKey }
+        });
+
+        if (!plan) {
+            return NextResponse.json(
+                { error: 'Invalid product plan' },
+                { status: 400 }
+            );
+        }
+
+        const amount = plan.price / 100; // Convert paise to INR for validation check if needed, but Razorpay takes paise
+
         // Create Razorpay order
         const order = await razorpay.orders.create({
-            amount: amount * 100, // Convert to paise
-            currency: 'INR',
+            amount: plan.price, // Use DB price (in paise)
+            currency: plan.currency,
             receipt: `receipt_${Date.now()}`,
             notes: {
                 userId: session.user.id,
-                productType,
-                productName,
+                productKey: plan.key,
+                productName: plan.name, // Use DB name preferred, but can fallback
             },
         });
 

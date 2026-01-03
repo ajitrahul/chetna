@@ -68,9 +68,15 @@ export default function Header() {
                 >
                   + Credits (Test)
                 </button>
-                <Link href="/profile" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
-                  {session?.user?.name || 'Profile'}
+                <Link href="/dashboard" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                  Dashboard
                 </Link>
+                {/* Admin Link */}
+                {session?.user?.isAdmin && (
+                  <Link href="/admin" className={styles.navLink} style={{ color: '#D4AF37' }} onClick={() => setIsMenuOpen(false)}>
+                    Admin Control
+                  </Link>
+                )}
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);

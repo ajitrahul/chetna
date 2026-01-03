@@ -205,6 +205,7 @@
         align-items: flex-start;
         gap: 24px;
         width: 100%;
+        margin-top: 20px;
     }
 
     .actions {
@@ -224,6 +225,11 @@
     }
 
     .container {
-        padding: 12px 16px;
+        padding: 8px 16px;
+    }
+
+    .loginBtn {
+        padding: 6px 16px;
+        font-size: 0.85rem;
     }
 }

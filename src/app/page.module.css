@@ -256,6 +256,29 @@
 
 .dashboardHeader {
   margin-bottom: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.primaryBtnSmall {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--foreground);
+  color: var(--background);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.primaryBtnSmall:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .welcomeText {
@@ -344,7 +367,7 @@
     grid-template-columns: 1fr;
     gap: 40px;
     text-align: center;
-    padding-top: 40px;
+    padding-top: 20px;
   }
 
   .heroContent {
@@ -361,6 +384,8 @@
 
   .heroTitle {
     font-size: 2.8rem;
+    margin-bottom: 24px;
+    line-height: 1.2;
   }
 
   .heroSubtitle {
@@ -368,10 +393,12 @@
     margin-right: auto;
     font-size: 1.1rem;
     margin-bottom: 32px;
+    max-width: 100%;
   }
 
   .heroActions {
     justify-content: center;
+    width: 100%;
   }
 
   /* Dashboard Adjustments */
@@ -382,10 +409,11 @@
 
   .sideColumn {
     position: static;
+    gap: 24px;
   }
 
   .welcomeText {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .chartCircle {
@@ -410,12 +438,12 @@
 
 @media (max-width: 480px) {
   .hero {
-    padding: 60px 16px;
+    padding: 60px 0;
   }
 
   .heroTitle {
     font-size: 2.2rem;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .heroSubtitle {
@@ -427,22 +455,31 @@
   .secondaryBtn {
     width: 100%;
     justify-content: center;
-    padding: 16px 24px;
+    padding: 16px 20px;
   }
 
   .dashboard {
-    padding: 40px 16px;
+    padding: 40px 0;
   }
 
   .welcomeText {
     font-size: 1.8rem;
+    word-break: break-word;
+  }
+
+  .dashboardHeader {
+    margin-bottom: 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
   }
 
   .searchSection {
-    padding: 24px 20px;
+    padding: 20px 16px;
   }
 
   .quickLinkItem {
-    padding: 16px 20px;
+    padding: 16px;
+    font-size: 0.9rem;
   }
 }

@@ -20,12 +20,17 @@ export default function Home() {
         <section className={styles.dashboard}>
           <div className={styles.dashboardGrid}>
             <div className={styles.dashboardHeader}>
-              <h1 className={styles.welcomeText}>
-                Welcome back, <span className={styles.userName}>{session?.user?.name?.split(' ')[0]}</span>
-              </h1>
-              <p className={styles.dashboardSubtitle}>
-                Observe your patterns and act with awareness today.
-              </p>
+              <div>
+                <h1 className={styles.welcomeText}>
+                  Welcome back, <span className={styles.userName}>{session?.user?.name?.split(' ')[0]}</span>
+                </h1>
+                <p className={styles.dashboardSubtitle}>
+                  Observe your patterns and act with awareness today.
+                </p>
+              </div>
+              <Link href="/dashboard" className={styles.primaryBtnSmall}>
+                Go to Dashboard <ArrowRight size={16} />
+              </Link>
             </div>
 
             <div className={styles.widgetGrid}>

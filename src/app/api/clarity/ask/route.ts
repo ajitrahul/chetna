@@ -39,11 +39,18 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if user has credits
+        // Get cost for asking a question from DB
+        const serviceCost = await prisma.serviceCost.findUnique({
+            where: { key: 'ASK_QUESTION' }
+        });
+
+        const creditsRequired = serviceCost?.credits || 1; // Default to 1 if not set
+
         const creditPack = await prisma.creditPack.findFirst({
             where: {
                 userId: session.user.id,
                 questionsUsed: {
-                    lt: prisma.creditPack.fields.questionsTotal,
+                    lte: prisma.creditPack.fields.questionsTotal // Need strictly less than total minus required? No, checks logic below
                 },
             },
             orderBy: {
@@ -51,15 +58,46 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        if (!creditPack) {
+        // Simpler check: Calculate total available credits across all packs
+        const allPacks = await prisma.creditPack.findMany({
+            where: { userId: session.user.id }
+        });
+
+        const totalCreditsAvailable = allPacks.reduce((acc, pack) => acc + (pack.questionsTotal - pack.questionsUsed), 0);
+
+        if (totalCreditsAvailable < creditsRequired) {
             return NextResponse.json(
                 {
-                    error: 'No credits available',
-                    message: 'Please purchase credits to ask questions',
+                    error: `Insufficient credits. This requires ${creditsRequired} credits.`,
+                    message: 'Please purchase more credits to ask questions',
                     redirectTo: '/pricing'
                 },
                 { status: 402 }
             );
+        }
+
+        // Logic to deduct credits from packs (FIFO)
+        let creditsToDeduct = creditsRequired;
+        const packsToUpdate = [];
+
+        // Sort packs by purchase date to use oldest first
+        const sortedPacks = allPacks
+            .filter(p => p.questionsTotal > p.questionsUsed)
+            .sort((a, b) => new Date(a.purchasedAt).getTime() - new Date(b.purchasedAt).getTime());
+
+        for (const pack of sortedPacks) {
+            if (creditsToDeduct <= 0) break;
+
+            const availableInPack = pack.questionsTotal - pack.questionsUsed;
+            const takeFromPack = Math.min(availableInPack, creditsToDeduct);
+
+            packsToUpdate.push({ id: pack.id, increment: takeFromPack });
+            creditsToDeduct -= takeFromPack;
+        }
+
+        if (creditsToDeduct > 0) {
+            // Should not happen due to check above
+            return NextResponse.json({ error: 'Credit calculation error' }, { status: 500 });
         }
 
         // Get user's most recent chart data
@@ -88,15 +126,15 @@ export async function POST(req: NextRequest) {
             profile.chartData as unknown as ChartData
         );
 
-        // Deduct credit
-        await prisma.creditPack.update({
-            where: { id: creditPack.id },
-            data: {
-                questionsUsed: {
-                    increment: 1,
-                },
-            },
-        });
+        // Deduct credits transactionally
+        await prisma.$transaction(
+            packsToUpdate.map(p =>
+                prisma.creditPack.update({
+                    where: { id: p.id },
+                    data: { questionsUsed: { increment: p.increment } }
+                })
+            )
+        );
 
         // Save question and response to database
         const savedQuestion = await prisma.question.create({
@@ -109,7 +147,7 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        const remainingCredits = creditPack.questionsTotal - creditPack.questionsUsed - 1;
+        const remainingCredits = totalCreditsAvailable - creditsRequired;
 
         return NextResponse.json({
             success: true,

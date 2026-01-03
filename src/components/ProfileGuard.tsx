@@ -18,7 +18,7 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
 
     useEffect(() => {
         if (status === 'unauthenticated') {
-            router.push('/login');
+            router.push('/login?callbackUrl=/dashboard');
             return;
         }
 

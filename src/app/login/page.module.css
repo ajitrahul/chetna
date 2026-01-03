@@ -82,6 +82,31 @@
     box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
+.checkboxGroup {
+    margin-bottom: 24px;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--secondary);
+    transition: color 0.2s ease;
+}
+
+.checkboxLabel:hover {
+    color: var(--primary);
+}
+
+.checkboxLabel input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent-gold);
+    cursor: pointer;
+}
+
 .submitBtn {
     width: 100%;
     display: flex;

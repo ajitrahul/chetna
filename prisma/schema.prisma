@@ -20,6 +20,7 @@ model User {
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  isSubscribed  Boolean   @default(true) // For Newsletter
   
   profiles      Profile[]
   questions     Question[]
@@ -27,6 +28,8 @@ model User {
   journalEntries JournalEntry[]
   accounts      Account[]
   sessions      Session[]
+  exports       ExportRecord[]
+  creditHistory CreditTransaction[]
 }
 
 // OAuth account info (for NextAuth)
@@ -76,6 +79,7 @@ model Profile {
   chartData     Json?     // Complete calculated chart positions
   report        Report?
   isActive      Boolean   @default(true)    // Whether this profile is active
+  unlockedCharts Json?     // Array of unlocked chart keys e.g. ["D2", "D10"]
   disabledAt    DateTime?                   // When this profile was disabled
   disabledReason String?                    // Why it was disabled (e.g., "Overwritten by newer version")
   createdAt     DateTime  @default(now())
@@ -155,5 +159,77 @@ model JournalEntry {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, date])
+  @@index([userId])
+}
+
+// Dynamic Pricing Configuration
+model PricingPlan {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g. "SINGLE_QUESTION", "CREDIT_PACK_5"
+  name        String
+  description String?
+  price       Int      // Amount in paise (e.g. 14900 for ₹149)
+  currency    String   @default("INR")
+  credits     Int      @default(0) // Number of credits this plan gives (0 for n/a)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Service Credit Configuration
+model ServiceCost {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g. "ASK_QUESTION"
+  description String?
+  credits     Int      @default(1) // Number of credits this action costs
+  updatedAt   DateTime @updatedAt
+}
+
+// Analytics Tracking
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String   // PAGE_VIEW, FEATURE_USE
+  path      String?
+  userId    String?  // Optional, for logged-out users
+  country   String?
+  city      String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([type])
+}
+
+// Admin Newsletters
+model Newsletter {
+  id             String   @id @default(cuid())
+  subject        String
+  content        String   @db.Text
+  recipientsCount Int
+  sentAt         DateTime @default(now())
+}
+
+// Export Records
+model ExportRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chartType String   // e.g. "D1", "D9"
+  url       String   // URL to download
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Credit Usage History
+model CreditTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Int      // Negative for usage, positive for adding
+  description String   // e.g. "Unlocked D9 Chart", "Purchased 5 Credits"
+  createdAt   DateTime @default(now())
+  metadata    Json?    // Optional extra info
+
   @@index([userId])
 }

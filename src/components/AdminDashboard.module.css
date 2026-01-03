@@ -1,0 +1,333 @@
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--bg-soft);
+    padding: 2rem 1.5rem;
+    border-right: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1px;
+    border-bottom: 1px solid var(--accent-gold);
+    display: inline-block;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.navItem {
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 0.75rem 1rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.navItem:hover {
+    background-color: rgba(var(--foreground-rgb), 0.05);
+    color: var(--foreground);
+}
+
+.navItem.active {
+    background-color: var(--accent-gold);
+    color: #fff;
+}
+
+.content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: var(--font-heading);
+    color: var(--accent-gold);
+    font-size: 1.2rem;
+    background-color: var(--background);
+}
+
+/* Analytics Grid */
+.analyticsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.statCard {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--glass-shadow);
+    border: 1px solid var(--card-border);
+}
+
+.statCard h3 {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statValue {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--foreground);
+    font-family: var(--font-heading);
+}
+
+.section {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+}
+
+.section h3 {
+    font-family: var(--font-heading);
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: var(--glass-shadow);
+}
+
+.table th,
+.table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.table th {
+    background: rgba(var(--bg-soft-rgb), 0.8);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.table tr:hover {
+    background-color: rgba(var(--foreground-rgb), 0.02);
+}
+
+/* Pricing List */
+.pricingList {
+    display: grid;
+    gap: 1rem;
+}
+
+.planEditor {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.planHeader h4 {
+    font-size: 1.1rem;
+    color: var(--foreground);
+    margin-bottom: 0.25rem;
+}
+
+.planKey {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: rgba(var(--foreground-rgb), 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.planBody {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.planBody label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.priceInputGroup {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.priceInputGroup input,
+.input,
+.textarea {
+    padding: 0.5rem;
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+    width: 100px;
+    background: var(--background);
+    color: var(--foreground);
+}
+
+.input,
+.textarea {
+    width: 100%;
+}
+
+.saveBtn,
+.sendBtn {
+    background-color: var(--accent-gold);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.saveBtn:hover,
+.sendBtn:hover:not(:disabled) {
+    background-color: var(--accent-gold-dim);
+}
+
+.sendBtn:disabled {
+    background-color: var(--secondary);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.newsletterSection {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--glass-shadow);
+}
+
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.geoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.geoItem {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.geoItem span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.geoItem strong {
+    font-size: 1.1rem;
+    color: var(--foreground);
+}
+
+.filterBar {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: rgba(var(--bg-soft-rgb), 0.5);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-soft);
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filterGroup label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 1rem;
+        border-right: none;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .logo {
+        margin-bottom: 1rem;
+    }
+
+    .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .navItem {
+        white-space: nowrap;
+    }
+
+    .content {
+        padding: 1rem;
+    }
+}

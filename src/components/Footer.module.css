@@ -107,3 +107,46 @@
         text-align: center;
     }
 }
+
+.newsletterText {
+    margin-bottom: 20px !important;
+}
+
+.subscribeForm {
+    display: flex;
+    gap: 8px;
+    max-width: 100%;
+}
+
+.subscribeInput {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: var(--foreground);
+    font-size: 0.9rem;
+    min-width: 0;
+}
+
+.subscribeInput:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+}
+
+.subscribeBtn {
+    background: var(--accent-gold);
+    color: #000;
+    border: none;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.subscribeBtn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}

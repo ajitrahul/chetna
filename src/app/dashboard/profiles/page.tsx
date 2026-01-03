@@ -31,7 +31,7 @@ export default function AllProfilesPage() {
 
     useEffect(() => {
         if (status === 'unauthenticated') {
-            router.push('/login?callbackUrl=/profile/profiles');
+            router.push('/login?callbackUrl=/dashboard/profiles');
         }
 
         if (status === 'authenticated') {
@@ -135,9 +135,9 @@ export default function AllProfilesPage() {
     return (
         <div className={`container ${styles.pageContainer}`}>
             <div className={styles.header}>
-                <Link href="/profile" className={styles.backLink}>
+                <Link href="/dashboard" className={styles.backLink}>
                     <ArrowLeft size={20} />
-                    Back to Profile
+                    Back to Dashboard
                 </Link>
                 <h1 className={styles.title}>All Birth Chart Profiles</h1>
                 <p className={styles.subtitle}>

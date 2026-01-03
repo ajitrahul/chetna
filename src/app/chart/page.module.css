@@ -242,6 +242,30 @@
     font-size: 1.05rem;
 }
 
+.vargaHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.vargaTitle {
+    font-size: 1.1rem;
+    color: var(--primary);
+    margin: 0;
+}
+
+.vargaTag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--accent-gold);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
 @media (max-width: 768px) {
     .pageContainer {
         padding: 40px 16px;
@@ -272,4 +296,795 @@
         width: 100%;
         justify-content: center;
     }
+}
+
+/* Glassmorphism 2.0 & Premium Aesthetics */
+.trinityCard {
+    background: var(--card-bg);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(24px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(212, 175, 55, 0.05);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.trinityCard:hover {
+    transform: translateY(-12px) scale(1.02);
+    border-color: var(--accent-gold);
+    box-shadow: 0 30px 60px rgba(212, 175, 55, 0.15), inset 0 0 30px rgba(212, 175, 55, 0.1);
+}
+
+.vargaCard {
+    background: var(--card-bg);
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(16px);
+    transition: all 0.4s ease;
+    overflow: hidden;
+    min-height: 400px;
+}
+
+.vargaCard:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(10, 10, 10, 0.4) 100%);
+    border-color: rgba(212, 175, 55, 0.4);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.15);
+}
+
+.analysisBtn {
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--secondary);
+    padding: 10px 20px;
+    border-radius: 100px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.analysisBtn:hover {
+    border-color: var(--accent-gold);
+    color: var(--primary);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.analysisBtn.active {
+    background: var(--accent-gold);
+    color: #000;
+    border-color: var(--accent-gold);
+}
+
+.expandedDetail {
+    margin-top: 32px;
+    padding: 0;
+    animation: slideDown 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Redesigned Interpretation Box */
+.interpretationBox {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+    padding: 32px;
+    border-radius: 16px;
+    border: 2px solid rgba(212, 175, 55, 0.4);
+    margin: 0 0 24px 0;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.interpretationBox h4 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.interpretationBox p {
+    font-size: 1.15rem;
+    line-height: 2.2;
+    color: var(--secondary);
+    font-weight: 400;
+}
+
+/* Info Item Blocks */
+.infoItem {
+    margin-bottom: 24px;
+    padding: 28px;
+    background: rgba(var(--background-rgb), 0.05);
+    border-radius: 14px;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.infoItem h4 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.05rem;
+    letter-spacing: 1.8px;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.infoItem p {
+    font-size: 1.12rem;
+    line-height: 2.1;
+    color: var(--secondary);
+    font-weight: 400;
+}
+
+/* Redesigned Table Wrapper */
+.placementDashboard {
+    margin-top: 32px;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    border: 1px solid var(--card-border);
+}
+
+.placementDashboard h4 {
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+}
+
+.modernTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.modernTable th {
+    text-align: left;
+    padding: 12px;
+    color: var(--secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--card-border);
+}
+
+.modernTable tr {
+    transition: transform 0.2s ease;
+}
+
+.modernTable td {
+    padding: 14px 12px;
+    background: transparent;
+    color: var(--secondary);
+    font-size: 0.9rem;
+}
+
+.modernTable td:first-child {
+    border-radius: 8px 0 0 8px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.modernTable td:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.dignityBadge {
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--secondary);
+}
+
+.exalted {
+    background: rgba(212, 175, 55, 0.2) !important;
+    color: var(--accent-gold) !important;
+    border: 1px solid var(--accent-gold) !important;
+}
+
+.debilitated {
+    background: rgba(255, 71, 71, 0.1) !important;
+    color: #ff4747 !important;
+    border: 1px solid rgba(255, 71, 71, 0.2) !important;
+}
+
+.moolatrikona {
+    background: rgba(0, 184, 148, 0.1) !important;
+    color: #00b894 !important;
+    border: 1px solid rgba(0, 184, 148, 0.2) !important;
+}
+
+.lockOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: rgba(var(--background-rgb), 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.mysticLock {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.lockIcon {
+    color: var(--accent-gold);
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.lockGlow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.unlockTitle {
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    font-family: var(--font-heading);
+}
+
+.unlockDescription {
+    color: var(--secondary);
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+    max-width: 200px;
+    line-height: 1.5;
+}
+
+.unlockBtn {
+    background: var(--accent-gold);
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+.unlockBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+/* Grids & Layout */
+.trinityGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+    margin-bottom: 64px;
+}
+
+.vargaGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+    padding: 12px;
+}
+
+.categoryNav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50px;
+    border: 1px solid var(--card-border);
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.categoryBtn {
+    background: transparent;
+    border: none;
+    color: var(--secondary);
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.categoryBtn:hover {
+    color: var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.categoryBtn.active {
+    background: var(--accent-gold);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.initializeSection {
+    margin-top: 60px;
+    padding: 48px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--card-border);
+    text-align: center;
+}
+
+.initializeBtn {
+    margin-top: 24px;
+    background: var(--accent-gold);
+    color: #000;
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.initializeBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+/* Card Container for Accordion */
+.cardContainer {
+    position: relative;
+}
+
+/* Accordion Expansion */
+.accordionExpansion {
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+/* Tab Container */
+.tabContainer {
+    background: var(--card-bg);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Tab Buttons Row */
+.tabButtons {
+    display: flex;
+    gap: 12px;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+    margin-bottom: 28px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.tabButtons::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tabButtons::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.tabButtons::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 2px;
+}
+
+/* Individual Tab Button */
+.tabButton {
+    padding: 14px 28px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--secondary);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+    bottom: -2px;
+}
+
+.tabButton:hover {
+    color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.08);
+    border-radius: 8px 8px 0 0;
+}
+
+.activeTabButton {
+    color: var(--accent-gold);
+    border-bottom-color: var(--accent-gold);
+    font-weight: 700;
+}
+
+/* Tab Panel */
+.tabPanel {
+    min-height: 300px;
+}
+
+/* Tab Section Content */
+.tabSection {
+    padding: 28px;
+    background: rgba(var(--background-rgb), 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.tabSection h4 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--accent-gold);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+}
+
+.tabSection p {
+    font-size: 1.08rem;
+    line-height: 2;
+    color: var(--secondary);
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/* Analysis Drawer */
+.analysisDrawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65vh;
+    background: var(--card-bg);
+    border-top: 2px solid var(--accent-gold);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(20px);
+}
+
+.drawerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.drawerHeaderLeft h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--accent-gold);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.drawerSubtitle {
+    color: var(--secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.drawerControls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.exportBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    color: var(--accent-gold);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.exportBtn:hover {
+    background: rgba(212, 175, 55, 0.2);
+}
+
+.drawerClose {
+    background: none;
+    border: none;
+    color: var(--secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.2s;
+}
+
+.drawerClose:hover {
+    color: var(--accent-gold);
+}
+
+.drawerContent {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+    padding: 32px 40px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.drawerChart {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.chartWrapper {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.drawerTabs {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tab Overrides for Drawer */
+.tabButtons {
+    margin-bottom: 0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.tabButton {
+    padding: 16px 32px;
+    font-size: 1.05rem;
+    color: var(--secondary);
+}
+
+.activeTabButton {
+    color: var(--accent-gold);
+    border-bottom: 3px solid var(--accent-gold);
+}
+
+.tabPanel {
+    padding: 32px 0;
+    min-height: auto;
+}
+
+.tabSection {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.tabSection h4 {
+    color: var(--accent-gold);
+    margin-bottom: 16px;
+    font-size: 1.2rem;
+}
+
+.tabSection p {
+    font-size: 1.15rem;
+    line-height: 2;
+    color: var(--secondary);
+}
+
+/* Highlight Tab Override */
+.highlightTab {
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.08) 0%, transparent 100%);
+    padding: 24px;
+    border-radius: 12px;
+    border-left: 4px solid var(--accent-gold);
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .drawerContent {
+        grid-template-columns: 1fr;
+        padding: 24px;
+        gap: 32px;
+    }
+
+    .drawerChart {
+        display: none;
+        /* Hide chart on smaller screens to focus on text */
+    }
+}
+
+@media (max-width: 768px) {
+    .analysisDrawer {
+        height: 85vh;
+        /* Taller on mobile for reading */
+    }
+
+    .drawerHeader {
+        padding: 16px 20px;
+    }
+
+    .drawerContent {
+        padding: 20px;
+    }
+
+    .tabButton {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+
+    .tabSection p {
+        font-size: 1.05rem;
+    }
+}
+
+/* Dialog Modals */
+.dialogBox {
+    background: var(--card-bg);
+    border: 2px solid var(--accent-gold);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.dialogTitle {
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+.dialogText {
+    color: var(--secondary);
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.dialogActions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.btnCancel {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--secondary);
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btnCancel:hover {
+    color: var(--foreground);
+    border-color: var(--foreground);
+}
+
+.btnConfirm {
+    background: var(--accent-gold);
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btnConfirm:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.btnPremium {
+    background: #ff4747;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btnPremium:hover {
+    box-shadow: 0 0 15px rgba(255, 71, 71, 0.4);
+}
+
+.guidanceContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.guidanceBlock h5 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    color: var(--accent-gold);
+    margin-bottom: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
