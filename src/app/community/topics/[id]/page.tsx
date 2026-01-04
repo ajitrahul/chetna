@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -29,7 +29,8 @@ interface Topic {
     createdAt: string;
 }
 
-export default function TopicDetailPage({ params }: { params: { id: string } }) {
+export default function TopicDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     const { data: session } = useSession();
     const [topic, setTopic] = useState<Topic | null>(null);
     const [loading, setLoading] = useState(true);
@@ -38,11 +39,11 @@ export default function TopicDetailPage({ params }: { params: { id: string } }) 
 
     useEffect(() => {
         fetchTopic();
-    }, [params.id]);
+    }, [id]);
 
     const fetchTopic = async () => {
         try {
-            const res = await fetch(`/api/community/topics/${params.id}`);
+            const res = await fetch(`/api/community/topics/${id}`);
             if (res.ok) {
                 const data = await res.json();
                 setTopic(data);
@@ -63,7 +64,7 @@ export default function TopicDetailPage({ params }: { params: { id: string } }) 
             const res = await fetch('/api/community/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: reply, topicId: params.id }),
+                body: JSON.stringify({ content: reply, topicId: id }),
             });
 
             if (res.ok) {
@@ -181,7 +182,7 @@ export default function TopicDetailPage({ params }: { params: { id: string } }) 
                     <div className={styles.guestPrompt}>
                         <MessageSquare size={24} color="var(--accent-gold)" style={{ marginBottom: '12px', opacity: 0.5 }} />
                         <p>Have something to add?</p>
-                        <Link href={`/login?callbackUrl=/community/topics/${params.id}`} className={styles.loginLink}>
+                        <Link href={`/login?callbackUrl=/community/topics/${id}`} className={styles.loginLink}>
                             Sign in to join the conversation →
                         </Link>
                     </div>
