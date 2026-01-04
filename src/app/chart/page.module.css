@@ -920,14 +920,15 @@
 
 .drawerContent {
     display: grid;
-    grid-template-columns: 450px 1fr;
-    gap: 80px;
-    padding: 40px 100px;
+    grid-template-columns: 400px 1fr;
+    gap: 5vw;
+    padding: 40px 5vw;
     overflow-y: auto;
     flex-grow: 1;
-    max-width: 1600px;
+    max-width: 1800px;
     margin: 0 auto;
     width: 100%;
+    scrollbar-gutter: stable;
 }
 
 .drawerChart {
@@ -1001,6 +1002,8 @@
 
 .storySection {
     margin-bottom: 40px;
+    max-width: 850px;
+    /* Optimal reading width for long text */
 }
 
 .storySection h5 {
@@ -1049,12 +1052,11 @@
     color: var(--foreground);
 }
 
-/* Mobile Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
     .drawerContent {
         grid-template-columns: 1fr;
-        padding: 24px;
-        gap: 32px;
+        padding: 32px 5vw;
+        gap: 40px;
     }
 
     .drawerChart {
@@ -1065,16 +1067,24 @@
 
 @media (max-width: 768px) {
     .analysisDrawer {
-        height: 85vh;
-        /* Taller on mobile for reading */
+        height: 100vh;
+        /* Stay full screen for premium feel */
     }
 
     .drawerHeader {
-        padding: 16px 20px;
+        padding: 16px 5vw;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .drawerControls {
+        width: 100%;
+        justify-content: space-between;
     }
 
     .drawerContent {
-        padding: 20px;
+        padding: 24px 5vw;
     }
 
     .tabButton {
