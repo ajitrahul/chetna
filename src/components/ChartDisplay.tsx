@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface PlanetPosition {
     name: string;
@@ -126,7 +129,8 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
         const houseNum = houseIdx + 1;
 
         if (!planetsInHouses[houseNum]) planetsInHouses[houseNum] = [];
-        planetsInHouses[houseNum].push({ name: p.name.substring(0, 2), isTransit: false });
+        // Store full name for correct translation lookup later
+        planetsInHouses[houseNum].push({ name: p.name, isTransit: false });
 
         if (p.dignity) {
             if (!houseDignities[houseNum]) houseDignities[houseNum] = [];
@@ -135,400 +139,395 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
     });
 
     const houses = [
-        { num: 1, path: 'M 200,200 L 300,100 L 200,0 L 100,100 Z', textX: 200, textY: 80 },
-        { num: 2, path: 'M 100,100 L 200,0 L 0,0 Z', textX: 85, textY: 35 },
-        { num: 3, path: 'M 100,100 L 0,0 L 0,200 Z', textX: 30, textY: 100 },
-        { num: 4, path: 'M 200,200 L 100,100 L 0,200 L 100,300 Z', textX: 100, textY: 180 },
-        { num: 5, path: 'M 100,300 L 0,200 L 0,400 Z', textX: 30, textY: 300 },
-        { num: 6, path: 'M 100,300 L 0,400 L 200,400 Z', textX: 85, textY: 365 },
-        { num: 7, path: 'M 200,200 L 100,300 L 200,400 L 300,300 Z', textX: 200, textY: 280 },
-        { num: 8, path: 'M 300,300 L 200,400 L 400,400 Z', textX: 315, textY: 365 },
-        { num: 9, path: 'M 300,300 L 400,400 L 400,200 Z', textX: 370, textY: 300 },
-        { num: 10, path: 'M 200,200 L 300,300 L 400,200 L 300,100 Z', textX: 300, textY: 180 },
-        { num: 11, path: 'M 300,100 L 400,200 L 400,0 Z', textX: 370, textY: 100 },
-        { num: 12, path: 'M 300,100 L 400,0 L 200,0 Z', textX: 315, textY: 35 },
+        { num: 1, path: 'M 200,200 L 300,100 L 200,0 L 100,100 Z', textX: 200, textY: 100 },
+        { num: 2, path: 'M 100,100 L 200,0 L 0,0 Z', textX: 100, textY: 33.3 },
+        { num: 3, path: 'M 100,100 L 0,0 L 0,200 Z', textX: 33.3, textY: 100 },
+        { num: 4, path: 'M 200,200 L 100,100 L 0,200 L 100,300 Z', textX: 100, textY: 200 },
+        { num: 5, path: 'M 100,300 L 0,200 L 0,400 Z', textX: 33.3, textY: 300 },
+        { num: 6, path: 'M 100,300 L 0,400 L 200,400 Z', textX: 100, textY: 366.6 },
+        { num: 7, path: 'M 200,200 L 100,300 L 200,400 L 300,300 Z', textX: 200, textY: 300 },
+        { num: 8, path: 'M 300,300 L 200,400 L 400,400 Z', textX: 300, textY: 366.6 },
+        { num: 9, path: 'M 300,300 L 400,400 L 400,200 Z', textX: 366.6, textY: 300 },
+        { num: 10, path: 'M 200,200 L 300,300 L 400,200 L 300,100 Z', textX: 300, textY: 200 },
+        { num: 11, path: 'M 300,100 L 400,200 L 400,0 Z', textX: 366.6, textY: 100 },
+        { num: 12, path: 'M 300,100 L 400,0 L 200,0 Z', textX: 300, textY: 33.3 },
     ];
 
+    // Add Ascendant specifically to the first house
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!planetsInHouses[1]) planetsInHouses[1] = [];
+    if (!planetsInHouses[1].some(p => p.name === 'Ascendant')) {
+        planetsInHouses[1].unshift({ name: 'Ascendant', isTransit: false });
+    }
+
+    const housePlanets = activeHouse ? planetsInHouses[activeHouse] || [] : [];
+
+    const ModalOverlay = () => (
+        <div
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 999999,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '24px',
+                background: 'rgba(0, 0, 0, 0.75)', // Deeper contrast for backdrop
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                boxSizing: 'border-box'
+            }}
+            onClick={() => setActiveHouse(null)}
+        >
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                style={{
+                    background: 'var(--background, #0a0a0a)', // Explicit opaque background
+                    border: '1px solid var(--accent-gold)',
+                    borderRadius: '24px',
+                    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8)',
+                    width: '100%',
+                    maxWidth: '850px',
+                    maxHeight: '85vh',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxSizing: 'border-box'
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div style={{
+                    padding: '20px 32px',
+                    borderBottom: '1px solid var(--card-border)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    background: 'var(--bg-soft, rgba(255, 255, 255, 0.02))',
+                    flexShrink: 0
+                }}>
+                    <div>
+                        <span style={{ color: 'var(--accent-gold)', fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', display: 'block', marginBottom: '4px' }}>
+                            Cosmic House Analysis
+                        </span>
+                        <h4 style={{ color: 'var(--foreground)', fontSize: '1.4rem', fontWeight: '800', margin: 0, letterSpacing: '-0.02em' }}>
+                            {activeHouse}. {HOUSE_THEMES[activeHouse!].title}
+                        </h4>
+                    </div>
+                    <button
+                        onClick={() => setActiveHouse(null)}
+                        style={{
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            border: '1px solid var(--card-border)',
+                            borderRadius: '10px',
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'var(--secondary)',
+                            padding: 0
+                        }}
+                    >
+                        <span style={{ fontSize: '22px', lineHeight: 1 }}>×</span>
+                    </button>
+                </div>
+
+                {/* Body Content */}
+                <div style={{
+                    padding: '32px',
+                    overflowY: 'auto',
+                    flexGrow: 1,
+                    scrollbarGutter: 'stable'
+                }}>
+                    <div className="modal-content-grid">
+                        {/* Sidebar: Occupants */}
+                        <div className="modal-sidebar">
+                            <h5 style={{ color: 'var(--accent-gold)', fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '16px', opacity: 0.8 }}>
+                                Celestial Occupants
+                            </h5>
+                            {housePlanets.length > 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {housePlanets.map((p, i) => {
+                                        const dignity = Object.values(planets).find(cp => cp.name === p.name)?.dignity;
+                                        return (
+                                            <div key={i} style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                padding: '10px 14px',
+                                                background: 'rgba(255, 255, 255, 0.03)',
+                                                borderRadius: '10px',
+                                                border: '1px solid var(--card-border)'
+                                            }}>
+                                                <span style={{ fontWeight: '700', color: 'var(--foreground)', fontSize: '0.85rem' }}>
+                                                    {language === 'hi' ? PLANET_HINDI[p.name] || p.name : p.name}
+                                                </span>
+                                                <span style={{
+                                                    fontSize: '0.65rem',
+                                                    fontWeight: '900',
+                                                    padding: '3px 7px',
+                                                    borderRadius: '4px',
+                                                    background: dignity ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
+                                                    color: dignity ? '#000' : 'var(--secondary)',
+                                                    textTransform: 'uppercase'
+                                                }}>
+                                                    {dignity || 'N/A'}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '24px', opacity: 0.4, fontStyle: 'italic', fontSize: '0.8rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px' }}>
+                                    Quiescent Energy
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Main: Narrative */}
+                        <div className="modal-narrative-box">
+                            <div style={{ marginBottom: '24px' }}>
+                                <p style={{
+                                    fontSize: '1.05rem',
+                                    color: 'var(--foreground)',
+                                    lineHeight: '1.8',
+                                    fontWeight: '400',
+                                    margin: 0,
+                                    opacity: 0.9,
+                                    maxWidth: '600px'
+                                }}>
+                                    {HOUSE_THEMES[activeHouse!].theme}
+                                </p>
+                            </div>
+
+                            <div style={{
+                                padding: '20px 24px',
+                                borderLeft: '3px solid var(--accent-gold)',
+                                background: 'rgba(212, 175, 55, 0.06)',
+                                borderRadius: '0 16px 16px 0'
+                            }}>
+                                <h6 style={{ color: 'var(--accent-gold)', margin: '0 0 6px 0', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    Awareness Practice
+                                </h6>
+                                <p style={{ fontSize: '0.95rem', fontStyle: 'italic', color: 'var(--secondary)', lineHeight: '1.7', margin: 0 }}>
+                                    {HOUSE_THEMES[activeHouse!].awareness}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+    );
+
     return (
-        <div style={{ width: typeof width === 'number' ? `${width}px` : width, margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '12px' }}>
+        <div
+            className="chart-display-container"
+            style={{
+                width: '100%',
+                margin: '0 auto',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box'
+            }}
+        >
+            {/* 1. Language Toggle */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '16px' }}>
                 <button
                     onClick={() => setLanguage('en')}
                     style={{
-                        fontSize: '11px',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
+                        fontSize: '10px',
+                        padding: '5px 12px',
+                        borderRadius: '100px',
                         background: language === 'en' ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
                         color: language === 'en' ? '#000' : 'var(--secondary)',
-                        border: 'none',
-                        cursor: 'pointer'
+                        border: '1px solid ' + (language === 'en' ? 'var(--accent-gold)' : 'var(--card-border)'),
+                        cursor: 'pointer',
+                        fontWeight: '800',
+                        lineHeight: 1,
+                        transition: 'all 0.2s ease'
                     }}
                 >EN</button>
                 <button
                     onClick={() => setLanguage('hi')}
                     style={{
-                        fontSize: '11px',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
+                        fontSize: '10px',
+                        padding: '5px 12px',
+                        borderRadius: '100px',
                         background: language === 'hi' ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
                         color: language === 'hi' ? '#000' : 'var(--secondary)',
-                        border: 'none',
-                        cursor: 'pointer'
+                        border: '1px solid ' + (language === 'hi' ? 'var(--accent-gold)' : 'var(--card-border)'),
+                        cursor: 'pointer',
+                        fontWeight: '800',
+                        lineHeight: 1,
+                        transition: 'all 0.2s ease'
                     }}
                 >हिंदी</button>
             </div>
 
-            <svg viewBox="-50 -50 500 500" style={{ width: '100%', height: typeof height === 'number' ? `${height}px` : height, background: 'transparent', overflow: 'visible' }}>
-                <defs>
-                    <linearGradient id="houseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="rgba(212, 175, 55, 0.05)" />
-                        <stop offset="100%" stopColor="rgba(212, 175, 55, 0.15)" />
-                    </linearGradient>
-                    <linearGradient id="activeHouseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="rgba(212, 175, 55, 0.2)" />
-                        <stop offset="100%" stopColor="rgba(212, 175, 55, 0.4)" />
-                    </linearGradient>
-                </defs>
+            {/* 2. SVG Chart Wrapper - THIS handles the width constraint */}
+            <div style={{
+                width: typeof width === 'number' ? `${width}px` : width,
+                margin: '0 auto',
+                maxWidth: '100%',
+                position: 'relative'
+            }}>
+                <svg viewBox="-10 -10 420 420" style={{ width: '100%', height: typeof height === 'number' ? `${height}px` : height, background: 'transparent', overflow: 'visible' }}>
+                    <defs>
+                        <linearGradient id="activeHouseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="rgba(212, 175, 55, 0.2)" />
+                            <stop offset="100%" stopColor="rgba(212, 175, 55, 0.4)" />
+                        </linearGradient>
+                    </defs>
 
-                {/* 1. Draw Background Polygons */}
-                {houses.map((house) => {
-                    const isActive = activeHouse === house.num;
-                    return (
-                        <path
-                            key={`bg-${house.num}`}
-                            d={house.path}
-                            fill={isActive ? 'url(#activeHouseGradient)' : 'rgba(255,255,255,0.02)'}
-                            stroke="rgba(212, 175, 55, 0.1)"
-                            strokeWidth="1"
-                            onClick={() => setActiveHouse(house.num)}
-                            style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
-                        />
-                    );
-                })}
+                    {/* Background Polygons */}
+                    {houses.map((house) => {
+                        const isActive = activeHouse === house.num;
+                        return (
+                            <path
+                                key={`bg-${house.num}`}
+                                d={house.path}
+                                fill={isActive ? 'url(#activeHouseGradient)' : 'rgba(212, 175, 55, 0.05)'}
+                                stroke="rgba(212, 175, 55, 0.25)"
+                                strokeWidth="1.2"
+                                onClick={() => setActiveHouse(house.num)}
+                                style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
+                            />
+                        );
+                    })}
 
-                <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8">
-                    <rect x="1" y="1" width="398" height="398" />
-                    <line x1="0" y1="0" x2="400" y2="400" />
-                    <line x1="400" y1="0" x2="0" y2="400" />
-                    <path d="M 200,0 L 400,200 L 200,400 L 0,200 Z" />
-                </g>
+                    {/* Main Grid Lines */}
+                    <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.6">
+                        <rect x="0" y="0" width="400" height="400" />
+                        <line x1="0" y1="0" x2="400" y2="400" />
+                        <line x1="400" y1="0" x2="0" y2="400" />
+                        <path d="M 200,0 L 400,200 L 200,400 L 0,200 Z" />
+                    </g>
 
-                {/* Center Symbol */}
-                <g opacity="0.15" pointerEvents="none">
-                    <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent-gold)" strokeWidth="1" strokeDasharray="4 4" />
-                    <text x="200" y="205" textAnchor="middle" fontSize="12" fill="var(--accent-gold)" fontWeight="bold" letterSpacing="2">CHETNA</text>
-                </g>
+                    {/* Center Symbol */}
+                    <g opacity="0.15" pointerEvents="none">
+                        <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent-gold)" strokeWidth="0.5" strokeDasharray="3 3" />
+                        <text x="200" y="204" textAnchor="middle" fontSize="9" fill="var(--accent-gold)" fontWeight="800" letterSpacing="4">CHETNA</text>
+                    </g>
 
-                {/* 3. Text Content */}
-                {houses.map((house) => {
-                    const signNum = ((ascSignIdx + house.num - 1) % 12) + 1;
-                    const housePlanets = planetsInHouses[house.num] || [];
-                    const isActive = activeHouse === house.num;
+                    {/* Text Content */}
+                    {houses.map((house) => {
+                        const signNum = ((ascSignIdx + house.num - 1) % 12) + 1;
+                        const housePlanets = planetsInHouses[house.num] || [];
+                        const isActive = activeHouse === house.num;
 
-                    return (
-                        <g key={`text-${house.num}`} onClick={() => setActiveHouse(house.num)} style={{ cursor: 'pointer' }}>
-                            <path d={house.path} fill="transparent" stroke="none" />
+                        return (
+                            <g key={`text-${house.num}`} onClick={() => setActiveHouse(house.num)} style={{ cursor: 'pointer' }}>
+                                <path d={house.path} fill="transparent" stroke="none" />
 
-                            <text
-                                x={house.textX + (house.num === 1 ? 0 : (house.num >= 8 && house.num <= 12 ? 30 : -30))}
-                                y={house.textY + (house.num === 1 ? -40 : (house.num >= 4 && house.num <= 9 ? 30 : -20))}
-                                textAnchor="middle"
-                                fontSize="10"
-                                fill="var(--secondary)"
-                                opacity="0.6"
-                                fontWeight="600"
-                                style={{ pointerEvents: 'none' }}
-                            >
-                                H{house.num}
-                            </text>
+                                <text
+                                    x={house.textX}
+                                    y={house.textY}
+                                    textAnchor="middle"
+                                    dominantBaseline="middle"
+                                    fontSize="16"
+                                    fill="var(--accent-gold)"
+                                    opacity="0.95"
+                                    fontWeight="900"
+                                    style={{ pointerEvents: 'none' }}
+                                >
+                                    {signNum}
+                                </text>
 
-                            <text
-                                x={house.textX}
-                                y={house.textY}
-                                textAnchor="middle"
-                                dominantBaseline="middle"
-                                fontSize="18"
-                                fill="var(--accent-gold)"
-                                fontWeight="900"
-                                style={{ pointerEvents: 'none', filter: 'drop-shadow(0 0 2px rgba(212, 175, 55, 0.3))' }}
-                            >
-                                {signNum}
-                            </text>
+                                <text
+                                    x={house.textX + (house.num === 1 ? 0 : [2, 12, 11, 10, 9, 8].includes(house.num) ? 40 : -40)}
+                                    y={house.textY + ([1, 2, 12, 11, 3, 10].includes(house.num) ? -40 : 40)}
+                                    textAnchor="middle"
+                                    fontSize="7"
+                                    fill="var(--secondary)"
+                                    opacity="0.4"
+                                    fontWeight="bold"
+                                    style={{ pointerEvents: 'none' }}
+                                >
+                                    H{house.num}
+                                </text>
 
-                            {housePlanets.map((planetObj, idx) => {
-                                // Calculate offset based on house shape and planet index
-                                let xIdx = idx % 2;
-                                let yIdx = Math.floor(idx / 2);
-
-                                // Standard offsets for Kendra houses (1, 4, 7, 10 - Diamonds)
-                                // and Non-Kendra (Triangles)
-                                let posX = house.textX;
-                                let posY = house.textY;
-
-                                const isKendra = [1, 4, 7, 10].includes(house.num);
-
-                                if (isKendra) {
-                                    // Stagger around the center number
-                                    const offsetX = (xIdx - 0.5) * 50;
-                                    const offsetY = 25 + (yIdx * 20);
-                                    posX = house.textX + offsetX;
-                                    posY = house.textY + (house.num === 1 || house.num === 10 ? offsetY : (house.num === 4 || house.num === 7 ? -offsetY : offsetY));
-
-                                    // Adjust for specific Kendra houses to keep inside boundaries
-                                    if (house.num === 1) posY = house.textY + 35 + (yIdx * 18);
-                                    if (house.num === 7) posY = house.textY - 35 - (yIdx * 18);
-                                    if (house.num === 4) posX = house.textX - 45 - (xIdx * 10);
-                                    if (house.num === 10) posX = house.textX + 45 + (xIdx * 10);
-                                } else {
-                                    // Triangles: Stack vertically but adjust based on triangle orientation
-                                    const baseOffset = 30;
-                                    const spacing = 18;
-
-                                    if ([2, 12, 6, 8].includes(house.num)) {
-                                        // Horizon triangles
-                                        posY = house.textY + (house.num <= 2 || house.num === 12 ? 25 : -25) + (idx * spacing * (house.num <= 2 || house.num === 12 ? 1 : -1));
+                                {housePlanets.map((planetObj, idx) => {
+                                    const total = housePlanets.length;
+                                    let posX = house.textX;
+                                    let posY = house.textY;
+                                    const isKendra = [1, 4, 7, 10].includes(house.num);
+                                    if (isKendra) {
+                                        const ox = [-35, 35, -35, 35, 0, 0][idx] || 0;
+                                        const oy = [-22, -22, 22, 22, -44, 44][idx] || 0;
+                                        posX += ox; posY += oy;
                                     } else {
-                                        // Side triangles
-                                        posX = house.textX + (house.num === 3 || house.num === 5 ? 40 : -40);
-                                        posY = house.textY - 20 + (idx * spacing);
+                                        const start = -((total - 1) * 22) / 2;
+                                        if ([3, 9, 5, 11].includes(house.num)) {
+                                            posX += (house.num === 3 || house.num === 5 ? 45 : -45);
+                                            posY += start + (idx * 22);
+                                        } else {
+                                            posX += start + (idx * 22);
+                                            posY += (house.num === 2 || house.num === 12 ? 45 : -45);
+                                        }
                                     }
-                                }
 
-                                return (
-                                    <text
-                                        key={idx}
-                                        x={posX}
-                                        y={posY}
-                                        textAnchor="middle"
-                                        dominantBaseline="middle"
-                                        fontSize="13"
-                                        fill={isActive ? "var(--background)" : "var(--primary)"}
-                                        fontWeight="700"
-                                        style={{ pointerEvents: 'none', transition: 'all 0.3s ease' }}
-                                    >
-                                        {getPlanetLabel(planetObj.name === 'Asc' ? 'Ascendant' : Object.keys(planets).find(k => planets[k].name === planetObj.name) || planetObj.name)}
-                                    </text>
-                                );
-                            })}
-                        </g>
-                    );
-                })}
-            </svg>
+                                    return (
+                                        <text
+                                            key={idx}
+                                            x={posX}
+                                            y={posY}
+                                            textAnchor="middle"
+                                            dominantBaseline="middle"
+                                            fontSize="11"
+                                            fill={isActive ? "var(--background)" : "var(--primary)"}
+                                            fontWeight="800"
+                                            style={{ pointerEvents: 'none', transition: 'all 0.3s ease' }}
+                                        >
+                                            {getPlanetLabel(planetObj.name === 'Asc' ? 'Ascendant' : planetObj.name)}
+                                        </text>
+                                    );
+                                })}
+                            </g>
+                        );
+                    })}
+                </svg>
+            </div>
 
-            {activeHouse && (
-                <div style={{
-                    marginTop: '24px',
-                    padding: '28px 32px',
-                    background: 'var(--card-bg)',
-                    border: '1px solid rgba(212, 175, 55, 0.3)',
-                    borderRadius: '16px',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-                    animation: 'fadeIn 0.3s ease',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    backdropFilter: 'blur(12px)'
-                }}>
-                    {/* Close Button */}
-                    <button
-                        onClick={() => setActiveHouse(null)}
-                        style={{
-                            position: 'absolute',
-                            top: '16px',
-                            right: '16px',
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(212, 175, 55, 0.3)',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            color: 'var(--secondary)',
-                            fontSize: '18px',
-                            fontWeight: 'bold',
-                            padding: 0
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.2)';
-                            e.currentTarget.style.borderColor = 'var(--accent-gold)';
-                            e.currentTarget.style.color = 'var(--accent-gold)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                            e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.3)';
-                            e.currentTarget.style.color = 'var(--secondary)';
-                        }}
-                        aria-label="Close"
-                    >
-                        ×
-                    </button>
-
-                    {/* Educational Note */}
-                    <div style={{
-                        background: 'rgba(212, 175, 55, 0.1)',
-                        padding: '12px 16px',
-                        borderRadius: '8px',
-                        marginBottom: '20px',
-                        border: '1px solid rgba(212, 175, 55, 0.25)'
-                    }}>
-                        <p style={{
-                            fontSize: '0.88rem',
-                            color: 'var(--accent-gold)',
-                            margin: 0,
-                            lineHeight: '1.7',
-                            fontStyle: 'italic'
-                        }}>
-                            📍 <strong>Note:</strong> House numbers (1-12) remain consistent across all divisional charts, but the zodiac signs and planets within each house change based on the chart type. Each divisional chart has a different ascendant, revealing unique insights for specific life areas.
-                        </p>
-                    </div>
-
-                    <div className="house-detail-container">
-                        <div style={{ flex: 1 }}>
-                            <h4 style={{
-                                color: 'var(--accent-gold)',
-                                marginBottom: '16px',
-                                fontSize: '1.4rem',
-                                fontWeight: '700',
-                                letterSpacing: '0.5px'
-                            }}>
-                                {HOUSE_THEMES[activeHouse].title}
-                            </h4>
-                            <p style={{
-                                fontSize: '1.05rem',
-                                color: 'var(--primary)',
-                                lineHeight: '1.9',
-                                marginBottom: '20px',
-                                textAlign: 'justify',
-                                textJustify: 'inter-word'
-                            }}>
-                                {HOUSE_THEMES[activeHouse].theme}
-                            </p>
-                        </div>
-                        {/* Dignity Badge */}
-                        {houseDignities[activeHouse] && houseDignities[activeHouse].length > 0 && (
-                            <div className="dignity-badge-group">
-                                {houseDignities[activeHouse].map((dig, i) => (
-                                    <span key={i} className="dignity-badge-item">
-                                        {dig}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div style={{
-                        marginTop: '24px',
-                        fontSize: '1rem',
-                        fontStyle: 'italic',
-                        color: 'var(--foreground)',
-                        padding: '16px 20px',
-                        borderLeft: '4px solid var(--accent-gold)',
-                        background: 'rgba(212, 175, 55, 0.08)',
-                        borderRadius: '0 12px 12px 0',
-                        lineHeight: '1.8',
-                        textAlign: 'justify',
-                        textJustify: 'inter-word'
-                    }}>
-                        <strong style={{ color: 'var(--accent-gold)', fontSize: '1.05rem' }}>Awareness:</strong> {HOUSE_THEMES[activeHouse].awareness}
-                    </div>
-                </div>
+            {/* Portal for Modal */}
+            {mounted && activeHouse && createPortal(
+                <AnimatePresence>
+                    {activeHouse && <ModalOverlay />}
+                </AnimatePresence>,
+                document.body
             )}
 
-            <style jsx>{`
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
+            <style>{`
+                .modal-content-grid {
+                    display: grid;
+                    grid-template-columns: 260px 1fr;
+                    gap: 40px;
+                    align-items: start;
                 }
-                
-                .toggle-container {
-                    display: flex;
-                    justify-content: center;
-                    gap: 8px;
-                    margin-bottom: 24px;
-                    background: var(--card-bg);
-                    padding: 4px;
-                    border-radius: 50px;
-                    width: max-content;
-                    max-width: 100%;
-                    margin-left: auto;
-                    margin-right: auto;
-                    border: 1px solid rgba(255,255,255,0.05);
-                    flex-wrap: wrap;
-                }
-                
-                .toggle-btn {
-                    padding: 8px 24px;
-                    border-radius: 40px;
-                    font-size: 0.9rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    background: transparent;
-                    color: var(--secondary);
-                    border: none;
-                    transition: all 0.3s ease;
-                }
-
-                @media (max-width: 480px) {
-                    .toggle-btn {
-                        padding: 6px 16px;
-                        font-size: 0.8rem;
+                @media (max-width: 800px) {
+                    .modal-content-grid {
+                        grid-template-columns: 1fr;
+                        gap: 24px;
                     }
-                    .toggle-container {
-                        border-radius: 20px;
-                    }
+                    .modal-sidebar { order: 2; }
+                    .modal-narrative-box { order: 1; }
                 }
-                
-                .toggle-btn {
-                    transition: all 0.3s ease;
-                }
-                
-                .toggle-btn:hover {
-                    color: var(--foreground);
-                    background: rgba(255,255,255,0.05);
-                }
-                
-                .toggle-btn.active {
-                    background: var(--primary);
-                    color: var(--background);
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                }
-
-                .house-detail-container {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-start;
-                    gap: 16px;
-                }
-
-                .dignity-badge-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    align-items: flex-end;
-                }
-
-                .dignity-badge-item {
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 0.75rem;
-                    font-weight: bold;
-                    background: var(--accent-gold);
-                    color: #000;
-                    white-space: nowrap;
-                }
-
-                @media (max-width: 480px) {
-                    .house-detail-container {
-                        flex-direction: column;
-                    }
-                    .dignity-badge-group {
-                        align-items: flex-start;
-                        width: 100%;
-                    }
+                .chart-display-container {
+                    position: relative;
                 }
             `}</style>
-        </div >
+        </div>
     );
 }

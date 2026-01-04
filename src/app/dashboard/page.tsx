@@ -366,18 +366,13 @@ export default function DashboardPage() {
                                     <h3>Community</h3>
                                     <div className={styles.communityCTA}>
                                         <div className={styles.communityIcon}>
-                                            <Users size={24} className="text-green-600" />
+                                            <MessageSquare size={24} color="var(--accent-gold)" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-stone-600 mb-2">Join our WhatsApp community for daily awareness tips & quotes.</p>
-                                            <a
-                                                href="https://whatsapp.com/channel/your-channel-id"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className={styles.miniLink}
-                                            >
-                                                Join Community →
-                                            </a>
+                                            <p className="text-sm text-stone-600 mb-2">Connect with others, share reflections, and find collective awareness.</p>
+                                            <Link href="/community" className={styles.miniLink}>
+                                                Explore Forum →
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>

@@ -30,6 +30,8 @@ model User {
   sessions      Session[]
   exports       ExportRecord[]
   creditHistory CreditTransaction[]
+  topics        Topic[]
+  posts         Post[]
 }
 
 // OAuth account info (for NextAuth)
@@ -231,5 +233,32 @@ model CreditTransaction {
   createdAt   DateTime @default(now())
   metadata    Json?    // Optional extra info
 
+  @@index([userId])
+}
+
+model Topic {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([topicId])
   @@index([userId])
 }

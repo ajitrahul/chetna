@@ -1,0 +1,119 @@
+.container {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 0 24px;
+}
+
+.header {
+    margin-bottom: 40px;
+}
+
+.backLink {
+    color: var(--secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    transition: color 0.2s;
+}
+
+.backLink:hover {
+    color: var(--accent-gold);
+}
+
+.title {
+    font-family: var(--font-heading);
+    font-size: 2.8rem;
+    color: var(--foreground);
+    margin: 0;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    padding: 40px;
+    border-radius: 24px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent-gold);
+}
+
+.input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--foreground);
+    font-size: 1.1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.textarea {
+    min-height: 300px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.submitBtn {
+    background: var(--accent-gold);
+    color: #000;
+    padding: 16px 32px;
+    border-radius: 100px;
+    border: none;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+
+.submitBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(212, 175, 55, 0.5);
+}
+
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.error {
+    color: #ff4747;
+    background: rgba(255, 71, 71, 0.1);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    .title {
+        font-size: 2rem;
+    }
+
+    .form {
+        padding: 24px;
+    }
+}
