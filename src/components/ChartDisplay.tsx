@@ -22,7 +22,21 @@ interface ChartDisplayProps {
     isMoonChart?: boolean;
     width?: number | string;
     height?: number | string;
+    language?: 'en' | 'hi';
 }
+
+const PLANET_HINDI: Record<string, string> = {
+    'Sun': 'सू',
+    'Moon': 'चं',
+    'Mars': 'मं',
+    'Mercury': 'बु',
+    'Jupiter': 'गु',
+    'Venus': 'शु',
+    'Saturn': 'श',
+    'Rahu': 'रा',
+    'Ketu': 'के',
+    'Ascendant': 'ल'
+};
 
 const HOUSE_THEMES: Record<number, { title: string, theme: string, awareness: string }> = {
     1: {
@@ -87,8 +101,14 @@ const HOUSE_THEMES: Record<number, { title: string, theme: string, awareness: st
     },
 };
 
-export default function ChartDisplay({ data, isMoonChart, width = '100%', height = 'auto' }: ChartDisplayProps) {
+export default function ChartDisplay({ data, isMoonChart, width = '100%', height = 'auto', language: propLanguage = 'en' }: ChartDisplayProps) {
     const [activeHouse, setActiveHouse] = useState<number | null>(null);
+    const [language, setLanguage] = useState<'en' | 'hi'>(propLanguage);
+
+    const getPlanetLabel = (name: string) => {
+        if (language === 'hi') return PLANET_HINDI[name] || name.substring(0, 2);
+        return name.substring(0, 2);
+    };
 
     const planets = data?.planets || {};
     const ascendant = data?.ascendant || 0;
@@ -131,6 +151,32 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
 
     return (
         <div style={{ width: typeof width === 'number' ? `${width}px` : width, margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '12px' }}>
+                <button
+                    onClick={() => setLanguage('en')}
+                    style={{
+                        fontSize: '11px',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        background: language === 'en' ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
+                        color: language === 'en' ? '#000' : 'var(--secondary)',
+                        border: 'none',
+                        cursor: 'pointer'
+                    }}
+                >EN</button>
+                <button
+                    onClick={() => setLanguage('hi')}
+                    style={{
+                        fontSize: '11px',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        background: language === 'hi' ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
+                        color: language === 'hi' ? '#000' : 'var(--secondary)',
+                        border: 'none',
+                        cursor: 'pointer'
+                    }}
+                >हिंदी</button>
+            </div>
 
             <svg viewBox="-50 -50 500 500" style={{ width: '100%', height: typeof height === 'number' ? `${height}px` : height, background: 'transparent', overflow: 'visible' }}>
                 <defs>
@@ -160,12 +206,17 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                     );
                 })}
 
-                {/* 2. Grid Lines */}
                 <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8">
                     <rect x="1" y="1" width="398" height="398" />
                     <line x1="0" y1="0" x2="400" y2="400" />
                     <line x1="400" y1="0" x2="0" y2="400" />
                     <path d="M 200,0 L 400,200 L 200,400 L 0,200 Z" />
+                </g>
+
+                {/* Center Symbol */}
+                <g opacity="0.15" pointerEvents="none">
+                    <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent-gold)" strokeWidth="1" strokeDasharray="4 4" />
+                    <text x="200" y="205" textAnchor="middle" fontSize="12" fill="var(--accent-gold)" fontWeight="bold" letterSpacing="2">CHETNA</text>
                 </g>
 
                 {/* 3. Text Content */}
@@ -204,21 +255,61 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                                 {signNum}
                             </text>
 
-                            {housePlanets.map((planetObj, idx) => (
-                                <text
-                                    key={idx}
-                                    x={house.textX}
-                                    y={house.textY + 24 + (idx * 16)}
-                                    textAnchor="middle"
-                                    dominantBaseline="middle"
-                                    fontSize="13"
-                                    fill={isActive ? "#fff" : "var(--primary)"}
-                                    fontWeight="700"
-                                    style={{ pointerEvents: 'none', transition: 'fill 0.3s ease' }}
-                                >
-                                    {planetObj.name}
-                                </text>
-                            ))}
+                            {housePlanets.map((planetObj, idx) => {
+                                // Calculate offset based on house shape and planet index
+                                let xIdx = idx % 2;
+                                let yIdx = Math.floor(idx / 2);
+
+                                // Standard offsets for Kendra houses (1, 4, 7, 10 - Diamonds)
+                                // and Non-Kendra (Triangles)
+                                let posX = house.textX;
+                                let posY = house.textY;
+
+                                const isKendra = [1, 4, 7, 10].includes(house.num);
+
+                                if (isKendra) {
+                                    // Stagger around the center number
+                                    const offsetX = (xIdx - 0.5) * 50;
+                                    const offsetY = 25 + (yIdx * 20);
+                                    posX = house.textX + offsetX;
+                                    posY = house.textY + (house.num === 1 || house.num === 10 ? offsetY : (house.num === 4 || house.num === 7 ? -offsetY : offsetY));
+
+                                    // Adjust for specific Kendra houses to keep inside boundaries
+                                    if (house.num === 1) posY = house.textY + 35 + (yIdx * 18);
+                                    if (house.num === 7) posY = house.textY - 35 - (yIdx * 18);
+                                    if (house.num === 4) posX = house.textX - 45 - (xIdx * 10);
+                                    if (house.num === 10) posX = house.textX + 45 + (xIdx * 10);
+                                } else {
+                                    // Triangles: Stack vertically but adjust based on triangle orientation
+                                    const baseOffset = 30;
+                                    const spacing = 18;
+
+                                    if ([2, 12, 6, 8].includes(house.num)) {
+                                        // Horizon triangles
+                                        posY = house.textY + (house.num <= 2 || house.num === 12 ? 25 : -25) + (idx * spacing * (house.num <= 2 || house.num === 12 ? 1 : -1));
+                                    } else {
+                                        // Side triangles
+                                        posX = house.textX + (house.num === 3 || house.num === 5 ? 40 : -40);
+                                        posY = house.textY - 20 + (idx * spacing);
+                                    }
+                                }
+
+                                return (
+                                    <text
+                                        key={idx}
+                                        x={posX}
+                                        y={posY}
+                                        textAnchor="middle"
+                                        dominantBaseline="middle"
+                                        fontSize="13"
+                                        fill={isActive ? "var(--background)" : "var(--primary)"}
+                                        fontWeight="700"
+                                        style={{ pointerEvents: 'none', transition: 'all 0.3s ease' }}
+                                    >
+                                        {getPlanetLabel(planetObj.name === 'Asc' ? 'Ascendant' : Object.keys(planets).find(k => planets[k].name === planetObj.name) || planetObj.name)}
+                                    </text>
+                                );
+                            })}
                         </g>
                     );
                 })}

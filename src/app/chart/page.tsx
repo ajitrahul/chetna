@@ -95,41 +95,120 @@ const VARGA_CATEGORIES: Record<string, string[]> = {
 };
 
 const getPersonalizedInterpretation = (key: string, vargaData: any, userName: string = 'User') => {
-    if (!vargaData) return "Analysis pending...";
+    if (!vargaData) return [];
     const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
-    const ascSign = signs[Math.floor(vargaData.ascendant / 30)];
-    const firstName = (userName || 'User').split(' ')[0];
 
-    const getTraits = (sign: string) => {
-        const traits: Record<string, string> = {
-            'Aries': 'Your approach is defined by initiative, a pioneering spirit, and a natural courage that thrives on new beginnings. You have the heart of a leader who isn\'t afraid to take the first step, though you may sometimes act purely on impulse.',
-            'Taurus': 'You bring a sense of stability, patience, and a deep appreciation for material security and reliable systems. You are the "anchor" who ensures that ideas aren\'t just started, but are built to last through steady, focused effort.',
-            'Gemini': 'Communication, curiosity, and adaptability are your primary tools. You have an agile mind that loves to connect dots and share information with others, though you might find it challenging to focus on just one thing for too long.',
-            'Cancer': 'Your nature is deeply nurturing, intuitive, and sensitive to the emotional undercurrents of your environment. You prioritize safety and belonging, often making decisions based on your gut feelings and a desire to protect what you love.',
-            'Leo': 'You express yourself with warmth, creativity, and a natural charisma that draws others toward you. You have a strong sense of self and a desire to be recognized for your unique contributions, often shining brightest when you are in a position of authority.',
-            'Virgo': 'Precision, discernment, and a strong drive to be of service define your approach. You have a keen eye for detail and a natural ability to organize chaos into order, searching for perfection in everything you touch.',
-            'Libra': 'Balance, harmony, and a deep appreciation for partnership are your guiding stars. You have a natural charm and a diplomatic mind that seeks to create win-win situations, though you may struggle with indecision when trying to please everyone.',
-            'Scorpio': 'Intensity, depth, and a powerful drive for transformation characterize your energy. You aren\'t satisfied with surface-level explanations and have an innate ability to see through deception, often undergoing significant personal "rebirths" throughout life.',
-            'Sagittarius': 'Optimism, a love for freedom, and a search for higher truth fuel your journey. You are a natural philosopher and explorer who seeks to expand your horizons, always looking for the "big picture" and the deeper meaning behind events.',
-            'Capricorn': 'Ambitious, disciplined, and deeply practical, you understand the value of hard work and time. You have a natural respect for tradition and structure, often climbing the mountain of success with a steady, unflinching gaze on the long-term goal.',
-            'Aquarius': 'Originality, a humanitarian spirit, and a visionary mind define your unique perspective. You are often ahead of your time, valuing intellectual freedom and the collective good over individual ego, though you may sometimes appear detached from others.',
-            'Pisces': 'Compassion, imagination, and a deep sense of spiritual connection are your primary gifts. You have a fluid, dream-like nature that can easily tap into the collective consciousness, often finding it easier to "feel" your way through life rather than analyze it.'
+    // 1. Get Key Factors
+    const ascSign = signs[Math.floor(vargaData.ascendant / 30)] || 'Aries';
+    const moon = vargaData.planets['Moon'];
+    const moonSign = moon ? signs[Math.floor(moon.longitude / 30)] : ascSign;
+    const mars = vargaData.planets['Mars'];
+    const saturn = vargaData.planets['Saturn'];
+    const rahu = vargaData.planets['Rahu'];
+
+    // 2. Content Libraries
+    const orientationLibrary: Record<string, string> = {
+        'Aries': 'Your natural way of meeting the world is through direct action and a pioneering spirit. You tend to move toward your goals with a sense of urgency and courage, often being the first to identify new opportunities.',
+        'Taurus': 'You approach life with an eye for stability and a deep appreciation for the reliable. You tend to take your time, ensuring that every step you take is on solid ground and serves a practical purpose.',
+        'Gemini': 'You navigate the world through curiosity and a desire for connection. You have a versatile mind that enjoys exploring multiple perspectives, often acting as a bridge between information and people.',
+        'Cancer': 'Your approach to life is deeply intuitive and protective of what you hold dear. You tend to move with a sense of care, prioritizing emotional safety and the well-tended roots of your environment.',
+        'Leo': 'You meet the world with warmth, creativity, and a natural presence that encourages others. You tend to lead from the heart, seeking to express your unique light in everything you do.',
+        'Virgo': 'Precision and a desire to be of service define your natural orientation. You have a keen eye for how things can be improved, often finding purpose in refining your skills and environment.',
+        'Libra': 'Harmony and balance are your primary guiding stars. You approach every situation with a desire for fairness, often seeking to find common ground and create aesthetic or social equilibrium.',
+        'Scorpio': 'Intensity and depth characterize your natural way of moving through life. You aren\'t satisfied with surface-level explanations, preferring to explore the hidden mechanics of any situation.',
+        'Sagittarius': 'Optimism and a search for expansion fuel your journey. You tend to look at the "big picture", seeking growth through new experiences, travel, or the exploration of higher truths.',
+        'Capricorn': 'Ambition and a deep sense of responsibility define your natural orientation. You tend to look at life through the lens of long-term goals, valuing the hard work and discipline needed to build something lasting.',
+        'Aquarius': 'Originality and a visionary perspective characterize your way of meeting the world. You tend to value the collective good and intellectual freedom, often looking for ways to improve society or your community.',
+        'Pisces': 'Your approach to life is fluid, compassionate, and deeply attuned to the unseen. You tend to navigate through intuition and a sense of spiritual connection, valuing empathy over rigid logic.'
+    };
+
+    const innerWorldLibrary: Record<string, string> = {
+        'Aries': 'Internally, there is a constant drive for movement. You may feel a spark of restlessness if things become too stagnant, finding emotional comfort in tasks that require immediate focus and energy.',
+        'Taurus': 'Emotionally, you seek a sense of groundedness and sensory comfort. You may find peace in familiar routines and well-maintained environments, valuing the "tried and true" over the trendy.',
+        'Gemini': 'Mentally, you thrive on variety and intellectual stimulation. You may notice that your internal landscape is always active, filled with ideas and a need to communicate your thoughts effectively.',
+        'Cancer': 'Internally, you are sensitive to the subtle shifts in your surroundings. You find comfort in belonging and nurturing, often making decisions based on how they make you feel at a soul level.',
+        'Leo': 'Emotionally, you seek recognition and the freedom to be your authentic self. You find peace when you are able to share your creative sparks and feel valued for your genuine contributions.',
+        'Virgo': 'Mentally, you find comfort in order and discernment. You may notice an internal drive to organize chaos into functional systems, valuing the quiet satisfaction of a job well done.',
+        'Libra': 'Emotionally, you seek peace and the presence of beauty. You find mental stability when your relationships and environment are in sync, valuing the art of partnership above all.',
+        'Scorpio': 'Internally, you possess a powerful emotional resilience. You are drawn to transformational experiences, often finding that your greatest insights come from the periods of your life that required renewal.',
+        'Sagittarius': 'Mentally, you thrive on freedom and the quest for meaning. You find comfort in philosophies that offer hope and a sense of adventure, often feeling restless if your horizons become too narrow.',
+        'Capricorn': 'Internally, you seek structure and a sense of accomplishment. You find peace when you are making progress toward your objectives, often relying on self-reliance as your primary emotional anchor.',
+        'Aquarius': 'Mentally, you thrive on innovation and a sense of detachment from the individual ego. You find emotional comfort in groups and networks that share your ideals, valuing uniqueness over tradition.',
+        'Pisces': 'Internally, you possess a dream-like imagination and a deep well of feeling. You find comfort in moments of solitude and artistic expression, often feeling the undercurrents of others\' emotions.'
+    };
+
+    // Derived Action Under Pressure logic
+    const getPressureLogic = () => {
+        if (!mars || !saturn) return 'In times of stress, you rely on your inherent resilience. You tend to process challenges with a blend of initial reaction and long-term endurance, eventually finding a way to restore your internal order.';
+        const marsSign = signs[Math.floor(mars.longitude / 30)];
+        if (['Aries', 'Leo', 'Sagittarius'].includes(marsSign)) {
+            return 'When faced with pressure, your first instinct is to take proactive, often rapid action. You find strength in meeting challenges head-on, though you may need to ensure your pace remains sustainable.';
+        }
+        if (['Taurus', 'Virgo', 'Capricorn'].includes(marsSign)) {
+            return 'Under stress, you become more pragmatic and focused on the bottom line. You have a remarkable ability to endure hardship through practical steps, building your way out of difficulties steadily.';
+        }
+        return 'In high-pressure situations, you often rely on your ability to adapt or gather more information. You find creative ways around obstacles, preferring a flexible approach over a direct confrontation.';
+    };
+
+    // Derived Repeating Patterns logic
+    const getPatternLogic = () => {
+        if (!rahu) return 'Life often invites you to find value in persistent growth. You may notice recurring themes that encourage you to step outside your comfort zone and explore new ways of being.';
+        const rahuSign = signs[Math.floor(rahu.longitude / 30)];
+        if (['Gemini', 'Libra', 'Aquarius'].includes(rahuSign)) {
+            return 'A repeating theme for you involves the navigation of social or intellectual boundaries. You often find yourself in situations where your ability to synthesize information or bridge groups becomes essential.';
+        }
+        if (['Cancer', 'Scorpio', 'Pisces'].includes(rahuSign)) {
+            return 'Recurring patterns in your life often center on emotional depth and transformation. You may find that your path leads you back to situations that require you to trust your intuition and let go of the old.';
+        }
+        return 'A common thread in your story involves the pursuit of authenticity. You often find yourself in roles where your unique perspective is tested, inviting you to stand firm in your personal truth.';
+    };
+
+    // Core Life Theme logic
+    const getThemeLogic = () => {
+        const themeMap: Record<string, string> = {
+            'Aries': 'Your core journey is about mastering the art of the beginning. You are here to learn how to channel your immense vitality into sustained efforts that reflect your authentic spark.',
+            'Taurus': 'Your life theme centers on the cultivation of lasting worth. You are learning how to create a world that is not only secure but also deeply nourishing to your senses and values.',
+            'Gemini': 'Your core theme is the mastery of communication. You are here to learn how to anchor your curiosity into a focused expression of truth that resonates with others.',
+            'Cancer': 'Your life theme is the exploration of emotional depth. You are learning how to use your sensitivity as a compass, leading you toward a life filled with genuine connection and inner peace.',
+            'Leo': 'Your core theme is the celebration of self-expression. You are here to learn how to lead with humility and warmth, allowing your inner sun to shine without overshadowing the light of others.',
+            'Virgo': 'Your life theme centers on the mastery of refinement. You are here to learn how to use your discernment as a tool for healing and improvement, rather than a measure of worth.',
+            'Libra': 'Your core journey is about the exploration of relatedness. You are learning how to find internal balance so that your outer world can reflect a true and lasting peace.',
+            'Scorpio': 'Your life theme is the mastery of transformation. You are here to learn how to use your inner power to heal yourself and others, turning every shadow into a source of light.',
+            'Sagittarius': 'Your core theme is the exploration of wisdom. You are here to learn how to ground your expansive visions into practical actions that benefit the collective journey.',
+            'Capricorn': 'Your life theme centers on the mastery of integrity. You are here to learn how to build a legacy that is not just successful in the eyes of the world, but deeply aligned with your internal values.',
+            'Aquarius': 'Your life theme is the exploration of collective consciousness. You are here to learn how to use your unique voice to benefit the group, bridging the gap between the individual and the whole.',
+            'Pisces': 'Your core journey is about the exploration of oneness. You are learning how to use your compassion as a healing force, bringing a sense of peace and unity to everything you touch.'
         };
-        return traits[sign] || 'You possess a unique blend of qualities that help you navigate this specific area of your life with a balanced perspective.';
+        return themeMap[ascSign] || themeMap['Aries'];
     };
 
-    const trait = getTraits(ascSign);
-
-    const interpretations: Record<string, string> = {
-        'D1': `Hello ${firstName}, your fundamental existence and the way you meet the world are colored by the vibrant energy of ${ascSign}. This suggests that ${trait.toLowerCase()} This isn\'t just a surface-level personality trait; it is the very core of your physical vitality and your natural orientation toward every challenge you face. In this lifetime, ${firstName}, your soul has chosen this specific sign as its primary laboratory, learning how to master its strengths while balancing its inherent impulses. Whether you are starting a new project or simply navigating a daily routine, you bring a unique ${ascSign} flavor that defines your reputation and your personal brand of leadership. By consciously leaning into these qualities, you can unlock a greater sense of purpose and alignment with your true self.`,
-        'D9': `At your deepest core, ${firstName}, your soul\'s resilience and your long-term character are rooted in the powerful energy of ${ascSign}. While your outer self might appear different to casual observers, your inner compass always points toward this energy. This means that ${trait.toLowerCase()} In the second half of your life and within your most intimate partnerships, these qualities will become increasingly dominant, acting as the foundation for your psychological stability. Your spouse or life partner will often mirror these ${ascSign} traits back to you, helping you refine your internal values and spiritual strength. This "Navamsa" energy is your true internal power, providing you with the wisdom and endurance needed to navigate life\'s most significant transitions with grace and integrity.`,
-        'Moon': `Your emotional landscape and your subconscious mind, ${firstName}, are deeply influenced by the high-fidelity traits of ${ascSign}. This reveals that ${trait.toLowerCase()} You find mental peace and a sense of internal security when your environment and your daily habits reflect these specific sign qualities. Your mother figures and your earliest childhood memories likely emphasized these ${ascSign} themes, shaping the way you nurture yourself and how you instinctively react to stress today. Because the Moon represents your perception of reality, seeing the world through this lens allows you to process emotions with a unique depth and intuition. When you feel ungrounded, ${firstName}, returning to the core strengths of ${ascSign} will help you regain your equilibrium and find lasting contentment.`,
-        'D10': `In your professional life and your pursuit of public recognition, ${firstName}, you manifest your power through the distinct qualities of ${ascSign}. This indicates that ${trait.toLowerCase()} In your career, you are seen as someone who brings this specific energy to the table, whether through your leadership style, your technical mastery, or your collaborative approach. Your reputation is built upon your ability to execute your duties with the precision and spirit of ${ascSign}, making you a valuable contributor to your field. Aligning your daily vocation with these innate traits will not only lead to greater financial success but will also ensure that your work feels deeply meaningful and supportive of your overall life mission. You have the potential to leave a lasting legacy by mastering this area.`,
-        'D2': `Your relationship with material abundance, family resources, and your personal values is defined by the energy of ${ascSign}. This suggests that ${trait.toLowerCase()} You approach financial security not just as a means to an end, ${firstName}, but as a direct expression of these specific sign qualities, ensuring that your wealth is earned and managed in a way that feels ethically and emotionally authentic. Whether you are building an inheritance or simply managing a household budget, your ${ascSign} nature influences the way you prioritize your needs and how you speak your truth to others. By understanding this internal mechanism, you can create a more stable and prosperous foundation that honors both your material goals and your soul\'s requirement for a specific type of resource management.`,
-        'D12': `Your ancestral roots and the deep psychological patterns you have inherited from your parents are defined by the powerful ${ascSign} energy. You carry the legacy of generations within your bloodline, manifesting as: ${trait.toLowerCase()} This divisional chart reveals that your upbringing was heavily influenced by these ${ascSign} themes, shaping your early identity and your sense of belonging. Understanding this connection allows you to see which family patterns are gifts meant to be carried forward and which ones are karmic lessons you are destined to evolve beyond. By honoring your lineage while consciously refining these inherited qualities, ${firstName}, you can find a profound sense of peace with your origins and clear the path for future generations to thrive in their own unique light.`
-    };
-
-    return interpretations[key] || `In this specific department of your life, ${firstName}, you navigate your path using the unique energy of ${ascSign}. This suggests that ${trait.toLowerCase()} By consciously leaning into these strengths, you can find greater ease and success as you navigate the particular challenges and opportunities presented by this divisional chart. Whether it is a spiritual search, a creative endeavor, or a matter of health, your ${ascSign} orientation provides you with the specific tools and perspectives needed to achieve mastery. This chart represents a refined layer of your destiny, and by paying attention to its subtle shifts, you can align your actions with the deeper currents of your soul\'s journey, leading to a life that feels both productive and spiritually resonant.`;
+    return [
+        {
+            title: 'Natural Orientation',
+            question: 'How do you naturally meet the world?',
+            text: orientationLibrary[ascSign] || orientationLibrary['Aries']
+        },
+        {
+            title: 'Inner Emotional World',
+            question: 'What does your inner landscape feel like?',
+            text: innerWorldLibrary[moonSign] || innerWorldLibrary['Aries']
+        },
+        {
+            title: 'Action Under Pressure',
+            question: 'How do you respond when the pressure is on?',
+            text: getPressureLogic()
+        },
+        {
+            title: 'Repeating Patterns',
+            question: 'What recurring themes show up in your life?',
+            text: getPatternLogic()
+        },
+        {
+            title: 'Core Life Theme',
+            question: 'What is the primary lesson your life is teaching you?',
+            text: getThemeLogic()
+        }
+    ];
 };
 
 export default function ChartPage() {
@@ -751,7 +830,7 @@ export default function ChartPage() {
                             {/* Right: Tabbed Info */}
                             <div className={styles.drawerTabs}>
                                 <div className={styles.tabButtons}>
-                                    {['Overview', 'Your Story', 'Planets', 'Guidance'].map((tab, idx) => (
+                                    {['Overview', 'Your Story', 'Planet Strength & Balance'].map((tab, idx) => (
                                         <button
                                             key={tab}
                                             className={`${styles.tabButton} ${activeTab === idx ? styles.activeTabButton : ''}`}
@@ -773,26 +852,40 @@ export default function ChartPage() {
                                         {/* Overview */}
                                         {activeTab === 0 && (
                                             <div className={styles.tabSection}>
-                                                <h4><Info size={18} /> Core Meaning</h4>
-                                                <p>{VARGA_DEFINITIONS[activeChart]?.definition}</p>
+                                                <h4><Info size={18} /> Understanding this Chart</h4>
+                                                <p>
+                                                    Astrology is a map of consciousness, not a set of fixed predictions. Each chart represents a different layer of your internal landscape, offering insights into how you process energy, respond to challenges, and find equilibrium.
+                                                    This specific divisional chart helps you bridge the gap between your physical reality and your spiritual potential.
+                                                </p>
+                                                <div className="mt-6 space-y-4">
+                                                    <div className={styles.significanceBox}>
+                                                        <h5 className={styles.significanceTitle}>Core Significance</h5>
+                                                        <p className={styles.significanceText}>{VARGA_DEFINITIONS[activeChart]?.definition}</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
 
                                         {/* Your Story */}
                                         {activeTab === 1 && (
                                             <div className={`${styles.tabSection} ${styles.highlightTab}`}>
-                                                <h4><Zap size={18} /> Personalized Insight</h4>
-                                                <p>{getPersonalizedInterpretation(activeChart, profile.chartData.vargas[activeChart], profile.name)}</p>
+                                                {getPersonalizedInterpretation(activeChart, profile.chartData.vargas[activeChart], profile.name).map((section: any) => (
+                                                    <div key={section.title} className={styles.storySection}>
+                                                        <h5>{section.title}</h5>
+                                                        <p className={styles.storyQuestion}>{section.question}</p>
+                                                        <p className={styles.storyText}>{section.text}</p>
+                                                    </div>
+                                                ))}
                                             </div>
                                         )}
 
                                         {/* Planets */}
                                         {activeTab === 2 && (
                                             <div className={styles.tabSection}>
-                                                <h4>Planetary Dignities</h4>
+                                                <h4>Planetary Strength & Alignment</h4>
                                                 <p>
-                                                    Hello {profile.name.split(' ')[0]}, this table reveals the precise strength and condition of each planet in your chart.
-                                                    Here you can see which sign each planet occupies and its "Dignity" status (e.g., Exalted, Debilitated, or Friendly), which determines how effectively it can deliver its results in your life.
+                                                    This section reveals the refined state of each planetary energy in this specific department of your life.
+                                                    The "Sign" shows where the energy is focused, while the "Dignity" indicates how comfortably that energy is expressed.
                                                 </p>
                                                 <div className={styles.tableWrapper}>
                                                     <table className={styles.modernTable}>
@@ -820,35 +913,6 @@ export default function ChartPage() {
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                            </div>
-                                        )}
-
-                                        {/* Guidance */}
-                                        {activeTab === 3 && (
-                                            <div className={styles.tabSection}>
-                                                <h4><Sparkles size={18} /> Practical Application</h4>
-                                                {(() => {
-                                                    const tips = VARGA_DEFINITIONS[activeChart]?.tips || "";
-                                                    const parts = tips.split(/How to use/i);
-                                                    const whenToUse = parts[0]?.trim();
-                                                    const howToUse = parts.length > 1 ? parts[1]?.trim() : '';
-                                                    return (
-                                                        <div className={styles.guidanceContainer}>
-                                                            {whenToUse && (
-                                                                <div className={styles.guidanceBlock}>
-                                                                    <h5><Clock size={16} /> When to use this chart</h5>
-                                                                    <p>{whenToUse}</p>
-                                                                </div>
-                                                            )}
-                                                            {howToUse && (
-                                                                <div className={styles.guidanceBlock}>
-                                                                    <h5><Compass size={16} /> How to use</h5>
-                                                                    <p>{howToUse}</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })()}
                                             </div>
                                         )}
                                     </motion.div>

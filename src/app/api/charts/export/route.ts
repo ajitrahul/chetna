@@ -7,6 +7,7 @@ import path from 'path';
 
 // Helper to wrapping text lines
 const wrapText = (text: string, font: PDFFont, size: number, maxWidth: number) => {
+    if (typeof text !== 'string') return [];
     const paragraphs = text.split(/\r?\n/);
     let lines: string[] = [];
 
@@ -266,46 +267,99 @@ export async function POST(req: NextRequest) {
         };
 
         // Justify Logic
-        const writeSection = (title: string, content: string) => {
+        const writeSection = (title: string, content: string | any[]) => {
             if (!content) return;
-            checkSpace(100);
+            checkSpace(120);
             page.drawText(title, { x: 50, y, size: 14, font: boldFont, color: goldColor });
-            y -= 25;
+            y -= 30;
 
-            let res = drawJustifiedBlock(page, content, 50, y, font, 11, darkColor, width - 100, 18);
-            while (res.pageBreakNeeded) {
-                page = pdfDoc.addPage();
-                y = addHeader(page);
-                // Continue with remaining lines
-                const remainingText = res.remainingLines.join('\n'); // Re-join to re-wrap if needed or pass lines
-                // Actually drawJustifiedBlock expects string currently, simpler to pass joined string
-                // But wait, re-wrapping might be safer if page width changed (it won't).
-                // Let's just handle remaining lines.
-                // My helper returns remainingLines array.
-                // I need to loop drawing them.
-                y -= 10; // margin
-                res = drawJustifiedBlock(page, res.remainingLines.join('\n'), 50, y, font, 11, darkColor, width - 100, 18);
+            if (Array.isArray(content)) {
+                for (const section of content) {
+                    checkSpace(80);
+                    if (section.title) {
+                        page.drawText(section.title.toUpperCase(), { x: 50, y, size: 10, font: boldFont, color: goldColor });
+                        y -= 18;
+                    }
+                    if (section.text) {
+                        let res = drawJustifiedBlock(page, section.text, 50, y, font, 11, darkColor, width - 100, 18);
+                        while (res.pageBreakNeeded) {
+                            page = pdfDoc.addPage();
+                            y = addHeader(page);
+                            y -= 10;
+                            res = drawJustifiedBlock(page, res.remainingLines.join('\n'), 50, y, font, 11, darkColor, width - 100, 18);
+                        }
+                        y = res.y - 12;
+                    }
+                    y -= 15; // Gap between sections
+                }
+            } else {
+                let res = drawJustifiedBlock(page, content, 50, y, font, 11, darkColor, width - 100, 18);
+                while (res.pageBreakNeeded) {
+                    page = pdfDoc.addPage();
+                    y = addHeader(page);
+                    y -= 10;
+                    res = drawJustifiedBlock(page, res.remainingLines.join('\n'), 50, y, font, 11, darkColor, width - 100, 18);
+                }
+                y = res.y - 30;
             }
-            y = res.y - 30;
         };
 
-        // Overview
+        // 1. Overview
         if (texts?.definition) writeSection('Overview', texts.definition);
 
-        // Planets Table
-        // Planets Table - FORCE NEW PAGE
+        // 2. Your Story (Personalized)
+        if (texts?.story) {
+            // Check space or add page
+            checkSpace(150);
+            page.drawText(`Your Personal Insight for ${profile.name.split(' ')[0]}`, { x: 50, y, size: 14, font: boldFont, color: goldColor });
+            y -= 30;
+
+            if (Array.isArray(texts.story)) {
+                for (const section of texts.story) {
+                    checkSpace(100);
+                    // Title
+                    if (section.title) {
+                        page.drawText(section.title.toUpperCase(), { x: 50, y, size: 10, font: boldFont, color: goldColor });
+                        y -= 15;
+                    }
+                    // Question (Italic)
+                    if (section.question) {
+                        let res = drawJustifiedBlock(page, section.question, 50, y, italicFont, 10, goldColor, width - 100, 15);
+                        while (res.pageBreakNeeded) {
+                            page = pdfDoc.addPage();
+                            y = addHeader(page);
+                            y -= 10;
+                            res = drawJustifiedBlock(page, res.remainingLines.join('\n'), 50, y, italicFont, 10, goldColor, width - 100, 15);
+                        }
+                        y = res.y - 10;
+                    }
+                    // Text
+                    if (section.text) {
+                        let res = drawJustifiedBlock(page, section.text, 50, y, font, 11, darkColor, width - 100, 18);
+                        while (res.pageBreakNeeded) {
+                            page = pdfDoc.addPage();
+                            y = addHeader(page);
+                            y -= 10;
+                            res = drawJustifiedBlock(page, res.remainingLines.join('\n'), 50, y, font, 11, darkColor, width - 100, 18);
+                        }
+                        y = res.y - 12;
+                    }
+                    y -= 20; // Gap between story sections
+                }
+            }
+        }
+
+        // 3. Planets Table - FORCE NEW PAGE
         page = pdfDoc.addPage();
         y = addHeader(page);
 
-        // Add Description
         page.drawText('Planetary Details', { x: 50, y, size: 14, font: boldFont, color: goldColor });
         y -= 25;
 
-        const introText = `Hello ${profile.name.split(' ')[0]}, this table reveals the precise strength and condition of each planet in your chart. Here you can see which sign each planet occupies and its "Dignity" status (e.g., Exalted, Debilitated, or Friendly), which determines how effectively it can deliver its results in your life.`;
+        const introText = `Hello ${profile.name.split(' ')[0]}, this table reveals the precise strength and condition of each planet in your chart. Here you can see which sign each planet occupies and its "Dignity" status (e.g., Exalted, Debilitated, or Friendly).`;
         const introRes = drawJustifiedBlock(page, introText, 50, y, font, 11, darkColor, width - 100, 18);
-        y = introRes.y - 30; // Gap after intro
+        y = introRes.y - 30;
 
-        // ... (Table logic same as before, no justification needed for table)
         const col1 = 50, col2 = 180, col3 = 280, col4 = 380;
         const drawTableHeader = (p: any, currY: number) => {
             p.drawRectangle({ x: 50, y: currY - 5, width: width - 100, height: 20, color: lightGray });
@@ -332,43 +386,6 @@ export async function POST(req: NextRequest) {
             page.drawText(p.dignity || "-", { x: col4, y, size: 10, font });
             page.drawLine({ start: { x: 50, y: y - 5 }, end: { x: width - 50, y: y - 5 }, thickness: 0.5, color: lightGray });
             y -= 20;
-        }
-        y -= 30;
-
-        // Story (Personalized)
-        // Story (Personalized) - FORCE NEW PAGE
-        if (texts?.story) {
-            page = pdfDoc.addPage();
-            y = addHeader(page);
-            writeSection(`Your Personal Insight for ${profile.name.split(' ')[0]}`, texts.story);
-        }
-
-        // Guidance - FORCE NEW PAGE
-        if (texts?.tips) {
-            page = pdfDoc.addPage();
-            y = addHeader(page);
-
-            // Split explicitly for better formatting
-            const parts = texts.tips.split(/How to use/i);
-            const whenToUse = parts[0]?.trim();
-            const howToUse = parts.length > 1 ? parts[1]?.trim() : '';
-
-            if (whenToUse) {
-                page.drawText('When to use this chart', { x: 50, y, size: 12, font: boldFont, color: darkColor });
-                y -= 20;
-                const res = drawJustifiedBlock(page, whenToUse, 50, y, font, 11, darkColor, width - 100, 18);
-                y = res.y - 25;
-            }
-
-            if (howToUse) {
-                // Ensure space
-                if (y < 100) { page = pdfDoc.addPage(); y = addHeader(page); }
-
-                page.drawText('How to use', { x: 50, y, size: 12, font: boldFont, color: darkColor });
-                y -= 20;
-                const res = drawJustifiedBlock(page, howToUse, 50, y, font, 11, darkColor, width - 100, 18);
-                y = res.y - 25;
-            }
         }
 
         // Footer is built-in to addHeader or we can add specific footer

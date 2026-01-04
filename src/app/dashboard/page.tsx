@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { CreditCard, History, UserCircle, ChevronRight, MessageSquare, Trash2, Crown, Download, FileText, PlusCircle, Zap, Sparkles, MapPin, Clock, Trash, CheckSquare, Square, Info } from 'lucide-react';
+import { CreditCard, History, UserCircle, ChevronRight, MessageSquare, Trash2, Crown, Download, FileText, PlusCircle, Zap, Sparkles, MapPin, Clock, Trash, CheckSquare, Square, Info, Users } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface UserProfile {
@@ -363,16 +363,23 @@ export default function DashboardPage() {
                                     <button onClick={() => setActiveSection('history')} className={styles.textLink}>View All</button>
                                 </div>
                                 <div className={styles.quickStatCard}>
-                                    <h3>Recent Profiles</h3>
-                                    <div className={styles.miniList}>
-                                        {recentProfiles.slice(0, 3).map(p => (
-                                            <Link href={`/chart?profileId=${p.id}`} key={p.id} className={styles.miniRow}>
-                                                <span className={styles.miniText}>{p.name}</span>
-                                                <ChevronRight size={14} />
-                                            </Link>
-                                        ))}
+                                    <h3>Community</h3>
+                                    <div className={styles.communityCTA}>
+                                        <div className={styles.communityIcon}>
+                                            <Users size={24} className="text-green-600" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-stone-600 mb-2">Join our WhatsApp community for daily awareness tips & quotes.</p>
+                                            <a
+                                                href="https://whatsapp.com/channel/your-channel-id"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={styles.miniLink}
+                                            >
+                                                Join Community →
+                                            </a>
+                                        </div>
                                     </div>
-                                    <button onClick={() => setActiveSection('profiles')} className={styles.textLink}>View All</button>
                                 </div>
                             </div>
                         </div>

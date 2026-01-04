@@ -674,3 +674,33 @@
         grid-template-columns: 1fr;
     }
 }
+
+.communityCTA {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.communityIcon {
+    width: 48px;
+    height: 48px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.miniLink {
+    display: inline-block;
+    color: #22c55e;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.miniLink:hover {
+    transform: translateX(4px);
+    text-decoration: underline;
+}
