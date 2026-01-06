@@ -156,7 +156,7 @@
   max-width: 1300px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 24px;
   justify-content: center;
 }

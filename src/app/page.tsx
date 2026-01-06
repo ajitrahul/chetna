@@ -165,9 +165,7 @@ export default function Home() {
               </div>
             </div>
 
-            <p className={styles.featureDisclaimer}>
-              These questions are designed to encourage reflection and conscious action—not predictions or guarantees.
-            </p>
+
           </section>
 
           <section className={styles.philosophySection}>
