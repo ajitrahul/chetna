@@ -9,6 +9,25 @@ export async function GET(req: NextRequest) {
     }
 
     try {
+        // Auto-seed missing services
+        const KNOWN_SERVICES = [
+            'CHART_D2', 'CHART_D3', 'CHART_D4', 'CHART_D5', 'CHART_D6',
+            'CHART_D7', 'CHART_D8', 'CHART_D10', 'CHART_D12', 'CHART_D16',
+            'CHART_D20', 'CHART_D24', 'CHART_D27', 'CHART_D30'
+        ];
+
+        for (const key of KNOWN_SERVICES) {
+            await prisma.serviceCost.upsert({
+                where: { key },
+                update: {},
+                create: {
+                    key,
+                    credits: 5,
+                    description: `Unlock ${key} Analysis`
+                }
+            });
+        }
+
         const services = await prisma.serviceCost.findMany({
             orderBy: { key: 'asc' }
         });

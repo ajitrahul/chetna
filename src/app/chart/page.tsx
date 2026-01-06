@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BirthDataForm, { UserProfile } from '@/components/BirthDataForm';
 import ChartDisplay from '@/components/ChartDisplay';
 import DashaDisplay from '@/components/DashaDisplay';
-import { ChartData } from '@/lib/astrology/calculator';
+import { ChartData, getZodiacSign } from '@/lib/astrology/calculator';
 import styles from './page.module.css';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -38,10 +38,25 @@ const VARGA_DEFINITIONS: Record<string, { title: string, definition: string, tip
         definition: 'The D4 chart represents your "fixed destiny" regarding property, home, and permanent happiness. While many charts look at dynamic events, the D4 looks at your roots—where you feel settled and safe. It governs real estate, vehicles, and the sense of security you derive from your mother and your homeland. This chart shows if you are destined to own your own home, if your life will involve moving frequently, or if you will find great comfort in settled physical assets. It is also the chart of "Bhagya" or general luck in the material world. A strong D4 suggests that no matter what happens in the outside world, you will always have a roof over your head and a foundation of comfort and peace to return to.',
         tips: 'USE THIS CHART WHEN: Making real estate decisions, seeking emotional security, or trying to understand your relationship with your mother and homeland. HOW TO USE: Before buying property or relocating, examine the 4th house and its lord in this chart. A strong D4 suggests favorable outcomes for property investments and domestic happiness. Use this chart to determine the best location for your home base and to cultivate inner peace through grounding practices and ancestral healing.'
     },
+    'D5': {
+        title: 'D5 (Panchamsa Chart)',
+        definition: 'The D5 chart, or Panchamsa, reveals your moral fiber, spiritual authority, and potential for fame. It represents the "Purva Punya" or past-life merit that you bring into this life, specifically regarding your character and reputation. This chart shows if you will attain a position of power and influence, and more importantly, if you will wield that power ethically. It is the chart of sovereignty and royal favor. A strong D5 indicates a person who naturally commands respect and may rise to high public standing, often seemingly without effort, due to the good deeds of previous lifetimes.',
+        tips: 'USE THIS CHART WHEN: Assessing potential for fame, seeking authority in your field, or analyzing your ethical alignment. HOW TO USE: Examine the 1st, 5th, and 9th houses to gauge your spiritual credit. A strong Sun or Jupiter here indicates natural leadership and moral authority. Use this chart to understand the responsibilities that come with your success and to ensure your path to power remains aligned with dharma.'
+    },
+    'D6': {
+        title: 'D6 (Shashtamsa Chart)',
+        definition: 'The D6 chart provides a microscopic view of health, litigation, and enemies. It expands on the 6th house of the Rashi chart, offering detailed insights into the nature of your struggles and your capacity to overcome them. This chart reveals your physiological vulnerabilities and the types of illnesses you may be prone to. It also indicates the outcome of legal battles, competitions, and open conflicts. However, D6 is not just about problems; it is about resilience. A strong D6 shows a warrior spirit—someone who can face illness or opposition and emerge stronger. It is the chart of "Seva" or service, showing how you navigate the difficulties of life through discipline and hard work.',
+        tips: 'USE THIS CHART WHEN: Diagnosing health issues, facing legal challenges, or dealing with intense competition. HOW TO USE: Look at the 6th house and its lord to understand the nature of your obstacles. Benefics here can reduce enmity, while Malefics can give the strength to conquer it. Use this chart to adopt proactive health routines and to understand the karmic lessons behind your struggles. It is a powerful tool for developing resilience.'
+    },
     'D7': {
         title: 'D7 (Saptamsa Chart)',
         definition: 'The D7 chart, or Saptamsa, is the chart of creativity, legacy, and progeny. It is primarily used to understand one\'s relationship with their children and the legacy they leave behind. This isn\'t limited to just biological children; it encompasses anything you "give birth to" in the world, such as creative projects, students, or lasting businesses. The D7 reveals the happiness, challenges, and growth you will experience through the next generation. It shows your capacity for nurturing and the specific traits of those who will follow in your footsteps. Whether you are looking for insights into fertility or the potential success of a life-long creative endeavor, the D7 provides the fine detail needed to understand your contribution to the future.',
         tips: 'USE THIS CHART WHEN: Planning to have children, launching creative projects, or seeking to understand your legacy. HOW TO USE: Examine the 5th house, Jupiter, and the ascendant lord to assess timing for parenthood or creative ventures. If considering fertility treatments or adoption, consult this chart for insights. Use it to nurture your creative intelligence and understand what lasting impact you will have on future generations through your creations or children.'
+    },
+    'D8': {
+        title: 'D8 (Ashtamsa Chart)',
+        definition: 'The D8 chart dives deep into longevity, sudden transformations, and the occult. It is the chart of the unexpected—sudden windfalls, accidents, inheritances, or mystical experiences. While D1 shows the general span of life, D8 reveals the quality of your endurance and the hidden forces that shape your survival. It is often consulted to understand chronic ailments or life-altering events that seem to come from nowhere. On a spiritual level, D8 represents "Kundalini" energy and the capacity for deep, tantric transformation. It shows your ability to die to the old self and be reborn, making it a crucial chart for those on a path of radical self-discovery.',
+        tips: 'USE THIS CHART WHEN: You are facing sudden changes, exploring the occult, or concerned about longevity and chronic health. HOW TO USE: This chart requires careful analysis. Look at the 8th house and the lord of the 22nd Drekkana for critical insights. Use D8 to navigate crisis periods with wisdom, viewing sudden upheavals as opportunities for profound transformation. It guides you in managing unearned wealth and deep psychological shifts.'
     },
     'D9': {
         title: 'D9 (Navamsa Chart)',
@@ -88,10 +103,10 @@ const VARGA_DEFINITIONS: Record<string, { title: string, definition: string, tip
 const VARGA_CATEGORIES: Record<string, string[]> = {
     'Foundation': ['D1', 'D9', 'Moon'],
     'Abundance': ['D2', 'D4', 'D16'],
-    'Progress': ['D3', 'D10', 'D24'],
+    'Progress': ['D3', 'D5', 'D10', 'D24'],
     'Relationships': ['D7', 'D12'],
     'Spiritual': ['D20', 'D27'],
-    'Shadow': ['D30']
+    'Shadow': ['D6', 'D8', 'D30']
 };
 
 const getPersonalizedInterpretation = (key: string, vargaData: any, userName: string = 'User') => {
@@ -229,7 +244,7 @@ export default function ChartPage() {
     useEffect(() => {
         async function fetchCosts() {
             try {
-                const res = await fetch('/api/admin/services');
+                const res = await fetch('/api/services');
                 if (res.ok) {
                     const data = await res.json();
                     const costs: Record<string, number> = {};
@@ -527,6 +542,35 @@ export default function ChartPage() {
                     <h1 className={styles.title}>Varga Portfolio</h1>
                     <div className={styles.subtitle}>
                         <p>Cosmic blueprint for <span className="text-[var(--primary)] font-semibold">{profile?.name}</span> • {new Date(profile!.dateOfBirth).toLocaleDateString()}</p>
+                        {profile && profile.chartData && (
+                            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-1 gap-x-4 text-xs text-[var(--text-muted)] font-medium tracking-wide">
+                                <div><span className="text-[var(--primary-dark)]">Birth Time:</span> {(function (t) {
+                                    const [h, m] = t.split(':');
+                                    const H = parseInt(h);
+                                    const ampm = H >= 12 ? 'PM' : 'AM';
+                                    const H12 = H % 12 || 12;
+                                    return `${H12}:${m} ${ampm}`;
+                                })(profile.timeOfBirth)}</div>
+                                <div><span className="text-[var(--primary-dark)]">Birth Place:</span> {profile.placeOfBirth}</div>
+                                <div><span className="text-[var(--primary-dark)]">Ascendant Sign:</span> {getZodiacSign(profile.chartData.ascendant)}</div>
+                                <div><span className="text-[var(--primary-dark)]">Moon Sign:</span> {getZodiacSign(profile.chartData.planets.Moon.longitude)}</div>
+                                <div><span className="text-[var(--primary-dark)]">Western Zodiac:</span> {(function (d) {
+                                    const m = d.getMonth() + 1, da = d.getDate();
+                                    if ((m == 3 && da >= 21) || (m == 4 && da <= 19)) return "Aries";
+                                    if ((m == 4 && da >= 20) || (m == 5 && da <= 20)) return "Taurus";
+                                    if ((m == 5 && da >= 21) || (m == 6 && da <= 20)) return "Gemini";
+                                    if ((m == 6 && da >= 21) || (m == 7 && da <= 22)) return "Cancer";
+                                    if ((m == 7 && da >= 23) || (m == 8 && da <= 22)) return "Leo";
+                                    if ((m == 8 && da >= 23) || (m == 9 && da <= 22)) return "Virgo";
+                                    if ((m == 9 && da >= 23) || (m == 10 && da <= 22)) return "Libra";
+                                    if ((m == 10 && da >= 23) || (m == 11 && da <= 21)) return "Scorpio";
+                                    if ((m == 11 && da >= 22) || (m == 12 && da <= 21)) return "Sagittarius";
+                                    if ((m == 12 && da >= 22) || (m == 1 && da <= 19)) return "Capricorn";
+                                    if ((m == 1 && da >= 20) || (m == 2 && da <= 18)) return "Aquarius";
+                                    return "Pisces";
+                                })(new Date(profile.dateOfBirth))}</div>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <button onClick={() => setIsEditing(true)} className={styles.addProfileBtn}>

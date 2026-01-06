@@ -241,12 +241,47 @@ export function getVargaSign(longitude: number, division: number): { sign: strin
             // 1st, 2nd, 3rd, 4th parts: 1, 4, 7, 10 signs away
             finalSignIndex = (rasiIndex + partInRasi * 3) % 12;
             break;
+        case 5: // Panchamsa (D5)
+            // Odd: Aries, Aquarius, Sagittarius, Gemini, Libra
+            // Even: Taurus, Virgo, Pisces, Capricorn, Scorpio
+            const isOddD5 = (rasiIndex % 2) === 0; // 0=Aries(Odd)
+            if (isOddD5) {
+                if (partInRasi === 0) finalSignIndex = 0; // Aries
+                else if (partInRasi === 1) finalSignIndex = 10; // Aquarius
+                else if (partInRasi === 2) finalSignIndex = 8; // Sagittarius
+                else if (partInRasi === 3) finalSignIndex = 2; // Gemini
+                else finalSignIndex = 6; // Libra
+            } else {
+                if (partInRasi === 0) finalSignIndex = 1; // Taurus
+                else if (partInRasi === 1) finalSignIndex = 5; // Virgo
+                else if (partInRasi === 2) finalSignIndex = 11; // Pisces
+                else if (partInRasi === 3) finalSignIndex = 9; // Capricorn
+                else finalSignIndex = 7; // Scorpio
+            }
+            break;
+        case 6: // Shashtamsa (D6)
+            // Odd: Start from Aries
+            // Even: Start from Libra
+            const startD6 = (rasiIndex % 2 === 0) ? 0 : 6;
+            finalSignIndex = (startD6 + partInRasi) % 12;
+            break;
         case 7: // Saptamsa (D7)
             // Odd signs: Start from same sign
             // Even signs: Start from 7th sign
             const isOddSignD7 = (rasiIndex % 2) === 0;
             const startD7 = isOddSignD7 ? rasiIndex : (rasiIndex + 6) % 12;
             finalSignIndex = (startD7 + partInRasi) % 12;
+            break;
+        case 8: // Ashtamsa (D8)
+            // Movable (1,4,7,10): Start from Aries (0)
+            // Fixed (2,5,8,11): Start from Sagittarius (8)
+            // Dual (3,6,9,12): Start from Leo (4)
+            const mobilityD8 = rasiIndex % 3;
+            let startD8 = 0;
+            if (mobilityD8 === 0) startD8 = 0; // Movable -> Aries
+            else if (mobilityD8 === 1) startD8 = 8; // Fixed -> Sag
+            else if (mobilityD8 === 2) startD8 = 4; // Dual -> Leo
+            finalSignIndex = (startD8 + partInRasi) % 12;
             break;
         case 9: // Navamsa (D9)
             // Fire: Aries, Earth: Capricorn, Air: Libra, Water: Cancer
