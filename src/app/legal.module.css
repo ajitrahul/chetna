@@ -1,0 +1,156 @@
+.legalPage {
+    min-height: 100vh;
+    padding: 120px 24px 60px;
+    background: var(--background);
+    color: var(--foreground);
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+.container h1 {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    color: var(--accent-gold);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.lastUpdated {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 40px;
+    font-style: italic;
+}
+
+.container section {
+    margin-bottom: 48px;
+}
+
+.container h2 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    color: var(--foreground);
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-gold);
+}
+
+.container h3 {
+    font-size: 1.3rem;
+    color: var(--foreground);
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.container p {
+    margin-bottom: 16px;
+    color: var(--foreground);
+    text-align: justify;
+}
+
+.container ul,
+.container ol {
+    margin: 16px 0;
+    padding-left: 32px;
+}
+
+.container li {
+    margin-bottom: 12px;
+    color: var(--foreground);
+}
+
+.container li strong {
+    color: var(--accent-gold);
+}
+
+.container a {
+    color: var(--accent-gold);
+    text-decoration: underline;
+    transition: opacity 0.2s;
+}
+
+.container a:hover {
+    opacity: 0.8;
+}
+
+.importantNotice {
+    background: rgba(var(--accent-gold-rgb), 0.1);
+    border-left: 4px solid var(--accent-gold);
+    padding: 24px;
+    margin: 32px 0;
+    border-radius: 8px;
+}
+
+.importantNotice h2 {
+    margin-top: 0;
+    border-bottom: none;
+    font-size: 1.5rem;
+}
+
+.importantNotice p:last-child {
+    margin-bottom: 0;
+}
+
+.warningBox {
+    background: rgba(244, 67, 54, 0.1);
+    border-left: 4px solid #f44336;
+    padding: 24px;
+    margin: 32px 0;
+    border-radius: 8px;
+}
+
+.warningBox p:last-child,
+.warningBox ul:last-child {
+    margin-bottom: 0;
+}
+
+.backLink {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.backLink a {
+    color: var(--accent-gold);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.backLink a:hover {
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .legalPage {
+        padding: 100px 20px 40px;
+    }
+
+    .container h1 {
+        font-size: 2.2rem;
+    }
+
+    .container h2 {
+        font-size: 1.5rem;
+    }
+
+    .container h3 {
+        font-size: 1.2rem;
+    }
+
+    .container ul,
+    .container ol {
+        padding-left: 24px;
+    }
+
+    .container p {
+        text-align: left;
+    }
+}

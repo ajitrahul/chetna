@@ -52,6 +52,7 @@ export default function Header() {
             ) : (
               <>
                 <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
+                <Link href="/about" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>About</Link>
                 <Link href="/#how-it-works" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>How it Works</Link>
                 <Link href="/blog" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Blogs</Link>
                 <Link href="/clarity" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Ask for Clarity</Link>

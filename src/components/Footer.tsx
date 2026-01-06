@@ -34,6 +34,7 @@ export default function Footer() {
                 <div className={styles.footerSection}>
                     <h3>Explore</h3>
                     <ul className={styles.footerLinks}>
+                        <li><Link href="/about">About</Link></li>
                         <li><Link href="/how-it-works">How It Works</Link></li>
                         <li><Link href="/chart">Your Chart</Link></li>
                         <li><Link href="/timing">Timing & Phases</Link></li>
@@ -50,6 +51,7 @@ export default function Footer() {
                         <li><Link href="/disclaimer">Disclaimer</Link></li>
                         <li><Link href="/privacy">Privacy Policy</Link></li>
                         <li><Link href="/terms">Terms of Service</Link></li>
+                        <li><Link href="/refund">Refund Policy</Link></li>
                         <li><Link href="/contact">Contact Us</Link></li>
                     </ul>
                 </div>
