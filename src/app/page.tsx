@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import styles from './page.module.css';
-import { ArrowRight, TrendingUp, Clock, Heart, Calendar, Sparkles, Compass, MessageSquare } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock, Heart, Calendar, Sparkles, Compass, MessageSquare, Eye, ShieldCheck } from 'lucide-react';
 import AIClaritySearchBar from '@/components/AIClaritySearchBar';
 import EnergyWidget from '@/components/EnergyWidget';
 import JournalWidget from '@/components/JournalWidget';
@@ -170,20 +170,32 @@ export default function Home() {
             </p>
           </section>
 
-          <section className={styles.aboutSection}>
-            <div className={styles.aboutContent}>
-              <div className={styles.aboutPart}>
-                <h2 className={styles.aboutTitle}>About Chetna</h2>
-                <p className={styles.aboutText}>
+          <section className={styles.philosophySection}>
+            <div className={styles.philosophyHeader}>
+              <h2 className={styles.philosophyMainTitle}>Our Philosophy</h2>
+            </div>
+
+            <div className={styles.philosophyContent}>
+              <div className={styles.philosophyPart}>
+                <div className={styles.philosophyIcon}>
+                  <Eye size={32} />
+                </div>
+                <h3 className={styles.philosophyTitle}>About Chetna</h3>
+                <p className={styles.philosophyText}>
                   Chetna was created with a simple belief: Astrology should help people become clearer, calmer, and more responsible — not more confused.
                 </p>
-                <p className={styles.aboutText}>
+                <p className={styles.philosophyText}>
                   In a world full of prediction-heavy astrology, Chetna offers a different approach.
                 </p>
               </div>
 
-              <div className={styles.doesNotPart}>
-                <h3 className={styles.doesNotTitle}>Chetna does not:</h3>
+              <div className={styles.separator}></div>
+
+              <div className={styles.philosophyPart}>
+                <div className={styles.philosophyIcon}>
+                  <ShieldCheck size={32} />
+                </div>
+                <h3 className={styles.philosophyTitle}>Chetna does not:</h3>
                 <ul className={styles.doesNotList}>
                   <li className={styles.doesNotItem}>Use fear-based astrology to influence decisions</li>
                   <li className={styles.doesNotItem}>Force or prescribe remedies, rituals</li>
