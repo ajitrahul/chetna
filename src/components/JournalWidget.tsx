@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useSession } from 'next-auth/react';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import styles from './JournalWidget.module.css';
@@ -93,10 +94,20 @@ export default function JournalWidget() {
         }
     };
 
+    const [showInfoModal, setShowInfoModal] = useState(false);
+
     return (
         <div className={styles.widget}>
             <div className={styles.header}>
-                <h3 className={styles.title}>Daily Reflection</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h3 className={styles.title}>Daily Journaling</h3>
+                    <button
+                        onClick={() => setShowInfoModal(true)}
+                        className={styles.infoLink}
+                    >
+                        What it does
+                    </button>
+                </div>
                 <span className={styles.date}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
             </div>
 
@@ -150,6 +161,30 @@ export default function JournalWidget() {
                         <p className={styles.insightText}>{analysis.growthSuggestion}</p>
                     </div>
                 </div>
+            )}
+
+            {showInfoModal && typeof document !== 'undefined' && createPortal(
+                <div className={styles.modalOverlay} onClick={() => setShowInfoModal(false)}>
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <button
+                            className={styles.closeBtn}
+                            onClick={() => setShowInfoModal(false)}
+                        >
+                            ×
+                        </button>
+                        <h4>Daily Journaling</h4>
+                        <p>
+                            Daily Reflection is a simple journaling space to note what you’re feeling, experiencing, or noticing each day. Write freely—events, emotions, reactions, or patterns you observe.
+                        </p>
+                        <p>
+                            When you choose Analyze Patterns, your entry is reflected alongside your chart and current phase to highlight recurring themes and awareness cues. It doesn’t predict outcomes; it helps you notice patterns and respond more consciously.
+                        </p>
+                        <p>
+                            Nothing is predicted. Everything is observed. Over weeks and months, you build a living record of your inner patterns-one that no prediction could ever replace.
+                        </p>
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

@@ -7,6 +7,11 @@ interface TransitInfo {
     transit: string;
     theme: string;
     prompt: string;
+    description?: string;
+    luckyColor?: string;
+    luckyNumber?: number;
+    auspiciousTime?: string;
+    rahuKaal?: string;
     error?: string;
 }
 
@@ -56,8 +61,49 @@ export default function EnergyWidget() {
                     <p className={styles.theme}>{data.theme}</p>
                 </div>
             </div>
+
+            {data.description && (
+                <div className={styles.description}>
+                    <p>{data.description}</p>
+                </div>
+            )}
+
             <div className={styles.divider}></div>
-            <p className={styles.prompt}>“{data.prompt}”</p>
+            <p className={styles.prompt}>"{data.prompt}"</p>
+
+            {(data.luckyColor || data.luckyNumber || data.auspiciousTime || data.rahuKaal) && (
+                <>
+                    <div className={styles.divider}></div>
+                    <div className={styles.vedicElements}>
+                        {data.luckyColor && (
+                            <div className={styles.element}>
+                                <span className={styles.elementLabel}>Lucky Color</span>
+                                <span className={styles.elementValue} style={{ color: data.luckyColor.toLowerCase() }}>
+                                    {data.luckyColor}
+                                </span>
+                            </div>
+                        )}
+                        {data.luckyNumber && (
+                            <div className={styles.element}>
+                                <span className={styles.elementLabel}>Lucky Number</span>
+                                <span className={styles.elementValue}>{data.luckyNumber}</span>
+                            </div>
+                        )}
+                        {data.auspiciousTime && (
+                            <div className={styles.element}>
+                                <span className={styles.elementLabel}>Auspicious Time</span>
+                                <span className={styles.elementValue}>{data.auspiciousTime}</span>
+                            </div>
+                        )}
+                        {data.rahuKaal && (
+                            <div className={styles.element}>
+                                <span className={styles.elementLabel}>Rahu Kaal</span>
+                                <span className={styles.elementValue}>{data.rahuKaal}</span>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
         </div>
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Compass, Moon, Sun, Wind, Activity } from 'lucide-react';
+import { Compass, Moon, Sun, Wind, Activity, ChevronDown, ChevronUp } from 'lucide-react';
 import styles from './PanchangWidget.module.css';
 
 interface PanchangData {
@@ -17,7 +17,7 @@ interface PanchangData {
 export default function PanchangWidget() {
     const [data, setData] = useState<PanchangData | null>(null);
     const [loading, setLoading] = useState(true);
-
+    const [isExpanded, setIsExpanded] = useState(false);
     const [setupRequired, setSetupRequired] = useState(false);
 
     useEffect(() => {
@@ -78,27 +78,38 @@ export default function PanchangWidget() {
 
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <Compass size={20} className={styles.mainIcon} />
-                <h3 className={styles.title}>Today&apos;s Five Elements (Panchang)</h3>
+            <div
+                className={styles.header}
+                onClick={() => setIsExpanded(!isExpanded)}
+                style={{ cursor: 'pointer' }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Compass size={20} className={styles.mainIcon} />
+                    <h3 className={styles.title}>Today&apos;s Five Elements (Panchang)</h3>
+                </div>
+                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </div>
 
-            <div className={styles.grid}>
-                {elements.map((el, i) => (
-                    <div key={i} className={styles.element}>
-                        <div className={styles.iconBox}>{el.icon}</div>
-                        <div className={styles.info}>
-                            <span className={styles.label}>{el.label}</span>
-                            <span className={styles.value}>{el.value}</span>
-                            <span className={styles.subText}>{el.sub}</span>
-                        </div>
+            {isExpanded && (
+                <>
+                    <div className={styles.grid}>
+                        {elements.map((el, i) => (
+                            <div key={i} className={styles.element}>
+                                <div className={styles.iconBox}>{el.icon}</div>
+                                <div className={styles.info}>
+                                    <span className={styles.label}>{el.label}</span>
+                                    <span className={styles.value}>{el.value}</span>
+                                    <span className={styles.subText}>{el.sub}</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
 
-            <div className={styles.awareness}>
-                <p><strong>Awareness:</strong> The lunar energy of <em>{data.tithi.name}</em> invites you to reflect on your {data.tithi.index < 15 ? 'growth and expansion' : 'release and inner contemplation'} today.</p>
-            </div>
+                    <div className={styles.awareness}>
+                        <p><strong>Awareness:</strong> The lunar energy of <em>{data.tithi.name}</em> invites you to reflect on your {data.tithi.index < 15 ? 'growth and expansion' : 'release and inner contemplation'} today.</p>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

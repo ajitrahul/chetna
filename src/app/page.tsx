@@ -35,15 +35,12 @@ export default function Home() {
 
             <div className={styles.widgetGrid}>
               <div className={styles.mainColumn}>
-                <div className={styles.searchSection}>
-                  <AIClaritySearchBar />
-                </div>
+                <EnergyWidget />
                 <PanchangWidget />
                 <JournalWidget />
               </div>
 
               <div className={styles.sideColumn}>
-                <EnergyWidget />
                 <div className={styles.quickLinks}>
                   <Link href="/chart" className={styles.quickLinkItem}>
                     <TrendingUp size={24} color="var(--accent-gold)" />
@@ -53,6 +50,11 @@ export default function Home() {
                   <Link href="/timing" className={styles.quickLinkItem}>
                     <Clock size={24} color="var(--accent-gold)" />
                     <span>View Your Timeline</span>
+                    <ArrowRight size={16} />
+                  </Link>
+                  <Link href="/clarity" className={styles.quickLinkItem}>
+                    <MessageSquare size={24} color="var(--accent-gold)" />
+                    <span>Ask for Clarity</span>
                     <ArrowRight size={16} />
                   </Link>
                 </div>
