@@ -29,6 +29,9 @@
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 32px;
+
+  /* Background Assets */
+  --bg-foggy-mountains: url('/foggy_mountain_background.png');
 }
 
 
@@ -137,4 +140,8 @@ button {
   .container {
     padding: 0 16px;
   }
+}
+
+.section-anchor {
+  scroll-margin-top: 100px;
 }

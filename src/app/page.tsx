@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import styles from './page.module.css';
-import { ArrowRight, TrendingUp, Clock, Heart } from 'lucide-react';
+import { ArrowRight, TrendingUp, Clock, Heart, Calendar, Sparkles, Compass, MessageSquare } from 'lucide-react';
 import AIClaritySearchBar from '@/components/AIClaritySearchBar';
 import EnergyWidget from '@/components/EnergyWidget';
 import JournalWidget from '@/components/JournalWidget';
@@ -46,12 +46,12 @@ export default function Home() {
                 <EnergyWidget />
                 <div className={styles.quickLinks}>
                   <Link href="/chart" className={styles.quickLinkItem}>
-                    <TrendingUp size={20} />
+                    <TrendingUp size={24} color="var(--accent-gold)" />
                     <span>Explore Your Chart</span>
                     <ArrowRight size={16} />
                   </Link>
                   <Link href="/timing" className={styles.quickLinkItem}>
-                    <Clock size={20} />
+                    <Clock size={24} color="var(--accent-gold)" />
                     <span>View Your Timeline</span>
                     <ArrowRight size={16} />
                   </Link>
@@ -61,120 +61,143 @@ export default function Home() {
           </div>
         </section>
       ) : (
-        /* Hero Section for Guests */
-        <section className={styles.hero}>
-          <div className={styles.heroContainer}>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className={styles.heroContent}
-            >
-              <h1 className={styles.heroTitle}>
-                Astrology for<br />
-                <span className={styles.highlight}>Awareness</span>,<br />
-                Not Prediction
-              </h1>
-              <p className={styles.heroSubtitle}>
-                Chetna helps you understand patterns, timing, and tendencies in your chart so you can make grounded, responsible choices.
-              </p>
+        /* New Redesigned Hero Section for Guests */
+        <>
+          <div className={styles.bgWrapper}>
+            <section className={styles.hero}>
+              <div className={styles.heroContainer}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1 }}
+                >
+                  <h1 className={styles.heroTitle}>
+                    Astrology for Awareness,<br />Not Prediction
+                  </h1>
+                  <div className={styles.heroContent}>
+                    <p className={styles.heroSubtitle}>
+                      Chetna is a clarity-first astrology platform that helps you understand patterns, timing, and tendencies in your life — so you can make grounded, conscious choices.
+                    </p>
+                    <p className={styles.heroDescription}>
+                      Chetna includes an AI-guided reflection tool where you can explore questions about relationships, career, and life patterns — using astrology as a lens, not a verdict.
+                    </p>
+                  </div>
+                </motion.div>
 
-              <AIClaritySearchBar />
+                <motion.div
+                  className={styles.quoteSection}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 1 }}
+                  viewport={{ once: true }}
+                >
+                  <p className={styles.quote}>
+                    &ldquo;Astrology should increase clarity, responsibility, and self-respect—not fear, dependence, or fantasy.&rdquo;
+                  </p>
 
-              <div className={styles.heroActions}>
-                <Link href="/chart" className={styles.primaryBtn}>
-                  Generate My Chart <ArrowRight size={20} />
-                </Link>
-                <Link href="/how-it-works" className={styles.secondaryBtn}>
-                  Learn How It Works
-                </Link>
+                  <div className={styles.heroActions}>
+                    <Link href="/clarity" className={styles.primaryBtn}>
+                      Ask a Reflective Question
+                    </Link>
+                    <Link href="/chart" className={styles.secondaryBtn}>
+                      Explore My Birth Chart
+                    </Link>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
+            </section>
+          </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className={styles.heroImage}
-            >
-              <div className={styles.chartPreview}>
-                <div className={styles.chartCircle}>
-                  <div className={styles.chartInner}></div>
+          <section id="how-it-works" className={styles.howItWorks + " section-anchor"}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>How Chetna Works</h2>
+            </div>
+
+            <div className={styles.featuresGrid}>
+              <div className={styles.featureCard}>
+                <div className={`${styles.featureIcon} ${styles.iconColors}`}>
+                  <Calendar size={28} />
                 </div>
-                <p className={styles.chartLabel}>Your Vedic Chart</p>
+                <h3 className={styles.featureTitle}>Explore Your Story</h3>
+                <p className={styles.featureText}>
+                  We generate your birth chart using accurate astronomical calculations. It tells your blueprint of life. Personality, appearance etc.
+                </p>
               </div>
-            </motion.div>
-          </div>
-        </section>
+
+              <div className={styles.featureCard}>
+                <div className={`${styles.featureIcon} ${styles.iconColors}`} style={{ background: 'rgba(var(--foreground-rgb), 0.05)', color: 'var(--primary)' }}>
+                  <Sparkles size={28} />
+                </div>
+                <h3 className={styles.featureTitle}>Understand Patterns, Not Outcomes</h3>
+                <p className={styles.featureText}>
+                  Your chart is explained through psychological and behavioral patterns, how you respond to situations, what themes repeat in your life, what kinds of environments support you.
+                </p>
+              </div>
+
+              <div className={styles.featureCard}>
+                <div className={`${styles.featureIcon} ${styles.iconColors}`} style={{ background: 'rgba(var(--foreground-rgb), 0.05)', color: 'var(--primary)' }}>
+                  <Compass size={28} />
+                </div>
+                <h3 className={styles.featureTitle}>Life Focus Reports</h3>
+                <p className={styles.featureText}>
+                  Awareness based insights for specific areas of life drawn from multiple charts layers. Without predictions or fear.
+                </p>
+              </div>
+
+              <div className={styles.featureCard}>
+                <div className={`${styles.featureIcon} ${styles.iconColors}`} style={{ background: 'rgba(var(--foreground-rgb), 0.05)', color: 'var(--primary)' }}>
+                  <Clock size={28} />
+                </div>
+                <h3 className={styles.featureTitle}>Explore Timing Through Dasha & Transit</h3>
+                <p className={styles.featureText}>
+                  Chetna explains dasha and transit as capacity windows — what this phase supports, what it resists, where patience or effort is required.
+                </p>
+              </div>
+
+              <div className={styles.featureCard}>
+                <div className={`${styles.featureIcon} ${styles.iconColors}`} style={{ background: 'rgba(var(--foreground-rgb), 0.05)', color: 'var(--primary)' }}>
+                  <MessageSquare size={28} />
+                </div>
+                <h3 className={styles.featureTitle}>Ask Reflective Questions with AI</h3>
+                <p className={styles.featureText}>
+                  You can ask focused questions related to — relationships, career, difficult decisions, personal growth.
+                </p>
+              </div>
+            </div>
+
+            <p className={styles.featureDisclaimer}>
+              These questions are designed to encourage reflection and conscious action—not predictions or guarantees.
+            </p>
+          </section>
+
+          <section className={styles.aboutSection}>
+            <div className={styles.aboutContent}>
+              <div className={styles.aboutPart}>
+                <h2 className={styles.aboutTitle}>About Chetna</h2>
+                <p className={styles.aboutText}>
+                  Chetna was created with a simple belief: Astrology should help people become clearer, calmer, and more responsible — not more confused.
+                </p>
+                <p className={styles.aboutText}>
+                  In a world full of prediction-heavy astrology, Chetna offers a different approach.
+                </p>
+              </div>
+
+              <div className={styles.doesNotPart}>
+                <h3 className={styles.doesNotTitle}>Chetna does not:</h3>
+                <ul className={styles.doesNotList}>
+                  <li className={styles.doesNotItem}>Use fear-based astrology to influence decisions</li>
+                  <li className={styles.doesNotItem}>Force or prescribe remedies, rituals</li>
+                  <li className={styles.doesNotItem}>Tell you what will or won’t happen in your life</li>
+                  <li className={styles.doesNotItem}>Label time periods as good or bad</li>
+                </ul>
+                <p className={styles.doesNotSummary}>
+                  Instead of predicting outcomes, Chetna supports understanding—of patterns, responses, and inner awareness.
+                </p>
+              </div>
+            </div>
+          </section>
+        </>
       )}
-
-      {/* Features Section */}
-      <section className={styles.features}>
-        <div className={styles.featuresContainer}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className={styles.featureCard}
-          >
-            <div className={styles.featureIcon}>
-              <TrendingUp size={32} />
-            </div>
-            <h3 className={styles.featureTitle}>Explains Patterns</h3>
-            <p className={styles.featureText}>
-              Astrology is presented as recurring psychological and situational patterns — not fixed outcomes.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className={styles.featureCard}
-          >
-            <div className={styles.featureIcon}>
-              <Clock size={32} />
-            </div>
-            <h3 className={styles.featureTitle}>Shows Timing as Capacity</h3>
-            <p className={styles.featureText}>
-              Dashas and phases are explained as periods of readiness or resistance, helping you work with the tide.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className={styles.featureCard}
-          >
-            <div className={styles.featureIcon}>
-              <Heart size={32} />
-            </div>
-            <h3 className={styles.featureTitle}>Supports Free Will</h3>
-            <p className={styles.featureText}>
-              Every insight includes guidance, not commands. You remain the architect of your own response.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* What We Don't Do Section */}
-      <section className={styles.notDoSection}>
-        <div className={styles.notDoContainer}>
-          <h2 className={styles.notDoTitle}>
-            What Chetna Does <span className={styles.notHighlight}>NOT</span> Do
-          </h2>
-          <div className={styles.notDoGrid}>
-            <div className={styles.notDoItem}>✕ No daily predictions</div>
-            <div className={styles.notDoItem}>✕ No fear-based astrology</div>
-            <div className={styles.notDoItem}>✕ No guarantees or verdicts</div>
-            <div className={styles.notDoItem}>✕ No emotional dependency models</div>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

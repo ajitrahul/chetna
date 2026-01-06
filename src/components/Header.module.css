@@ -65,13 +65,14 @@
 }
 
 .loginBtn {
-    padding: 8px 20px;
-    background: var(--foreground);
-    color: var(--background);
+    padding: 10px 24px;
+    background: #1B2B41;
+    /* Dark navy from reference */
+    color: white;
     border-radius: 50px;
     font-size: 0.9rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
+    font-weight: 500;
+    transition: all 0.3s ease;
     border: none;
     cursor: pointer;
     text-decoration: none;
@@ -80,8 +81,8 @@
 
 .loginBtn:hover {
     transform: translateY(-1px);
-    box-shadow: var(--glass-shadow);
-    opacity: 0.9;
+    box-shadow: 0 4px 12px rgba(27, 43, 65, 0.2);
+    opacity: 0.95;
 }
 
 .authGroup {

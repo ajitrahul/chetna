@@ -39,12 +39,22 @@ export default function Header() {
 
         <div className={`${styles.rightSection} ${isMenuOpen ? styles.menuOpen : ''}`}>
           <nav className={styles.navLinks}>
-            <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
-            <Link href="/chart" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Chart</Link>
-            <Link href="/timing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Timing</Link>
-            <Link href="/clarity" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Clarity</Link>
-            <Link href="/synastry" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Synastry</Link>
-            <Link href="/pricing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Pricing</Link>
+            {status === 'authenticated' ? (
+              <>
+                <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
+                <Link href="/chart" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Chart</Link>
+                <Link href="/timing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Timeline</Link>
+                <Link href="/clarity" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Get Clarity</Link>
+                <Link href="/synastry" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Synastry</Link>
+                <Link href="/pricing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Credit</Link>
+              </>
+            ) : (
+              <>
+                <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
+                <Link href="/#how-it-works" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>How it Works</Link>
+                <Link href="/clarity" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Ask for Clarity</Link>
+              </>
+            )}
           </nav>
 
           <div className={styles.actions}>
@@ -88,7 +98,7 @@ export default function Header() {
                 </button>
               </div>
             ) : (
-              <Link href="/login" className={styles.loginBtn} onClick={() => setIsMenuOpen(false)}>Login</Link>
+              <Link href="/login" className={styles.loginBtn} onClick={() => setIsMenuOpen(false)}>Sign In</Link>
             )}
           </div>
         </div>
