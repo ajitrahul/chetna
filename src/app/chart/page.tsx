@@ -6,6 +6,15 @@ import BirthDataForm, { UserProfile } from '@/components/BirthDataForm';
 import ChartDisplay from '@/components/ChartDisplay';
 import DashaDisplay from '@/components/DashaDisplay';
 import { ChartData, getZodiacSign } from '@/lib/astrology/calculator';
+import {
+    PLANET_SORT_ORDER,
+    SIGN_LORDS,
+    getSignIndex,
+    getHouseNumber,
+    formatDegree,
+    getAspects,
+    getConjunctions
+} from '@/lib/astrology/interpretations';
 import styles from './page.module.css';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -197,33 +206,103 @@ const getPersonalizedInterpretation = (key: string, vargaData: any, userName: st
         return themeMap[ascSign] || themeMap['Aries'];
     };
 
-    return [
-        {
-            title: 'Natural Orientation',
-            question: 'Who am i by default?',
-            text: orientationLibrary[ascSign] || orientationLibrary['Aries']
-        },
-        {
-            title: 'Inner Emotional World',
-            question: 'What do i feel inside that others may not see?',
-            text: innerWorldLibrary[moonSign] || innerWorldLibrary['Aries']
-        },
-        {
-            title: 'Action Under Pressure',
-            question: 'How do you respond when the pressure is on?',
-            text: getPressureLogic()
-        },
-        {
-            title: 'Repeating Patterns',
-            question: 'What recurring themes show up in your life?',
-            text: getPatternLogic()
-        },
-        {
-            title: 'Core Life Theme',
-            question: 'What is the primary lesson your life is teaching you?',
-            text: getThemeLogic()
-        }
-    ];
+    // D1 / Birth Chart Logic (Preserving enriched content)
+    if (key === 'D1' || key === 'Rashi' || key === 'Birth Chart' || key === 'Main') {
+        return [
+            {
+                title: 'Natural Orientation',
+                question: 'Who am i by default?',
+                text: orientationLibrary[ascSign] || orientationLibrary['Aries']
+            },
+            {
+                title: 'Inner Emotional World',
+                question: 'What do i feel inside that others may not see?',
+                text: innerWorldLibrary[moonSign] || innerWorldLibrary['Aries']
+            },
+            {
+                title: 'Action Under Pressure',
+                question: 'How do you respond when the pressure is on?',
+                text: getPressureLogic()
+            },
+            {
+                title: 'Repeating Patterns',
+                question: 'What recurring themes show up in your life?',
+                text: getPatternLogic()
+            },
+            {
+                title: 'Core Life Theme',
+                question: 'What is the primary lesson your life is teaching you?',
+                text: getThemeLogic()
+            }
+        ];
+    }
+
+    // Dynamic Logic for Divisional Charts
+    let questions = [];
+
+    // Note: In a full production app, each of these would have its own 100+ word library like above.
+    // We are implementing the structure to support it.
+    if (key === 'D9') {
+        questions = [
+            {
+                title: 'Spiritual Backbone',
+                question: 'What is the root of your spiritual strength?',
+                text: `In the Navamsa (D9), your ${ascSign} Ascendant reveals the inner fruit of your natal tree. It represents your true, internal nature that develops over time, especially in the second half of life. While your D1 shows how you meet the world, your D9 ${ascSign} shows who you are when you are alone with your spirit. It suggests a path where your spiritual strength comes from cultivating ${ascSign}-like qualities: independence, resilience, or harmony depending on the sign. This is the chart of your "dharmic" destiny.`
+            },
+            {
+                title: 'Relationship Dynamics',
+                question: 'How do you relate to your significant others?',
+                text: `Your D9 Moon in ${moonSign} (or the general planetary balance) indicates that in your most intimate partnerships, you seek emotional fulfillment through specific channels. Unlike the D1 which shows initial attraction, the D9 reveals what sustains a marriage or long-term union for you. It points to a need for a partner who resonates with the energy of your inner self.`
+            },
+            {
+                title: 'Inner Destiny',
+                question: 'Where is your soul evolving towards?',
+                text: `The overarching purpose shown in the Navamsa is one of refinement. The planets here show the strength of your natal planets. If a planet is strong here, its results in the physical world will last. Your journey is about aligning your outer actions (D1) with this inner purpose (D9).`
+            }
+        ];
+    } else if (key === 'D10') {
+        questions = [
+            {
+                title: 'Career Impact',
+                question: 'How do you naturally influence the world through work?',
+                text: `Your Dasamsa (D10) Ascendant in ${ascSign} suggests a professional style defined by this sign's qualities. Whether you are leading, supporting, or innovating, your greatest impact comes when you channel ${ascSign} energy. This chart zooms in on your "Karma" or actions in society.`
+            },
+            {
+                title: 'Professional Stability',
+                question: 'What drives your ambition?',
+                text: `The D10 chart reveals the fruits of your labor. Placements here indicate the magnitude of success and the nature of your status. Your drive is fueled by a desire to achieve specific outcomes related to your planetary periods.`
+            }
+        ];
+    } else if (['D2', 'D4', 'D16'].includes(key)) { // Abundance Group
+        questions = [
+            {
+                title: 'Material Flow',
+                question: 'How does abundance flow into your life?',
+                text: `This ${key} chart analyzes your material resources and assets. The placements here suggest that your wealth/assets accumulate through specific channels associated with the ${ascSign} energy. It highlights your capacity to retain and grow what you earn.`
+            },
+            {
+                title: 'Comfort & Security',
+                question: 'What brings you a sense of security?',
+                text: `Beyond just money, this chart looks at what makes you feel secure and "at home" in the material world. It points to the psychological comfort derived from your tangible achievements.`
+            }
+        ];
+    } else {
+        // Generic Fallback for other charts
+        questions = [
+            {
+                title: `${key} Essence`,
+                question: `What is the core essence of this ${key} chart?`,
+                text: `The ${key} chart acts as a microscopic view of a specific area of your life. With the Ascendant in ${ascSign}, your approach to the matters of this chart (whether health, spirituality, or siblings) starts with an attitude of ${ascSign}.`
+            },
+            {
+                title: 'Hidden Potential',
+                question: 'Where lies your untapped potential here?',
+                text: `Planetary placements in this divisional chart suggest hidden reserves of strength or specific challenges to be overcome to unlock the full potential of this life area.`
+            }
+        ];
+    }
+
+    return questions;
 };
 
 export default function ChartPage() {
@@ -874,7 +953,7 @@ export default function ChartPage() {
                             {/* Right: Tabbed Info */}
                             <div className={styles.drawerTabs}>
                                 <div className={styles.tabButtons}>
-                                    {['Overview', 'Your Story', 'Planet Strength & Balance'].map((tab, idx) => (
+                                    {['Overview', 'Your Story', 'Planet Placement & Expression'].map((tab, idx) => (
                                         <button
                                             key={tab}
                                             className={`${styles.tabButton} ${activeTab === idx ? styles.activeTabButton : ''}`}
@@ -923,39 +1002,106 @@ export default function ChartPage() {
                                             </div>
                                         )}
 
-                                        {/* Planets */}
                                         {activeTab === 2 && (
                                             <div className={styles.tabSection}>
-                                                <h4>Planetary Strength & Alignment</h4>
+                                                <h4>Planet Placement & Expression</h4>
                                                 <p>
                                                     This section reveals the refined state of each planetary energy in this specific department of your life.
-                                                    The "Sign" shows where the energy is focused, while the "Dignity" indicates how comfortably that energy is expressed.
+                                                    It details the sign, house, and precise degree of each planet, offering a granular view of your karmic map.
                                                 </p>
-                                                <div className={styles.tableWrapper}>
+                                                <div className={styles.tableWrapper} style={{ overflowX: 'auto', marginBottom: '2rem' }}>
                                                     <table className={styles.modernTable}>
                                                         <thead>
                                                             <tr>
                                                                 <th>Planet</th>
                                                                 <th>Sign</th>
-                                                                <th>Dignity</th>
+                                                                <th>Sign Lord</th>
+                                                                <th>Degree</th>
+                                                                <th>House</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {Object.values(profile.chartData.vargas[activeChart].planets || {}).map((p: any) => {
-                                                                const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
-                                                                const dignityClass = p.dignity?.toLowerCase().includes('exalt') ? styles.exalted :
-                                                                    p.dignity?.toLowerCase().includes('debilit') ? styles.debilitated :
-                                                                        p.dignity?.toLowerCase().includes('moola') ? styles.moolatrikona : '';
+                                                            {PLANET_SORT_ORDER.map(pName => {
+                                                                const varga = profile.chartData?.vargas?.[activeChart];
+                                                                if (!varga) return null;
+                                                                let pData = null;
+                                                                if (pName === 'Ascendant') {
+                                                                    pData = { name: 'Ascendant', longitude: varga.ascendant, isAsc: true };
+                                                                } else {
+                                                                    pData = varga.planets?.[pName];
+                                                                }
+
+                                                                if (!pData) return null;
+
+                                                                const signIndex = Math.floor(pData.longitude / 30);
+                                                                const signName = getZodiacSign(pData.longitude);
+                                                                const signLord = SIGN_LORDS[signName] || '-';
+                                                                const ascIndex = Math.floor((varga.ascendant || 0) / 30);
+                                                                const house = getHouseNumber(signIndex, ascIndex);
+                                                                const degree = formatDegree(pData.longitude);
+
                                                                 return (
-                                                                    <tr key={p.name}>
-                                                                        <td>{p.name}</td>
-                                                                        <td>{signs[Math.floor(p.longitude / 30)]}</td>
-                                                                        <td><span className={`${styles.dignityBadge} ${dignityClass}`}>{p.dignity || 'Neutral'}</span></td>
+                                                                    <tr key={pName}>
+                                                                        <td className="font-medium text-[var(--foreground)]">{pName}</td>
+                                                                        <td>{signName}</td>
+                                                                        <td>{signLord}</td>
+                                                                        <td className="font-mono text-xs opacity-75">{degree}</td>
+                                                                        <td>{house}</td>
                                                                     </tr>
                                                                 );
                                                             })}
                                                         </tbody>
                                                     </table>
+                                                </div>
+
+                                                <div className="space-y-6">
+                                                    <h3 className="text-2xl font-serif text-[var(--accent-gold)] border-b border-[var(--border-color)] pb-2 mb-4">Planetary Detailed Analysis</h3>
+                                                    {PLANET_SORT_ORDER.filter(p => p !== 'Ascendant').map(pName => {
+                                                        const varga = profile.chartData?.vargas?.[activeChart];
+                                                        if (!varga) return null;
+                                                        const pData = varga.planets?.[pName];
+                                                        if (!pData) return null;
+
+                                                        const signIndex = Math.floor(pData.longitude / 30);
+                                                        const signName = getZodiacSign(pData.longitude);
+                                                        const ascIndex = Math.floor((varga.ascendant || 0) / 30);
+                                                        const house = getHouseNumber(signIndex, ascIndex);
+
+                                                        const getOrdinal = (n: number) => {
+                                                            const s = ["th", "st", "nd", "rd"];
+                                                            const v = n % 100;
+                                                            return s[(v - 20) % 10] || s[v] || s[0];
+                                                        };
+
+                                                        const aspects = getAspects(pName, signIndex, varga.planets);
+                                                        const conjunctions = getConjunctions(pName, signIndex, varga.planets);
+
+                                                        const aspectText = aspects.length > 0 ? `It receives aspects from ${aspects.join(', ')}.` : 'It is not aspected by major planets.';
+                                                        const conjunctText = conjunctions.length > 0 ? `It is conjunct with ${conjunctions.join(', ')}.` : 'It stands alone in this sign.';
+
+                                                        return (
+                                                            <div key={pName} className="p-6 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]/50 shadow-sm relative overflow-hidden group hover:border-[var(--accent-gold)]/50 transition-all duration-300">
+                                                                <h5 className="text-3xl text-[var(--primary)] font-bold mb-4 flex items-center flex-wrap gap-2">
+                                                                    <span>{pName} in {signName}</span>
+                                                                    <span className="text-[var(--foreground)] opacity-70"> - </span>
+                                                                    <span className="text-[var(--primary)] text-3xl font-bold">
+                                                                        {house}{getOrdinal(house)} House
+                                                                    </span>
+                                                                </h5>
+                                                                <div className="text-base leading-relaxed text-[var(--foreground)] opacity-90 space-y-4">
+                                                                    <p>
+                                                                        <strong>Placement:</strong> {pName} is placed in the <strong>{house}{getOrdinal(house)} House</strong> in the sign of <strong>{signName}</strong>.
+                                                                    </p>
+                                                                    <p>
+                                                                        <strong>Associations:</strong> {conjunctText} {aspectText}
+                                                                    </p>
+                                                                    <p>
+                                                                        <strong>Insight:</strong> <span className="italic">This placement suggests that the energy of {pName} is expressed through the qualities of {signName}. In the {activeChart} chart, this influences your experience of {activeChart === 'D9' ? 'relationships and fortune' : activeChart === 'D10' ? 'career and impact' : 'this life area'}.</span>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         )}

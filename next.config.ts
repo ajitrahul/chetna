@@ -26,6 +26,17 @@ const nextConfig: NextConfig = {
       [path.join(__dirname, "node_modules/swisseph-wasm/wsam/swisseph.data")]: false,
     };
 
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        'fs/promises': false,
+        module: false,
+        path: false,
+      };
+    }
+
+
     // Copy WASM files to public directory for runtime access
     config.plugins.push(
       new CopyPlugin({

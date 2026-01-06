@@ -120,7 +120,7 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
     const ascSignIdx = Math.floor(ascendant / 30);
 
     // Distribute Planets into houses
-    const planetsInHouses: Record<number, { name: string, isTransit: boolean }[]> = {};
+    const planetsInHouses: Record<number, { name: string, longitude?: number, isTransit: boolean }[]> = {};
     const houseDignities: Record<number, string[]> = {};
 
     Object.values(planets).forEach((p) => {
@@ -130,7 +130,7 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
 
         if (!planetsInHouses[houseNum]) planetsInHouses[houseNum] = [];
         // Store full name for correct translation lookup later
-        planetsInHouses[houseNum].push({ name: p.name, isTransit: false });
+        planetsInHouses[houseNum].push({ name: p.name, longitude: p.longitude, isTransit: false });
 
         if (p.dignity) {
             if (!houseDignities[houseNum]) houseDignities[houseNum] = [];
@@ -161,7 +161,7 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
 
     if (!planetsInHouses[1]) planetsInHouses[1] = [];
     if (!planetsInHouses[1].some(p => p.name === 'Ascendant')) {
-        planetsInHouses[1].unshift({ name: 'Ascendant', isTransit: false });
+        planetsInHouses[1].unshift({ name: 'Ascendant', longitude: ascendant, isTransit: false });
     }
 
     const housePlanets = activeHouse ? planetsInHouses[activeHouse] || [] : [];
@@ -261,30 +261,45 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                             {housePlanets.length > 0 ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {housePlanets.map((p, i) => {
-                                        const dignity = Object.values(planets).find(cp => cp.name === p.name)?.dignity;
+                                        const pData = Object.values(planets).find(cp => cp.name === p.name);
+                                        const dignity = pData?.dignity;
+                                        // Calculate precise degree
+                                        const longitude = pData?.longitude || p.longitude || 0;
+                                        const deg = Math.floor(longitude % 30);
+                                        const min = Math.floor((longitude % 1) * 60);
+                                        const displayDegree = `${deg}° ${min}'`;
+
+                                        // Handle Ascendant Dignity Case
+                                        const displayDignity = p.name === 'Ascendant' ? 'Lagna' : (dignity || 'Nuetral');
+
                                         return (
                                             <div key={i} style={{
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
                                                 alignItems: 'center',
-                                                padding: '10px 14px',
+                                                padding: '12px 14px',
                                                 background: 'rgba(255, 255, 255, 0.03)',
                                                 borderRadius: '10px',
                                                 border: '1px solid var(--card-border)'
                                             }}>
-                                                <span style={{ fontWeight: '700', color: 'var(--foreground)', fontSize: '0.85rem' }}>
-                                                    {language === 'hi' ? PLANET_HINDI[p.name] || p.name : p.name}
-                                                </span>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <span style={{ fontWeight: '700', color: 'var(--foreground)', fontSize: '0.95rem' }}>
+                                                        {language === 'hi' ? PLANET_HINDI[p.name] || p.name : p.name}
+                                                    </span>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--secondary)', fontFamily: 'monospace', opacity: 0.8 }}>
+                                                        {displayDegree}
+                                                    </span>
+                                                </div>
                                                 <span style={{
                                                     fontSize: '0.65rem',
                                                     fontWeight: '900',
-                                                    padding: '3px 7px',
+                                                    padding: '4px 8px',
                                                     borderRadius: '4px',
-                                                    background: dignity ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
-                                                    color: dignity ? '#000' : 'var(--secondary)',
+                                                    background: dignity || p.name === 'Ascendant' ? 'var(--accent-gold)' : 'rgba(255,255,255,0.1)',
+                                                    color: dignity || p.name === 'Ascendant' ? '#000' : 'var(--text-muted)',
                                                     textTransform: 'uppercase'
                                                 }}>
-                                                    {dignity || 'N/A'}
+                                                    {displayDignity}
                                                 </span>
                                             </div>
                                         );
@@ -478,6 +493,8 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                                             posY += (house.num === 2 || house.num === 12 ? 45 : -45);
                                         }
                                     }
+
+                                    const degree = Math.floor((planetObj.longitude || 0) % 30);
 
                                     return (
                                         <text
