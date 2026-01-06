@@ -103,7 +103,7 @@ export default function BlogPage() {
                             onClick={() => setSelectedBlogId(null)}
                         >
                             <ArrowLeft size={18} />
-                            <span>Back to Insights</span>
+                            <span>Back to Blogs</span>
                         </button>
 
                         <div className={styles.fullPost}>
