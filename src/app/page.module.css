@@ -12,10 +12,25 @@
   background-attachment: fixed;
 }
 
-/* Hero Section */
+.bgWrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(var(--background-rgb), 0.2);
+  z-index: 0;
+}
+
+[data-theme='dark'] .bgWrapper::before {
+  background: rgba(0, 0, 0, 0.6);
+}
+
 .hero {
   padding: 140px 24px 80px;
   position: relative;
+  z-index: 1;
 }
 
 .heroContainer {
@@ -220,7 +235,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(var(--background-rgb), 0.1);
+  background: rgba(var(--background-rgb), 0.2);
+  z-index: 0;
+}
+
+[data-theme='dark'] .aboutSection::before {
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .aboutContent {

@@ -43,10 +43,10 @@
   --bg-soft-rgb: 8, 8, 26;
   --foreground: #F0F0FF;
   --foreground-rgb: 240, 240, 255;
-  --primary: #F0F0FF;
-  --secondary: #A0A5B5;
-  --text-muted: #808595;
-  --accent-gold: #F4C430;
+  --primary: #FFFFFF;
+  --secondary: #B8BCC9;
+  --text-muted: #9BA1B0;
+  --accent-gold: #FFD700;
   --accent-gold-rgb: 244, 196, 48;
   --accent-gold-dim: #B89620;
   --card-bg: rgba(var(--bg-soft-rgb), 0.65);
