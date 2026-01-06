@@ -1,27 +1,27 @@
 :root {
-  /* Mystic Luxury Palette - DARK MODE (Default) */
-  --background: #03030F;
-  --background-rgb: 3, 3, 15;
-  --bg-soft: #08081A;
-  --bg-soft-rgb: 8, 8, 26;
+  /* Mystic Light Palette - LIGHT MODE (Default) */
+  --background: #FFFBF0;
+  --background-rgb: 255, 251, 240;
+  --bg-soft: #F7F1E3;
+  --bg-soft-rgb: 247, 241, 227;
 
-  --foreground: #F0F0FF;
-  --foreground-rgb: 240, 240, 255;
+  --foreground: #101420;
+  --foreground-rgb: 16, 20, 32;
 
-  --primary: #F0F0FF;
-  --secondary: #A0A5B5;
-  --text-muted: #808595;
+  --primary: #101420;
+  --secondary: #3D4251;
+  --text-muted: #5F6370;
 
-  --accent-gold: #F4C430;
-  --accent-gold-rgb: 244, 196, 48;
-  --accent-gold-dim: #B89620;
+  --accent-gold: #B8860B;
+  --accent-gold-rgb: 184, 134, 11;
+  --accent-gold-dim: #996515;
   --accent-rose: #C48E8E;
 
-  --card-bg: rgba(var(--bg-soft-rgb), 0.65);
+  --card-bg: rgba(var(--bg-soft-rgb), 0.75);
   --card-border: rgba(var(--foreground-rgb), 0.15);
-  --border-soft: rgba(var(--foreground-rgb), 0.1);
+  --border-soft: rgba(var(--foreground-rgb), 0.08);
 
-  --glass-shadow: 0 15px 50px -12px rgba(0, 0, 0, 0.6);
+  --glass-shadow: 0 12px 40px -10px rgba(16, 20, 32, 0.1);
 
   --font-main: var(--font-main), sans-serif;
   --font-heading: var(--font-heading), serif;
