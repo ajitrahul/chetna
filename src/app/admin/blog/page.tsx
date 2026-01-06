@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import styles from './AdminBlog.module.css';
 import { ArrowLeft, Send, AlertCircle, CheckCircle2, Save } from 'lucide-react';
 import Link from 'next/link';
 
-export default function AdminBlogPage() {
+export const dynamic = 'force-dynamic';
+
+function AdminBlogContent() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -140,5 +142,13 @@ export default function AdminBlogPage() {
                 )}
             </form>
         </div>
+    );
+}
+
+export default function AdminBlogPage() {
+    return (
+        <Suspense fallback={<div className={styles.loading}>Loading...</div>}>
+            <AdminBlogContent />
+        </Suspense>
     );
 }
