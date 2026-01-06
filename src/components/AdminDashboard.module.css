@@ -230,6 +230,44 @@
     cursor: not-allowed;
 }
 
+.editBtn,
+.deleteBtn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.editBtn {
+    background: rgba(var(--accent-gold-rgb), 0.1);
+    color: var(--accent-gold);
+    border-color: rgba(var(--accent-gold-rgb), 0.2);
+}
+
+.editBtn:hover {
+    background: var(--accent-gold);
+    color: #fff;
+}
+
+.deleteBtn {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    border-color: rgba(244, 67, 54, 0.2);
+}
+
+.deleteBtn:hover {
+    background: #f44336;
+    color: #fff;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
 .newsletterSection {
     background: var(--card-bg);
     padding: 2rem;

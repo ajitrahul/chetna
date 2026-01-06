@@ -42,11 +42,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     return null
                 }
 
+                const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+                const isAdmin = !!user.email && adminEmails.includes(user.email.toLowerCase());
+
                 return {
                     id: user.id,
                     email: user.email,
                     name: user.name,
                     image: user.image,
+                    isAdmin: isAdmin
                 }
             }
         })
@@ -73,12 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
                 const userEmail = session.user.email?.toLowerCase();
 
-                console.log('--- ADMIN CHECK ---');
-                console.log('User Email:', userEmail);
-                console.log('Admin Emails:', adminEmails);
-
                 session.user.isAdmin = !!userEmail && adminEmails.includes(userEmail);
-                console.log('Is Admin:', session.user.isAdmin);
             }
             return session
         },

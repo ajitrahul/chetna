@@ -38,6 +38,7 @@ export default function Footer() {
                         <li><Link href="/chart">Your Chart</Link></li>
                         <li><Link href="/timing">Timing & Phases</Link></li>
                         <li><Link href="/synastry">Synastry</Link></li>
+                        <li><Link href="/blog">Blogs</Link></li>
                         <li><Link href="/clarity">Get Clarity</Link></li>
                     </ul>
                 </div>

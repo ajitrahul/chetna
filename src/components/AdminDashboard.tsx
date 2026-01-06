@@ -39,13 +39,21 @@ interface AnalyticsData {
     topCountries: Array<{ country: string; _count: { country: number } }>;
 }
 
+interface BlogPost {
+    id: string;
+    title: string;
+    content: string;
+    createdAt: string;
+}
+
 export default function AdminDashboard() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<'analytics' | 'pricing' | 'users' | 'newsletter'>('analytics');
+    const [activeTab, setActiveTab] = useState<'analytics' | 'pricing' | 'users' | 'newsletter' | 'blogs'>('analytics');
     const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
     const [plans, setPlans] = useState<PricingPlan[]>([]);
     const [services, setServices] = useState<ServiceCost[]>([]);
     const [users, setUsers] = useState<User[]>([]);
+    const [blogs, setBlogs] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -77,11 +85,12 @@ export default function AdminDashboard() {
                 minCredits: userFilters.minCredits.toString()
             });
 
-            const [analyticsRes, pricingRes, servicesRes, usersRes] = await Promise.all([
+            const [analyticsRes, pricingRes, servicesRes, usersRes, blogsRes] = await Promise.all([
                 fetch('/api/admin/analytics'),
                 fetch('/api/admin/pricing'),
                 fetch('/api/admin/services'),
-                fetch(`/api/admin/users?${userParams.toString()}`)
+                fetch(`/api/admin/users?${userParams.toString()}`),
+                fetch('/api/blogs')
             ]);
 
             if (analyticsRes.status === 401) {
@@ -89,7 +98,7 @@ export default function AdminDashboard() {
                 return;
             }
 
-            if (!analyticsRes.ok || !pricingRes.ok || !servicesRes.ok || !usersRes.ok) {
+            if (!analyticsRes.ok || !pricingRes.ok || !servicesRes.ok || !usersRes.ok || !blogsRes.ok) {
                 throw new Error('Some data failed to load');
             }
 
@@ -97,11 +106,13 @@ export default function AdminDashboard() {
             const pData = await pricingRes.json();
             const sData = await servicesRes.json();
             const uData = await usersRes.json();
+            const bData = await blogsRes.json();
 
             setAnalytics(aData);
             setPlans(pData);
             setServices(sData);
             setUsers(uData?.users || []);
+            setBlogs(bData);
         } catch (error: any) {
             console.error('Failed to load admin data', error);
             setError(error.message || 'Failed to load data');
@@ -173,6 +184,26 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleDeleteBlog = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this blog post? This action is permanent.')) return;
+
+        try {
+            const res = await fetch(`/api/blogs/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                alert('Blog post deleted');
+                fetchData();
+            } else {
+                const data = await res.json();
+                alert('Failed to delete blog: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            alert('Error deleting blog post');
+        }
+    };
+
     if (loading) return <div className={styles.loading}>Loading Admin Dashboard...</div>;
 
     return (
@@ -203,6 +234,12 @@ export default function AdminDashboard() {
                         onClick={() => setActiveTab('newsletter')}
                     >
                         Newsletter
+                    </button>
+                    <button
+                        className={`${styles.navItem} ${activeTab === 'blogs' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('blogs')}
+                    >
+                        Blogs
                     </button>
                 </nav>
             </div>
@@ -463,7 +500,63 @@ export default function AdminDashboard() {
                         </button>
                     </div>
                 )}
+
+                {activeTab === 'blogs' && (
+                    <div className={styles.section}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h3>Blog Management</h3>
+                            <button
+                                className={styles.saveBtn}
+                                onClick={() => router.push('/admin/blog')}
+                            >
+                                + Create New Blog
+                            </button>
+                        </div>
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Created At</th>
+                                        <th style={{ textAlign: 'right' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {blogs.length > 0 ? blogs.map((blog) => (
+                                        <tr key={blog.id}>
+                                            <td>{blog.title}</td>
+                                            <td>{new Date(blog.createdAt).toLocaleDateString()} at {new Date(blog.createdAt).toLocaleTimeString()}</td>
+                                            <td>
+                                                <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
+                                                    <button
+                                                        className={styles.editBtn}
+                                                        onClick={() => router.push(`/admin/blog?id=${blog.id}`)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        className={styles.deleteBtn}
+                                                        onClick={() => handleDeleteBlog(blog.id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={3} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                                No blogs found. Start by creating one!
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </main>
-        </div>
+        </div >
     );
 }
