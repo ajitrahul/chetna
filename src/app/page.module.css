@@ -413,13 +413,28 @@
 
 /* Mobile Responsive */
 
+@media (max-width: 968px) {
+  .featuresGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
+  .hero {
+    padding: 100px 16px 60px;
+  }
+
   .heroTitle {
-    font-size: 3rem;
+    font-size: 2.5rem;
+  }
+
+  .heroSubtitle,
+  .heroDescription {
+    font-size: 1rem;
   }
 
   .quote {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
 
   .heroActions {
@@ -427,7 +442,24 @@
     gap: 16px;
   }
 
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    justify-content: center;
+  }
 
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .howItWorks {
+    padding: 80px 16px;
+  }
+
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
 
   .widgetGrid {
     grid-template-columns: 1fr;
@@ -442,5 +474,45 @@
     width: 100%;
     height: 1px;
     min-height: auto;
+  }
+
+  .philosophySection {
+    padding: 80px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .featureCard {
+    padding: 32px 20px;
+  }
+
+  .quote {
+    font-size: 1.1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .philosophyMainTitle {
+    font-size: 2rem;
+  }
+
+  .philosophyTitle {
+    font-size: 1.4rem;
+  }
+
+  .philosophyText,
+  .doesNotItem {
+    font-size: 1rem;
   }
 }

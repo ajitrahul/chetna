@@ -349,43 +349,149 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // 3. Planets Table - FORCE NEW PAGE
+        // 3. Planet Placement & Expression - FORCE NEW PAGE
         page = pdfDoc.addPage();
         y = addHeader(page);
 
-        page.drawText('Planetary Details', { x: 50, y, size: 14, font: boldFont, color: goldColor });
+        page.drawText('Planet Placement & Expression', { x: 50, y, size: 14, font: boldFont, color: goldColor });
         y -= 25;
 
-        const introText = `Hello ${profile.name.split(' ')[0]}, this table reveals the precise strength and condition of each planet in your chart. Here you can see which sign each planet occupies and its "Dignity" status (e.g., Exalted, Debilitated, or Friendly).`;
-        const introRes = drawJustifiedBlock(page, introText, 50, y, font, 11, darkColor, width - 100, 18);
-        y = introRes.y - 30;
+        const planetIntroText = `This section reveals the refined state of each planetary energy in this specific department of your life. It details the sign, house, and precise degree of each planet, offering a granular view of your karmic map.`;
+        const planetIntroRes = drawJustifiedBlock(page, planetIntroText, 50, y, font, 11, darkColor, width - 100, 18);
+        y = planetIntroRes.y - 30;
 
-        const col1 = 50, col2 = 180, col3 = 280, col4 = 380;
-        const drawTableHeader = (p: any, currY: number) => {
+        // Planetary Table
+        const col1 = 50, col2 = 150, col3 = 250, col4 = 350, col5 = 450;
+        const drawPlanetTableHeader = (p: any, currY: number) => {
             p.drawRectangle({ x: 50, y: currY - 5, width: width - 100, height: 20, color: lightGray });
             p.drawText('Planet', { x: col1 + 5, y: currY, size: 10, font: boldFont });
-            p.drawText('Longitude', { x: col2, y: currY, size: 10, font: boldFont });
-            p.drawText('Sign', { x: col3, y: currY, size: 10, font: boldFont });
-            p.drawText('Dignity', { x: col4, y: currY, size: 10, font: boldFont });
+            p.drawText('Sign', { x: col2, y: currY, size: 10, font: boldFont });
+            p.drawText('Sign Lord', { x: col3, y: currY, size: 10, font: boldFont });
+            p.drawText('Degree', { x: col4, y: currY, size: 10, font: boldFont });
+            p.drawText('House', { x: col5, y: currY, size: 10, font: boldFont });
             return currY - 25;
         };
-        y = drawTableHeader(page, y);
+
+        y = drawPlanetTableHeader(page, y);
+
         const planets = chartData.planets || {};
         const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
-        for (const p of Object.values(planets) as any[]) {
+        const signLords: Record<string, string> = {
+            'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon',
+            'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars',
+            'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter'
+        };
+
+        const getOrdinal = (n: number) => {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        };
+
+        const ascSignIndex = Math.floor((chartData.ascendant || 0) / 30);
+        const planetOrder = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu'];
+
+        for (const pName of planetOrder) {
+            const p = planets[pName];
+            if (!p) continue;
+
             if (y < 60) {
                 page = pdfDoc.addPage();
                 y = addHeader(page);
-                y = drawTableHeader(page, y);
+                y = drawPlanetTableHeader(page, y);
             }
-            const sign = signs[Math.floor(p.longitude / 30)] || "Unknown";
+
+            const signIndex = Math.floor(p.longitude / 30);
+            const sign = signs[signIndex] || "Unknown";
+            const signLord = signLords[sign] || '-';
+            const house = ((signIndex - ascSignIndex + 12) % 12) + 1;
             const deg = (p.longitude % 30).toFixed(2);
-            page.drawText(p.name, { x: col1 + 5, y, size: 10, font });
-            page.drawText(`${deg}°`, { x: col2, y, size: 10, font });
-            page.drawText(sign, { x: col3, y, size: 10, font });
-            page.drawText(p.dignity || "-", { x: col4, y, size: 10, font });
+
+            page.drawText(pName, { x: col1 + 5, y, size: 10, font });
+            page.drawText(sign, { x: col2, y, size: 10, font });
+            page.drawText(signLord, { x: col3, y, size: 10, font });
+            page.drawText(`${deg}°`, { x: col4, y, size: 10, font });
+            page.drawText(getOrdinal(house), { x: col5, y, size: 9, font });
             page.drawLine({ start: { x: 50, y: y - 5 }, end: { x: width - 50, y: y - 5 }, thickness: 0.5, color: lightGray });
             y -= 20;
+        }
+
+        // Detailed Planetary Analysis
+        page = pdfDoc.addPage();
+        y = addHeader(page);
+
+        page.drawText('Planetary Detailed Analysis', { x: 50, y, size: 14, font: boldFont, color: goldColor });
+        y -= 30;
+
+        const planetQualities: Record<string, string> = {
+            'Sun': 'your core identity, vitality, and life purpose',
+            'Moon': 'your emotional nature, instincts, and subconscious mind',
+            'Mercury': 'your communication style, thinking patterns, and learning approach',
+            'Venus': 'your values, relationships, and sense of beauty',
+            'Mars': 'your drive, energy, and how you assert yourself',
+            'Jupiter': 'your growth, wisdom, and sense of opportunity',
+            'Saturn': 'your discipline, responsibilities, and life lessons',
+            'Rahu': 'your worldly desires and areas of intense focus',
+            'Ketu': 'your past life skills and areas of spiritual detachment'
+        };
+
+        const houseThemes: Record<number, string> = {
+            1: 'your personality, physical body, and how you approach life',
+            2: 'your wealth, family values, and speech',
+            3: 'your courage, siblings, and communication skills',
+            4: 'your home life, mother, and emotional foundations',
+            5: 'your creativity, children, and intelligence',
+            6: 'your health, daily routines, and ability to overcome obstacles',
+            7: 'your partnerships, marriage, and business relationships',
+            8: 'your transformation, inheritance, and hidden matters',
+            9: 'your higher learning, spirituality, and fortune',
+            10: 'your career, public reputation, and achievements',
+            11: 'your gains, friendships, and long-term goals',
+            12: 'your spirituality, losses, and liberation'
+        };
+
+        for (const pName of planetOrder) {
+            const p = planets[pName];
+            if (!p) continue;
+
+            checkSpace(250);
+
+            const signIndex = Math.floor(p.longitude / 30);
+            const sign = signs[signIndex];
+            const house = ((signIndex - ascSignIndex + 12) % 12) + 1;
+
+            // Planet Header
+            const headerText = `${pName} in ${sign} - ${getOrdinal(house)} House`;
+            page.drawText(headerText, { x: 50, y, size: 12, font: boldFont, color: goldColor });
+            y -= 25;
+
+            // Placement
+            const placementText = `Placement: ${pName} is placed in the ${getOrdinal(house)} House in the sign of ${sign}.`;
+            let res = drawJustifiedBlock(page, placementText, 50, y, font, 10, darkColor, width - 100, 16);
+            while (res.pageBreakNeeded) {
+                page = pdfDoc.addPage();
+                y = addHeader(page);
+                res = drawJustifiedBlock(page, res.remainingLines.join('\n'), 50, y, font, 10, darkColor, width - 100, 16);
+            }
+            y = res.y - 15;
+
+            // Detailed Insight
+            const planetQuality = planetQualities[pName] || 'this area of life';
+            const houseTheme = houseThemes[house] || 'this life area';
+            const chartContext = chartKey === 'D9' ? 'your marriage, partnerships, and inner spiritual strength' :
+                chartKey === 'D10' ? 'your professional path, career achievements, and public standing' :
+                    chartKey === 'D1' ? 'your fundamental life experiences and overall personality' :
+                        'this specific dimension of your life';
+
+            const insightText = `Insight: This placement reveals important information about how ${planetQuality} manifests in your life. When ${pName} is positioned in ${sign}, it takes on the qualities of this zodiac sign - shaping how this planetary energy expresses itself. ${sign} influences the way ${pName} operates, coloring your experiences in the ${getOrdinal(house)} house, which governs ${houseTheme}. This combination creates a unique expression where the natural significations of ${pName} blend with the characteristics of ${sign}, directly impacting how you experience and navigate matters related to the ${getOrdinal(house)} house. In the context of the ${chartKey} chart, this placement provides deeper insight into ${chartContext}. Understanding this placement helps you recognize patterns, leverage strengths, and navigate challenges with greater self-awareness and clarity.`;
+
+            res = drawJustifiedBlock(page, insightText, 50, y, italicFont, 10, darkColor, width - 100, 16);
+            while (res.pageBreakNeeded) {
+                page = pdfDoc.addPage();
+                y = addHeader(page);
+                res = drawJustifiedBlock(page, res.remainingLines.join('\n'), 50, y, italicFont, 10, darkColor, width - 100, 16);
+            }
+            y = res.y - 30;
         }
 
         // Footer is built-in to addHeader or we can add specific footer

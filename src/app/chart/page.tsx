@@ -1079,16 +1079,50 @@ export default function ChartPage() {
                                                         const aspectText = aspects.length > 0 ? `It receives aspects from ${aspects.join(', ')}.` : 'It is not aspected by major planets.';
                                                         const conjunctText = conjunctions.length > 0 ? `It is conjunct with ${conjunctions.join(', ')}.` : 'It stands alone in this sign.';
 
+                                                        const getDetailedInsight = (planet: string, sign: string, house: number, chart: string) => {
+                                                            const planetQualities: Record<string, string> = {
+                                                                'Sun': 'your core identity, vitality, and life purpose',
+                                                                'Moon': 'your emotional nature, instincts, and subconscious mind',
+                                                                'Mercury': 'your communication style, thinking patterns, and learning approach',
+                                                                'Venus': 'your values, relationships, and sense of beauty',
+                                                                'Mars': 'your drive, energy, and how you assert yourself',
+                                                                'Jupiter': 'your growth, wisdom, and sense of opportunity',
+                                                                'Saturn': 'your discipline, responsibilities, and life lessons',
+                                                                'Rahu': 'your worldly desires and areas of intense focus',
+                                                                'Ketu': 'your past life skills and areas of spiritual detachment'
+                                                            };
+
+                                                            const houseThemes: Record<number, string> = {
+                                                                1: 'your personality, physical body, and how you approach life',
+                                                                2: 'your wealth, family values, and speech',
+                                                                3: 'your courage, siblings, and communication skills',
+                                                                4: 'your home life, mother, and emotional foundations',
+                                                                5: 'your creativity, children, and intelligence',
+                                                                6: 'your health, daily routines, and ability to overcome obstacles',
+                                                                7: 'your partnerships, marriage, and business relationships',
+                                                                8: 'your transformation, inheritance, and hidden matters',
+                                                                9: 'your higher learning, spirituality, and fortune',
+                                                                10: 'your career, public reputation, and achievements',
+                                                                11: 'your gains, friendships, and long-term goals',
+                                                                12: 'your spirituality, losses, and liberation'
+                                                            };
+
+                                                            const planetQuality = planetQualities[planet] || 'this area of life';
+                                                            const houseTheme = houseThemes[house] || 'this life area';
+
+                                                            return `This placement reveals important information about how ${planetQuality} manifests in your life. When ${planet} is positioned in ${sign}, it takes on the qualities of this zodiac sign - shaping how this planetary energy expresses itself. ${sign} influences the way ${planet} operates, coloring your experiences in the ${house}${getOrdinal(house)} house, which governs ${houseTheme}. This combination creates a unique expression where the natural significations of ${planet} blend with the characteristics of ${sign}, directly impacting how you experience and navigate matters related to the ${house}${getOrdinal(house)} house. In the context of the ${chart} chart, this placement provides deeper insight into ${chart === 'D9' ? 'your marriage, partnerships, and inner spiritual strength' : chart === 'D10' ? 'your professional path, career achievements, and public standing' : chart === 'D1' ? 'your fundamental life experiences and overall personality' : 'this specific dimension of your life'}. Understanding this placement helps you recognize patterns, leverage strengths, and navigate challenges with greater self-awareness and clarity.`;
+                                                        };
+
                                                         return (
                                                             <div key={pName} className="p-6 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]/50 shadow-sm relative overflow-hidden group hover:border-[var(--accent-gold)]/50 transition-all duration-300">
-                                                                <h5 className="text-3xl text-[var(--primary)] font-bold mb-4 flex items-center flex-wrap gap-2">
+                                                                <h5 style={{ fontSize: '2.25rem', fontWeight: 700, marginBottom: '1.5rem' }} className="text-[var(--primary)] flex items-center flex-wrap gap-3">
                                                                     <span>{pName} in {signName}</span>
                                                                     <span className="text-[var(--foreground)] opacity-70"> - </span>
-                                                                    <span className="text-[var(--primary)] text-3xl font-bold">
+                                                                    <span className="text-[var(--primary)]" style={{ fontSize: '2.25rem', fontWeight: 700 }}>
                                                                         {house}{getOrdinal(house)} House
                                                                     </span>
                                                                 </h5>
-                                                                <div className="text-base leading-relaxed text-[var(--foreground)] opacity-90 space-y-4">
+                                                                <div style={{ fontSize: '1.125rem', lineHeight: '1.75' }} className="text-[var(--foreground)] opacity-90 space-y-4">
                                                                     <p>
                                                                         <strong>Placement:</strong> {pName} is placed in the <strong>{house}{getOrdinal(house)} House</strong> in the sign of <strong>{signName}</strong>.
                                                                     </p>
@@ -1096,7 +1130,7 @@ export default function ChartPage() {
                                                                         <strong>Associations:</strong> {conjunctText} {aspectText}
                                                                     </p>
                                                                     <p>
-                                                                        <strong>Insight:</strong> <span className="italic">This placement suggests that the energy of {pName} is expressed through the qualities of {signName}. In the {activeChart} chart, this influences your experience of {activeChart === 'D9' ? 'relationships and fortune' : activeChart === 'D10' ? 'career and impact' : 'this life area'}.</span>
+                                                                        <strong>Insight:</strong> <span className="italic">{getDetailedInsight(pName, signName, house, activeChart)}</span>
                                                                     </p>
                                                                 </div>
                                                             </div>
