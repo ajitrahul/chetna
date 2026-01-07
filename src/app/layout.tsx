@@ -7,6 +7,9 @@ import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
 import LoginReminder from '@/components/LoginReminder';
 import AnalyticsTracker from '@/components/AnalyticsTracker';
+import FloatingActionButton from '@/components/FloatingActionButton';
+import { ProfileProvider } from '@/context/ProfileContext';
+import ProfileManager from '@/components/ProfileManager';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -51,15 +54,19 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${montserrat.variable} ${cormorant.variable}`}>
         <AuthProvider>
-          <Header />
-          <main style={{ paddingTop: '20px' }}>
-            {children}
-          </main>
-          <Footer />
-          <LoginReminder />
-          <Suspense fallback={null}>
-            <AnalyticsTracker />
-          </Suspense>
+          <ProfileProvider>
+            <Header />
+            <main style={{ paddingTop: '20px' }}>
+              {children}
+            </main>
+            <Footer />
+            <LoginReminder />
+            <ProfileManager />
+            <FloatingActionButton />
+            <Suspense fallback={null}>
+              <AnalyticsTracker />
+            </Suspense>
+          </ProfileProvider>
         </AuthProvider>
       </body>
     </html>

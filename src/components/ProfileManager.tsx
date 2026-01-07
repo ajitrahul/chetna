@@ -1,72 +1,57 @@
 'use client';
 
-import { useState } from 'react';
-import { useLocalStorage } from '@/lib/useLocalStorage';
-import { ChartData } from '@/lib/astrology/calculator';
-import styles from './ProfileManager.module.css';
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useProfile } from '@/context/ProfileContext';
+import ProfileDrawer from './ProfileDrawer';
+import ProfileLimitModal from './ProfileLimitModal';
 
-export type UserProfile = {
-    id: string;
-    name: string;
-    dob: string;
-    tob: string;
-    pob: string;
-    lat?: number;
-    lng?: number;
-    chartData?: ChartData;
-};
+export default function ProfileManager() {
+    const router = useRouter();
+    const {
+        isDrawerOpen,
+        isLimitModalOpen,
+        profileData,
+        closeDrawer,
+        closeLimitModal,
+        handleUpgrade,
+        refreshProfileData
+    } = useProfile();
 
-interface ProfileManagerProps {
-    onSelectProfile: (profile: UserProfile) => void;
-}
+    const handleSuccess = (newProfile?: any) => {
+        closeDrawer();
+        refreshProfileData();
 
-export default function ProfileManager({ onSelectProfile }: ProfileManagerProps) {
-    const [profiles, setProfiles] = useLocalStorage<UserProfile[]>('chetna_profiles', []);
-    const [isOpen, setIsOpen] = useState(false);
-
-    const handleDelete = (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
-        if (confirm('Remove this profile from your circle?')) {
-            setProfiles(profiles.filter(p => p.id !== id));
+        // Redirect to the chart page for the newly created profile
+        if (newProfile && newProfile.id) {
+            router.push(`/chart?profileId=${newProfile.id}`);
+        } else {
+            router.push('/chart');
         }
     };
 
-    if (profiles.length === 0) return null;
+    const handleManageProfiles = () => {
+        closeLimitModal();
+        router.push('/dashboard?section=profiles');
+    };
 
     return (
-        <div className={styles.container}>
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className={styles.toggleBtn}
-            >
-                Load Saved Profile ({profiles.length})
-            </button>
+        <>
+            <ProfileDrawer
+                isOpen={isDrawerOpen}
+                onClose={closeDrawer}
+                onSuccess={handleSuccess}
+            />
 
-            {isOpen && (
-                <div className={styles.dropdown}>
-                    <h4 className={styles.title}>Your Circle</h4>
-                    <ul className={styles.list}>
-                        {profiles.map(profile => (
-                            <li key={profile.id} className={styles.item} onClick={() => {
-                                onSelectProfile(profile);
-                                setIsOpen(false);
-                            }}>
-                                <div className={styles.info}>
-                                    <span className={styles.name}>{profile.name}</span>
-                                    <span className={styles.date}>{profile.dob}</span>
-                                </div>
-                                <button
-                                    className={styles.deleteBtn}
-                                    onClick={(e) => handleDelete(e, profile.id)}
-                                >
-                                    &times;
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-        </div>
+            <ProfileLimitModal
+                isOpen={isLimitModalOpen}
+                onClose={closeLimitModal}
+                onUpgrade={handleUpgrade}
+                onManageProfiles={handleManageProfiles}
+                currentCount={profileData?.profiles?.length || 0}
+                maxProfiles={profileData?.limit || 5}
+                expansionCost={profileData?.expansionCost || 50}
+            />
+        </>
     );
 }

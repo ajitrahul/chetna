@@ -9,9 +9,11 @@ import AIClaritySearchBar from '@/components/AIClaritySearchBar';
 import EnergyWidget from '@/components/EnergyWidget';
 import JournalWidget from '@/components/JournalWidget';
 import PanchangWidget from '@/components/PanchangWidget';
+import { useProfile } from '@/context/ProfileContext';
 
 export default function Home() {
   const { data: session, status } = useSession();
+  const { openNewProfileModal } = useProfile();
   const isLoggedIn = status === 'authenticated';
 
   return (

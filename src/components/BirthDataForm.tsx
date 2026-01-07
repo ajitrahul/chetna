@@ -210,11 +210,12 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                 });
 
                 if (!saveRes.ok) throw new Error("Failed to save profile.");
+                const savedProfile = await saveRes.json();
                 setStatusMsg({ type: 'success', text: 'Profile saved successfully! Check your details in the Dashboard.' });
-            }
 
-            if (onChartGenerated) {
-                onChartGenerated(chartResult);
+                if (onChartGenerated) {
+                    onChartGenerated(savedProfile);
+                }
             }
 
         } catch (err: unknown) {

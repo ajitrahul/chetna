@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BirthDataForm, { UserProfile } from '@/components/BirthDataForm';
 import ChartDisplay from '@/components/ChartDisplay';
 import DashaDisplay from '@/components/DashaDisplay';
+import ProfileTabs from '@/components/ProfileTabs';
+import ProfileDrawer from '@/components/ProfileDrawer';
+import ProfileLimitModal from '@/components/ProfileLimitModal';
 import { ChartData, getZodiacSign } from '@/lib/astrology/calculator';
 import {
     PLANET_SORT_ORDER,
@@ -17,7 +20,7 @@ import {
 } from '@/lib/astrology/interpretations';
 import styles from './page.module.css';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PlusCircle, ArrowLeft, Lock, Info, CheckCircle, Sparkles, Zap, Loader2, Download, Clock, Compass } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
@@ -308,17 +311,71 @@ const getPersonalizedInterpretation = (key: string, vargaData: any, userName: st
 export default function ChartPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Profile Management State
+    const [activeProfiles, setActiveProfiles] = useState<UserProfile[]>([]);
+    const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null);
+    const [profileLimit, setProfileLimit] = useState(5);
+    const [canAddMore, setCanAddMore] = useState(true);
+    const [showProfileDrawer, setShowProfileDrawer] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
     const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [chartData, setChartData] = useState<ChartData | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
+    const [activeTab, setActiveTab] = useState(0);
+    const [activeChart, setActiveChart] = useState<string | null>(null);
     const [unlocking, setUnlocking] = useState<string | null>(null);
-    const [activeCategory, setActiveCategory] = useState('Abundance');
-    const [initializing, setInitializing] = useState(false);
-    const [activeChart, setActiveChart] = useState<string | null>(null); // Which chart is expanded
-    const [activeTab, setActiveTab] = useState(0); // Which tab is active in expanded view
     const [serviceCosts, setServiceCosts] = useState<Record<string, number>>({});
+    const [confirmModal, setConfirmModal] = useState<{ show: boolean; chartKey: string; cost: number } | null>(null);
+    const [noCreditsModal, setNoCreditsModal] = useState(false);
+    const [initializing, setInitializing] = useState(false);
+    const [activeCategory, setActiveCategory] = useState('Abundance');
     const [isExporting, setIsExporting] = useState(false);
+
+    // Fetch all active profiles on mount
+    useEffect(() => {
+        if (session?.user) {
+            fetchActiveProfiles();
+        }
+    }, [session]);
+
+    const fetchActiveProfiles = async () => {
+        try {
+            const res = await fetch('/api/profiles/active');
+            const data = await res.json();
+
+            setActiveProfiles(data.profiles || []);
+            setProfileLimit(data.limit || 5);
+            setCanAddMore(data.canAddMore || false);
+
+            // Select profile from URL or default to first
+            const profileIdFromUrl = searchParams.get('profileId');
+            let targetProfile = null;
+
+            if (profileIdFromUrl) {
+                targetProfile = data.profiles.find((p: UserProfile) => p.id === profileIdFromUrl);
+            }
+
+            if (!targetProfile && data.profiles.length > 0) {
+                targetProfile = data.profiles[0];
+            }
+
+            if (targetProfile) {
+                setSelectedProfile(targetProfile);
+                setProfile(targetProfile);
+                if (targetProfile.chartData) {
+                    setChartData(targetProfile.chartData as ChartData);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch active profiles:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         async function fetchCosts() {
@@ -379,8 +436,6 @@ export default function ChartPage() {
         fetchProfile();
     }, [status]);
 
-    const [confirmModal, setConfirmModal] = useState<{ show: boolean, chartKey: string, cost: number } | null>(null);
-    const [noCreditsModal, setNoCreditsModal] = useState(false);
 
     const handleUnlockChart = (chartKey: string) => {
         if (!profile) return;
@@ -469,23 +524,63 @@ export default function ChartPage() {
         }
     };
 
-    const handleChartGenerated = async (data: ChartData) => {
+    // Profile Management Handlers
+    const handleSelectProfile = (profileId: string) => {
+        const profile = activeProfiles.find(p => p.id === profileId);
+        if (profile) {
+            setSelectedProfile(profile);
+            setProfile(profile);
+            if (profile.chartData) {
+                setChartData(profile.chartData as ChartData);
+            }
+            // Update URL
+            router.push(`/chart?profileId=${profileId}`);
+        }
+    };
+
+    const handleAddProfile = () => {
+        if (canAddMore) {
+            setShowProfileDrawer(true);
+        } else {
+            setShowLimitModal(true);
+        }
+    };
+
+    const handleUpgradeLimit = async () => {
         try {
-            setLoading(true);
-            const res = await fetch('/api/user/profile');
+            const res = await fetch('/api/profiles/expand-limit', {
+                method: 'POST',
+            });
+
             if (res.ok) {
-                const updatedProfile = await res.json();
-                setProfile({
-                    ...updatedProfile,
-                    dateOfBirth: new Date(updatedProfile.dateOfBirth),
-                    chartData: updatedProfile.chartData as ChartData
-                });
-                setIsEditing(false);
+                await fetchActiveProfiles();
+                setShowLimitModal(false);
+                setShowProfileDrawer(true);
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to expand limit');
             }
         } catch (error) {
+            console.error('Expansion error:', error);
+            alert('Failed to expand profile limit');
+        }
+    };
+
+    const handleManageProfiles = () => {
+        setShowLimitModal(false);
+        router.push('/dashboard?section=profiles');
+    };
+
+    const handleProfileCreated = () => {
+        fetchActiveProfiles();
+        setShowProfileDrawer(false);
+    };
+
+    const handleChartGenerated = async (data: ChartData) => {
+        try {
+            await fetchActiveProfiles();
+        } catch (error) {
             console.error('Failed to refresh profile:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -616,8 +711,8 @@ export default function ChartPage() {
 
     return (
         <div className={`container ${styles.pageContainer}`}>
-            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-                <div className="text-left">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-4 gap-4">
+                <div className="text-left w-full">
                     <h1 className={styles.title}>Varga Portfolio</h1>
                     <div className={styles.subtitle}>
                         <p>Cosmic blueprint for <span className="text-[var(--primary)] font-semibold">{profile?.name}</span> • {new Date(profile!.dateOfBirth).toLocaleDateString()}</p>
@@ -652,6 +747,37 @@ export default function ChartPage() {
                         )}
                     </div>
                 </div>
+
+                {/* Profile Management UI */}
+                {activeProfiles.length > 0 && (
+                    <ProfileTabs
+                        profiles={activeProfiles}
+                        activeProfileId={selectedProfile?.id}
+                        onSelectProfile={handleSelectProfile}
+                        onAddProfile={handleAddProfile}
+                        onUpgradeLimit={() => setShowLimitModal(true)}
+                        canAddMore={canAddMore}
+                        currentCount={activeProfiles.length}
+                        maxProfiles={profileLimit}
+                    />
+                )}
+
+                <ProfileDrawer
+                    isOpen={showProfileDrawer}
+                    onClose={() => setShowProfileDrawer(false)}
+                    onSuccess={handleProfileCreated}
+                />
+
+                <ProfileLimitModal
+                    isOpen={showLimitModal}
+                    onClose={() => setShowLimitModal(false)}
+                    onUpgrade={handleUpgradeLimit}
+                    onManageProfiles={handleManageProfiles}
+                    currentCount={activeProfiles.length}
+                    maxProfiles={profileLimit}
+                    expansionCost={50}
+                />
+
                 <button onClick={() => setIsEditing(true)} className={styles.addProfileBtn}>
                     <PlusCircle size={18} />
                     Refine Birth Details

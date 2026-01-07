@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useProfile } from '@/context/ProfileContext';
 import styles from './ProfileGuard.module.css';
 
 interface ProfileGuardProps {
@@ -45,6 +46,8 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
         }
     };
 
+    const { openNewProfileModal } = useProfile();
+
     if (status === 'loading' || loading) {
         return (
             <div className={styles.loadingContainer}>
@@ -64,9 +67,9 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
                         To access this feature, you need to create your birth chart profile first.
                         This allows us to provide personalized insights based on your unique astrological data.
                     </p>
-                    <Link href="/chart" className={styles.createButton}>
+                    <button onClick={openNewProfileModal} className={styles.createButton}>
                         Create Your Profile
-                    </Link>
+                    </button>
                     <Link href="/" className={styles.homeLink}>
                         Return to Home
                     </Link>

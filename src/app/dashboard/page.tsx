@@ -8,6 +8,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { CreditCard, History, UserCircle, ChevronRight, MessageSquare, Trash2, Crown, Download, FileText, PlusCircle, Zap, Sparkles, MapPin, Clock, Trash, CheckSquare, Square, Info, Users } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { useProfile } from '@/context/ProfileContext';
 
 interface UserProfile {
     id: string;
@@ -39,7 +40,8 @@ export default function DashboardPage() {
     const [recentProfiles, setRecentProfiles] = useState<UserProfile[]>([]);
     const [recentQuestions, setRecentQuestions] = useState<UserQuestion[]>([]);
     const [recentExports, setRecentExports] = useState<any[]>([]);
-    const [recentCredits, setRecentCredits] = useState<any[]>([]); // New state
+    const [recentCredits, setRecentCredits] = useState<any[]>([]);
+    const [profileStats, setProfileStats] = useState({ active: 0, limit: 5, extra: 0 });
     const [loading, setLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
     const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
@@ -49,6 +51,7 @@ export default function DashboardPage() {
     const [selectedExports, setSelectedExports] = useState<string[]>([]);
     const [isBulkDeleting, setIsBulkDeleting] = useState(false);
     const [isExportDeleting, setIsExportDeleting] = useState(false);
+    const { openNewProfileModal } = useProfile();
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -64,12 +67,13 @@ export default function DashboardPage() {
         try {
             setLoading(true);
             // In a real app, these would be separate or combined API calls
-            const [creditsRes, profilesRes, questionsRes, exportsRes, creditHistoryRes] = await Promise.all([
+            const [creditsRes, profilesRes, questionsRes, exportsRes, creditHistoryRes, activeProfileRes] = await Promise.all([
                 fetch('/api/credits/check'),
                 fetch('/api/profiles'),
                 fetch('/api/questions'),
                 fetch('/api/user/exports'),
-                fetch('/api/credits/history') // New fetch
+                fetch('/api/credits/history'),
+                fetch('/api/profiles/active') // Fetch active profile & limit metadata
             ]);
 
             const creditsData = await creditsRes.json();
@@ -77,12 +81,21 @@ export default function DashboardPage() {
             const questionsData = await questionsRes.ok ? await questionsRes.json() : [];
             const exportsData = await exportsRes.ok ? await exportsRes.json() : [];
             const creditHistoryData = await creditHistoryRes.ok ? await creditHistoryRes.json() : [];
+            const activeData = await activeProfileRes.ok ? await activeProfileRes.json() : {};
 
             setStats({
                 credits: creditsData.totalCredits || 0,
                 profilesCount: Array.isArray(profilesData) ? profilesData.length : 0,
                 questionsCount: Array.isArray(questionsData) ? questionsData.length : 0
             });
+
+            setProfileStats({
+                active: activeData.profiles?.length || 0,
+                limit: activeData.limit || 5,
+                extra: activeData.extraSlots || 0
+            });
+
+
 
             setRecentProfiles(Array.isArray(profilesData) ? profilesData.slice(0, 100) : []); // Increased slice for dashboard
             setRecentQuestions(Array.isArray(questionsData) ? questionsData.slice(0, 5) : []);
@@ -129,7 +142,7 @@ export default function DashboardPage() {
 
     const handleBulkDelete = async () => {
         if (selectedProfiles.length === 0) return;
-        if (!confirm(`Are you sure you want to delete ${selectedProfiles.length} profiles? Only inactive profiles can be deleted in bulk.`)) return;
+        if (!confirm(`Are you sure you want to delete ${selectedProfiles.length} profiles? This action cannot be undone.`)) return;
 
         try {
             setIsBulkDeleting(true);
@@ -264,14 +277,14 @@ export default function DashboardPage() {
     if (!session) return null;
 
     return (
-        <div className={`container ${styles.profileContainer}`}>
+        <div className={styles.profileContainer}>
             <header className={styles.header}>
                 <div className={styles.userBasicInfo}>
                     <div className={styles.avatar}>
                         {session.user?.image ? (
-                            <Image src={session.user.image} alt={session.user.name || 'User'} width={64} height={64} className={styles.avatarImage} />
+                            <Image src={session.user.image} alt={session.user.name || 'User'} width={80} height={80} className={styles.avatarImage} />
                         ) : (
-                            <UserCircle size={64} />
+                            <UserCircle size={80} />
                         )}
                     </div>
                     <div>
@@ -281,16 +294,16 @@ export default function DashboardPage() {
                 </div>
                 <div className={styles.statsBar}>
                     <div className={styles.statItem}>
-                        <span className={styles.statValue}>{stats.credits}</span>
                         <span className={styles.statLabel}>Credits</span>
+                        <span className={styles.statValue}>{stats.credits}</span>
                     </div>
                     <div className={styles.statItem}>
-                        <span className={styles.statValue}>{stats.profilesCount}</span>
                         <span className={styles.statLabel}>Profiles</span>
+                        <span className={styles.statValue}>{stats.profilesCount}</span>
                     </div>
                     <div className={styles.statItem}>
-                        <span className={styles.statValue}>{stats.questionsCount}</span>
                         <span className={styles.statLabel}>Questions</span>
+                        <span className={styles.statValue}>{stats.questionsCount}</span>
                     </div>
                 </div>
             </header>
@@ -343,13 +356,36 @@ export default function DashboardPage() {
                                     <Link href="/clarity" className={styles.primaryBtn}>
                                         <Sparkles size={16} /> Ask AI Astrologer
                                     </Link>
-                                    <Link href="/chart" className={styles.secondaryBtn}>
+                                    <button onClick={openNewProfileModal} className={styles.secondaryBtn}>
                                         <PlusCircle size={16} /> New Profile
-                                    </Link>
+                                    </button>
                                 </div>
                             </section>
 
                             <div className={styles.quickStats}>
+                                <div className={styles.quickStatCard}>
+                                    <h3>Profile Usage</h3>
+                                    <div className={styles.usageContainer}>
+                                        <div className={styles.usageHeader}>
+                                            <span className={styles.usageLabel}>Active Slots</span>
+                                            <span className={styles.usageValue}>{profileStats.active} / {profileStats.limit}</span>
+                                        </div>
+                                        <div className={styles.progressBar}>
+                                            <div
+                                                className={styles.progressFill}
+                                                style={{ width: `${Math.min((profileStats.active / profileStats.limit) * 100, 100)}%` }}
+                                            />
+                                        </div>
+                                        {profileStats.extra > 0 && (
+                                            <p className={styles.usageNote}>
+                                                Includes {profileStats.extra} purchased active slot{profileStats.extra > 1 ? 's' : ''}.
+                                            </p>
+                                        )}
+                                        <Link href="/chart" className={styles.cardFooterLink}>
+                                            Manage Profiles <ChevronRight size={14} />
+                                        </Link>
+                                    </div>
+                                </div>
                                 <div className={styles.quickStatCard}>
                                     <h3>Recent Questions</h3>
                                     <div className={styles.miniList}>
@@ -360,18 +396,20 @@ export default function DashboardPage() {
                                             </Link>
                                         ))}
                                     </div>
-                                    <button onClick={() => setActiveSection('history')} className={styles.textLink}>View All</button>
+                                    <button onClick={() => setActiveSection('history')} className={styles.cardFooterLink}>
+                                        View All History <ChevronRight size={14} />
+                                    </button>
                                 </div>
                                 <div className={styles.quickStatCard}>
                                     <h3>Community</h3>
                                     <div className={styles.communityCTA}>
                                         <div className={styles.communityIcon}>
-                                            <MessageSquare size={24} color="var(--accent-gold)" />
+                                            <MessageSquare size={24} />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-stone-600 mb-2">Connect with others, share reflections, and find collective awareness.</p>
-                                            <Link href="/community" className={styles.miniLink}>
-                                                Explore Forum →
+                                            <p className={styles.communityText}>Connect with others, share reflections, and find collective awareness.</p>
+                                            <Link href="/community" className={styles.cardFooterLink}>
+                                                Explore Forum <ChevronRight size={14} />
                                             </Link>
                                         </div>
                                     </div>
@@ -395,7 +433,7 @@ export default function DashboardPage() {
                                             <Trash2 size={16} /> Delete Selected ({selectedProfiles.length})
                                         </button>
                                     )}
-                                    <Link href="/chart" className={styles.actionBtn}>New Profile</Link>
+                                    <button onClick={openNewProfileModal} className={styles.actionBtn}>New Profile</button>
                                 </div>
                             </div>
 
@@ -466,17 +504,15 @@ export default function DashboardPage() {
                                                 <Link href={`/chart?profileId=${profile.id}`} className={styles.viewLink} onClick={(e) => e.stopPropagation()}>
                                                     View Chart <ChevronRight size={16} />
                                                 </Link>
-                                                {!profile.isActive && (
-                                                    <button
-                                                        className={styles.iconDeleteBtn}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteClick(profile.id);
-                                                        }}
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                )}
+                                                <button
+                                                    className={styles.iconDeleteBtn}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteClick(profile.id);
+                                                    }}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </div>
                                         </div>
                                     ))
@@ -518,14 +554,8 @@ export default function DashboardPage() {
                                                     <tr key={tx.id}>
                                                         <td>
                                                             <div className={styles.exportTypeCell}>
-                                                                <div
-                                                                    className={styles.miniIcon}
-                                                                    style={{
-                                                                        background: tx.amount > 0 ? 'rgba(75, 181, 67, 0.1)' : 'rgba(255, 71, 71, 0.1)',
-                                                                        color: tx.amount > 0 ? '#4bb543' : '#ff4747'
-                                                                    }}
-                                                                >
-                                                                    {tx.amount > 0 ? <PlusCircle size={14} /> : <Zap size={14} />}
+                                                                <div className={`${styles.statusIcon} ${tx.amount > 0 ? styles.statusPositive : styles.statusNegative}`}>
+                                                                    {tx.amount > 0 ? <PlusCircle size={16} /> : <Zap size={16} />}
                                                                 </div>
                                                                 <span>{tx.description}</span>
                                                             </div>
@@ -533,13 +563,11 @@ export default function DashboardPage() {
                                                         <td>
                                                             <span className={styles.dateCell}>
                                                                 {new Date(tx.createdAt).toLocaleDateString()}
+                                                                <small>{new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <span
-                                                                className={styles.amountCell}
-                                                                style={{ color: tx.amount > 0 ? '#4bb543' : '#ff4747' }}
-                                                            >
+                                                            <span className={tx.amount > 0 ? styles.amountPositive : styles.amountNegative}>
                                                                 {tx.amount > 0 ? '+' : ''}{tx.amount}
                                                             </span>
                                                         </td>

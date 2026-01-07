@@ -1,23 +1,17 @@
 import SwissEph from 'swisseph-wasm';
 
-// Simple Mutex for WASM concurrency control
-class Mutex {
-    private mutex = Promise.resolve();
+// Queue for serializing WASM calls
+let calculationQueue = Promise.resolve();
 
-    async lock(): Promise<() => void> {
-        let resolve: () => void;
-        const promise = new Promise<void>(res => {
-            resolve = res;
-        });
-
-        const oldMutex = this.mutex;
-        this.mutex = oldMutex.then(() => promise);
-
-        await oldMutex;
-        return resolve!;
-    }
+function serializeCalculation<T>(fn: () => Promise<T>): Promise<T> {
+    const result = calculationQueue.then(() => fn().catch(error => {
+        console.error("Calculation error in queue:", error);
+        throw error;
+    }));
+    // Append catch to queue to prevent blocking subsequent calls on failure
+    calculationQueue = result.catch(() => { });
+    return result;
 }
-const calcMutex = new Mutex();
 
 // Singleton instance to avoid re-initializing WASM
 let sweInstance: SwissEph | null = null;
@@ -394,8 +388,7 @@ export async function calculateChart(
     lng: number,
     timezone: number = 5.5 // Default to IST (India)
 ): Promise<ChartData> {
-    const unlock = await calcMutex.lock();
-    try {
+    return serializeCalculation(async () => {
         const swe = await getSwe();
         if (typeof swe.calc_ut !== 'function') throw new Error('SwissEph instance not properly initialized: calc_ut missing');
 
@@ -558,9 +551,7 @@ export async function calculateChart(
             vargas: divisionsData,
             dashas: dashas
         };
-    } finally {
-        unlock();
-    }
+    });
 }
 
 export const NAKSHATRAS = [

@@ -13,7 +13,8 @@ export async function GET(req: NextRequest) {
         const KNOWN_SERVICES = [
             'CHART_D2', 'CHART_D3', 'CHART_D4', 'CHART_D5', 'CHART_D6',
             'CHART_D7', 'CHART_D8', 'CHART_D10', 'CHART_D12', 'CHART_D16',
-            'CHART_D20', 'CHART_D24', 'CHART_D27', 'CHART_D30'
+            'CHART_D20', 'CHART_D24', 'CHART_D27', 'CHART_D30',
+            'EXPAND_PROFILE_LIMIT'
         ];
 
         for (const key of KNOWN_SERVICES) {

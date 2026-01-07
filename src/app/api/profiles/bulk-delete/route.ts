@@ -42,7 +42,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check if any of them are active
+        // REMOVED: Restriction on bulk deleting active profiles as per user request
+        /*
         const hasActive = (profiles as any[]).some(p => p.isActive);
         if (hasActive) {
             return NextResponse.json(
@@ -50,13 +51,13 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             );
         }
+        */
 
         // Delete the profiles
         const deleteResult = await prisma.profile.deleteMany({
             where: {
                 id: { in: ids },
                 userId: session.user.id,
-                isActive: false, // Double safety
             } as any,
         });
 

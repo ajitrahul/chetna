@@ -32,6 +32,7 @@ model User {
   creditHistory CreditTransaction[]
   topics        Topic[]
   posts         Post[]
+  profileLimits UserProfileLimit[]
 }
 
 // OAuth account info (for NextAuth)
@@ -269,4 +270,15 @@ model BlogPost {
   content   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// User Profile Limit for extra profile slots
+model UserProfileLimit {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  extraSlots  Int      @default(0)  // Number of purchased additional slots
+  purchasedAt DateTime @default(now())
+  
+  @@index([userId])
 }

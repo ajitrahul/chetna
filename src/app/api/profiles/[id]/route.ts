@@ -37,13 +37,13 @@ export async function DELETE(
             );
         }
 
-        // CRITICAL: Ensure the profile is not active
-        if (profile.isActive) {
+        /* REMOVED: Restriction on deleting active profiles as per user request */
+        /* if (profile.isActive) {
             return NextResponse.json(
                 { error: 'Cannot delete the active profile' },
                 { status: 400 }
             );
-        }
+        } */
 
         // Delete the profile
         await prisma.profile.delete({
