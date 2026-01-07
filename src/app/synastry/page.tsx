@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import styles from './page.module.css';
-import ProfileManager, { UserProfile } from '@/components/ProfileManager';
+import ProfileSelector from '@/components/ProfileSelector';
+import { UserProfile } from '@/components/BirthDataForm';
 
 export default function SynastryPage() {
     const [personA, setPersonA] = useState<UserProfile | null>(null);
@@ -58,7 +59,7 @@ export default function SynastryPage() {
                     ) : (
                         <div className={styles.emptyState}>
                             <p>Select a profile</p>
-                            <ProfileManager onSelectProfile={setPersonA} />
+                            <ProfileSelector onSelect={setPersonA} />
                         </div>
                     )}
                 </div>
@@ -75,7 +76,7 @@ export default function SynastryPage() {
                     ) : (
                         <div className={styles.emptyState}>
                             <p>Select a profile</p>
-                            <ProfileManager onSelectProfile={setPersonB} />
+                            <ProfileSelector onSelect={setPersonB} />
                         </div>
                     )}
                 </div>

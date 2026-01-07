@@ -1,7 +1,7 @@
 import SwissEph from 'swisseph-wasm';
 
 // Queue for serializing WASM calls
-let calculationQueue = Promise.resolve();
+let calculationQueue: Promise<any> = Promise.resolve();
 
 function serializeCalculation<T>(fn: () => Promise<T>): Promise<T> {
     const result = calculationQueue.then(() => fn().catch(error => {
