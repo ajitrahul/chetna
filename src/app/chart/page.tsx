@@ -1,6 +1,7 @@
 
 import { Suspense } from 'react';
-import ChartPageContent from '@/components/ChartPageContent';
+import dynamic from 'next/dynamic';
+const ChartPageContent = dynamic(() => import('@/components/ChartPageContent'), { ssr: false });
 
 export default function ChartPage() {
     return (
