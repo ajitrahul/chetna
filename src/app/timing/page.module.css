@@ -201,6 +201,180 @@
     cursor: pointer;
 }
 
+.profileTabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.profileTab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(var(--foreground-rgb), 0.05);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profileTab:hover {
+    background: rgba(var(--foreground-rgb), 0.1);
+    color: var(--primary);
+}
+
+.activeTab {
+    background: var(--accent-gold);
+    border-color: var(--accent-gold);
+    color: black;
+}
+
+.activeTab:hover {
+    background: var(--accent-gold);
+    color: black;
+    opacity: 0.9;
+}
+
+.selectedInfo {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    opacity: 0.8;
+}
+
+.aiRevealBtn {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--accent-gold), #ffd700);
+    color: black;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.aiRevealBtn:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3);
+}
+
+.aiRevealBtn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+}
+
+.aiInsightSection {
+    margin-bottom: 60px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.aiCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+}
+
+.aiCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-gold);
+}
+
+.aiCardHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--accent-gold);
+    margin-bottom: 24px;
+}
+
+.aiCardHeader h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    letter-spacing: 0.02em;
+}
+
+.aiContent {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text-main);
+    opacity: 0.95;
+    font-weight: 400;
+}
+
+.aiGridSmall {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.aiCardMini {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+}
+
+.aiCardHeaderMini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent-gold);
+    margin-bottom: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+}
+
+.aiCardHeaderMini h4 {
+    margin: 0;
+}
+
+.aiCardMini p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--secondary);
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 40px 16px;
@@ -216,5 +390,13 @@
 
     .timelineList {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .aiGridSmall {
+        grid-template-columns: 1fr;
+    }
+
+    .aiCard {
+        padding: 24px;
     }
 }

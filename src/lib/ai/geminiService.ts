@@ -137,6 +137,52 @@ export interface JournalAnalysis {
     growthSuggestion: string;
 }
 
+export interface TimingInsight {
+    phaseFlavor: string;
+    opportunityArea: string;
+    awarenessPractice: string;
+}
+
+/**
+ * 1. TIMING (DASHA) INSIGHT
+ */
+export async function generateTimingInsight(
+    chartData: ChartData,
+    currentDasha: { lord: string, start: string, end: string }
+): Promise<TimingInsight> {
+    const sanitizedChart = sanitizeChartData(chartData);
+    const analysis = VedicAnalysisEngine.analyze(chartData);
+
+    const prompt = `You are a Vedantic Sage. Provide a deeply personal "Cosmic Weather" report for the user's current life phase.
+    "Awareness, not prediction".
+    
+    CURRENT PHASE: ${currentDasha.lord} Mahadasha
+    TIME RANGE: ${currentDasha.start} to ${currentDasha.end}
+    
+    USER CHART: ${JSON.stringify(sanitizedChart, null, 2)}
+    PERSONALIZED ANALYSIS: ${JSON.stringify(analysis, null, 2)}
+    
+    TASK:
+    Generate 3 specific sections based on how ${currentDasha.lord} behaves in THEIR specific chart (house, sign, nakshatra, and functional role).
+    
+    1. PHASE_FLAVOR: A 100-word poetic yet practical description of the current energy. How is ${currentDasha.lord} specifically affecting their consciousness right now?
+    2. OPPORTUNITY: One specific area of life where they have the most 'celestial tailwind' to act right now.
+    3. AWARENESS_PRACTICE: A micro-habit or reflective question tailored to this specific planetary transit.
+    
+    Return with headers PHASE_FLAVOR:, OPPORTUNITY:, AWARENESS_PRACTICE:. Keep it under 250 words total. Avoid boilerplate.`;
+
+    try {
+        const text = await callAI(prompt, 'CLARITY');
+        return {
+            phaseFlavor: extractSection(text, 'PHASE_FLAVOR:', 'OPPORTUNITY') || "A period of internal refinement.",
+            opportunityArea: extractSection(text, 'OPPORTUNITY:', 'AWARENESS_PRACTICE') || "Focus on personal growth.",
+            awarenessPractice: extractSection(text, 'AWARENESS_PRACTICE:') || "Practice mindful observation."
+        };
+    } catch (error) {
+        throw new Error('Failed to generate timing insight');
+    }
+}
+
 /**
  * 1. JOURNAL ANALYSIS
  */

@@ -33,7 +33,7 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
             const res = await fetch('/api/profiles/active');
             const data = await res.json();
 
-            if (res.ok && data && !data.error) {
+            if (res.ok && data?.profiles?.length > 0) {
                 setHasActiveProfile(true);
             } else {
                 setHasActiveProfile(false);

@@ -155,8 +155,8 @@ export default function AboutPage() {
                         We'd love to hear from you! Whether you have questions, feedback, or just want to share your experience, reach out:
                     </p>
                     <ul>
-                        <li>Email: <a href="mailto:hello@chetna.com">hello@chetna.com</a></li>
-                        <li>Support: <a href="mailto:support@chetna.com">support@chetna.com</a></li>
+                        <li>Email: <a href="mailto:hello@chetna.ai">hello@chetna.ai</a></li>
+                        <li>Support: <a href="mailto:hello@chetna.ai">hello@chetna.ai</a></li>
                         <li>Instagram: <a href="#">@chetna.astrology</a></li>
                         <li>YouTube: <a href="#">Chetna Insights</a></li>
                     </ul>

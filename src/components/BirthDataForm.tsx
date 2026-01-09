@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { ChartData } from '@/lib/astrology/calculator';
 import { INDIAN_CITIES } from '@/lib/indianCities';
 import ConfirmDialog from './ConfirmDialog';
+import { useProfile } from '@/context/ProfileContext';
 import styles from './BirthDataForm.module.css';
 
 interface BirthDataFormProps {
@@ -29,6 +30,7 @@ export type UserProfile = {
 
 export default function BirthDataForm({ onChartGenerated, initialData }: BirthDataFormProps) {
     const { data: session } = useSession();
+    const { profileData } = useProfile();
 
     // Parse initial date if present
     const parseDate = (d: string | Date | undefined) => {
@@ -119,8 +121,10 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
             fetch('/api/profiles/active')
                 .then(res => res.json())
                 .then(data => {
-                    if (data && !data.error) {
-                        setActiveProfile(data);
+                    if (data && data.profiles && data.profiles.length > 0) {
+                        setActiveProfile(data.profiles[0]);
+                    } else {
+                        setActiveProfile(null);
                     }
                 })
                 .catch(err => console.error('Failed to fetch active profile:', err));
@@ -372,7 +376,7 @@ TOB: ${formData.tob || (formData.unknownTime ? 'Unknown' : '12:00')}
 Gender: ${formData.gender}
 Place: ${formData.pob}
 
-${activeProfile ? `Saving this will disable your current active profile ("${activeProfile.name}").` : ''}
+${activeProfile && profileData && !profileData.canAddMore ? `Saving this will deactivate your oldest active profile ("${activeProfile.name}") as you have reached your limit.` : ''}
 
 Are you sure you want to proceed?`}
                 confirmText="Yes, Save Profile"

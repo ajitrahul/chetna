@@ -15,7 +15,7 @@ export default function Footer() {
                         An awareness-first astrology platform designed to support reflection, understanding, and conscious decision-making.
                     </p>
                     <div className={styles.socialLinks}>
-                        <a href="mailto:hello@chetna.app" className={styles.socialIcon} aria-label="Email">
+                        <a href="mailto:hello@chetna.ai" className={styles.socialIcon} aria-label="Email">
                             <Mail size={18} />
                         </a>
                         <a href="#" className={styles.socialIcon} aria-label="YouTube">
@@ -39,8 +39,8 @@ export default function Footer() {
                         <li><Link href="/chart">Your Chart</Link></li>
                         <li><Link href="/timing">Timing & Phases</Link></li>
                         <li><Link href="/synastry">Synastry</Link></li>
-                        <li><Link href="/blog">Blogs</Link></li>
-                        <li><Link href="/clarity">Get Clarity</Link></li>
+                        <li><Link href="/blog">Wisdom Blog</Link></li>
+                        <li><Link href="/clarity">Ask AI</Link></li>
                     </ul>
                 </div>
 

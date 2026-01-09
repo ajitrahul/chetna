@@ -350,7 +350,7 @@ export default function DashboardPage() {
                     {activeSection === 'overview' && (
                         <div className={styles.overviewGrid}>
                             <section className={styles.heroSection}>
-                                <h2>Welcome back, {session.user?.name?.split(' ')[0]}</h2>
+                                <h2>Welcome back, {session.user?.name?.split(' ')[0] || 'Friend'}</h2>
                                 <p>You have {stats.credits} clarity credits available. Need deeper insights?</p>
                                 <div className={styles.heroActions}>
                                     <Link href="/clarity" className={styles.primaryBtn}>

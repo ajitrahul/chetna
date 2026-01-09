@@ -56,9 +56,9 @@ export default function PanchangWidget() {
     if (setupRequired) {
         return (
             <div className={styles.container}>
-                <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <p className="text-[var(--secondary)] mb-2">Location Required</p>
-                    <a href="/chart" className="text-sm underline text-[var(--primary)] font-medium">
+                <div className={styles.setupRequired}>
+                    <p className={styles.setupTitle}>Location Required</p>
+                    <a href="/chart" className={styles.setupLink}>
                         Set up your profile to see daily energy
                     </a>
                 </div>

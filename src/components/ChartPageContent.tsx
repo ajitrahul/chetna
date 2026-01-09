@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BirthDataForm, { UserProfile } from '@/components/BirthDataForm';
@@ -22,7 +24,7 @@ import styles from './ChartPageContent.module.css';
 import { useSession } from 'next-auth/react';
 import { useProfile } from '@/context/ProfileContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { PlusCircle, ArrowLeft, Lock, Info, CheckCircle, Sparkles, Zap, Loader2, Download, Clock, Compass } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Lock, Info, CheckCircle, Sparkles, Zap, Loader2, Download, Clock, Compass, Copy, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const VARGA_DEFINITIONS: Record<string, { title: string, definition: string, tips: string }> = {
@@ -765,6 +767,14 @@ export default function ChartPageContent() {
                     <PlusCircle size={18} />
                     Refine Birth Details
                 </button>
+
+                <Link
+                    href={`/timing?profileId=${selectedProfile?.id}`}
+                    className={styles.addProfileBtn}
+                >
+                    <Clock size={18} />
+                    View Timeline
+                </Link>
             </div>
 
             {!hasVargas && (

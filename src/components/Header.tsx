@@ -55,19 +55,18 @@ export default function Header() {
             {status === 'authenticated' ? (
               <>
                 <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.activeLink : ''}`}>Home</Link>
-                <Link href="/chart" className={`${styles.navLink} ${pathname === '/chart' ? styles.activeLink : ''}`}>Chart</Link>
-                <Link href="/timing" className={`${styles.navLink} ${pathname === '/timing' ? styles.activeLink : ''}`}>Timeline</Link>
-                <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Get Clarity</Link>
-                <Link href="/synastry" className={`${styles.navLink} ${pathname === '/synastry' ? styles.activeLink : ''}`}>Synastry</Link>
-                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Blogs</Link>
+                <Link href="/chart" className={`${styles.navLink} ${pathname === '/chart' ? styles.activeLink : ''}`}>Birth Chart</Link>
+                <Link href="/timing" className={`${styles.navLink} ${pathname === '/timing' ? styles.activeLink : ''}`}>Timing & Seasons</Link>
+                <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Ask AI</Link>
+                <Link href="/synastry" className={`${styles.navLink} ${pathname === '/synastry' ? styles.activeLink : ''}`}>Relationships</Link>
+                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Wisdom Blog</Link>
                 <Link href="/pricing" className={`${styles.navLink} ${pathname === '/pricing' ? styles.activeLink : ''}`}>Credit</Link>
               </>
             ) : (
               <>
                 <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.activeLink : ''}`}>Home</Link>
                 <Link href="/about" className={`${styles.navLink} ${pathname === '/about' ? styles.activeLink : ''}`}>About</Link>
-                <Link href="/#how-it-works" className={styles.navLink}>How it Works</Link>
-                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Blogs</Link>
+                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Wisdom Blog</Link>
                 <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Ask for Clarity</Link>
               </>
             )}
@@ -131,19 +130,25 @@ export default function Header() {
                         <Sparkles size={20} /> Home
                       </Link>
                       <Link href="/chart" className={`${styles.mobileNavLink} ${pathname === '/chart' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <CreditCard size={20} /> Chart Analysis
+                        <CreditCard size={20} /> Birth Chart
                       </Link>
                       <Link href="/timing" className={`${styles.mobileNavLink} ${pathname === '/timing' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <Info size={20} /> Timeline
+                        <Info size={20} /> Timing & Seasons
+                      </Link>
+                      <Link href="/clarity" className={`${styles.mobileNavLink} ${pathname === '/clarity' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <MessageSquare size={20} /> Ask AI
+                      </Link>
+                      <Link href="/synastry" className={`${styles.mobileNavLink} ${pathname === '/synastry' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <Users size={20} /> Relationships
+                      </Link>
+                      <Link href="/blog" className={`${styles.mobileNavLink} ${pathname === '/blog' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <BookOpen size={20} /> Wisdom Blog
+                      </Link>
+                      <Link href="/pricing" className={`${styles.mobileNavLink} ${pathname === '/pricing' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <CreditCard size={20} /> Credits
                       </Link>
                       <Link href="/dashboard" className={`${styles.mobileNavLink} ${pathname === '/dashboard' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <LayoutDashboard size={20} /> Dashboard
-                      </Link>
-                      <Link href="/clarity" className={`${styles.mobileNavLink} ${pathname === '/clarity' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <MessageSquare size={20} /> Get Clarity
-                      </Link>
-                      <Link href="/synastry" className={`${styles.mobileNavLink} ${pathname === '/synastry' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <Users size={20} /> Synastry
                       </Link>
                     </>
                   ) : (
@@ -151,6 +156,7 @@ export default function Header() {
                       <Link href="/" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
                       <Link href="/about" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>About Us</Link>
                       <Link href="/blog" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Wisdom Blog</Link>
+                      <Link href="/clarity" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Ask for Clarity</Link>
                     </>
                   )}
                 </nav>

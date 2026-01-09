@@ -15,7 +15,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    z-index: 9997;
+    z-index: 500;
     animation: pulse 2s infinite;
 }
 

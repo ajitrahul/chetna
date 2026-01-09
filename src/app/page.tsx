@@ -24,7 +24,7 @@ export default function Home() {
             <div className={styles.dashboardHeader}>
               <div>
                 <h1 className={styles.welcomeText}>
-                  Welcome back, <span className={styles.userName}>{session?.user?.name?.split(' ')[0]}</span>
+                  Welcome back, <span className={styles.userName}>{session?.user?.name?.split(' ')[0] || 'Friend'}</span>
                 </h1>
                 <p className={styles.dashboardSubtitle}>
                   Observe your patterns and act with awareness today.
