@@ -117,7 +117,8 @@ export class VedicAnalysisEngine {
             const repetitionCause = nakData.name;
             const nakshatra = nakData.name;
             const nakshatraLord = nakData.lord;
-            const nakshatraPada = Math.floor((pos.longitude % (30 / 9)) / (30 / 36)) + 1; // Simplistic pada calc
+            const nakshatraSize = 360 / 27;
+            const nakshatraPada = Math.floor((pos.longitude % nakshatraSize) / (nakshatraSize / 4)) + 1;
             const preciseDegree = (pos.longitude % 30).toFixed(2);
 
             // 10. Synthesis
