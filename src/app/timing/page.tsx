@@ -1,7 +1,7 @@
+'use client';
 
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
-const TimingPageContent = dynamic(() => import('@/components/TimingPageContent'), { ssr: false });
+import TimingPageContent from '@/components/TimingPageContent';
 import styles from './page.module.css';
 
 export default function TimingPage() {

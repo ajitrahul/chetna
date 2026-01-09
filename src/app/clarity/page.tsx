@@ -1,8 +1,7 @@
+'use client';
 
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
-
-const ClarityPageContent = dynamic(() => import('@/components/ClarityPageContent'), { ssr: false });
+import ClarityPageContent from '@/components/ClarityPageContent';
 
 export default function ClarityPage() {
     return (
