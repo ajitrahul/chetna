@@ -24,7 +24,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
     const fetchProfileData = async () => {
         try {
-            const res = await fetch('/api/profiles/active');
+            const res = await fetch('/api/profiles/active', { cache: 'no-store' });
             const data = await res.json();
             if (!data.error) {
                 setProfileData(data);

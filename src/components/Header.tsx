@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Header.module.css';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, CreditCard, LayoutDashboard, Settings, LogOut, Info, BookOpen, MessageSquare, Sparkles, Users } from 'lucide-react';
 
 export default function Header() {
   const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   // Close menu when resizing to desktop
   useEffect(() => {
@@ -34,28 +37,38 @@ export default function Header() {
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
         >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isMenuOpen ? 'close' : 'open'}
+              initial={{ opacity: 0, rotate: -90 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: 90 }}
+              transition={{ duration: 0.2 }}
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </motion.div>
+          </AnimatePresence>
         </button>
 
-        <div className={`${styles.rightSection} ${isMenuOpen ? styles.menuOpen : ''}`}>
+        <div className={styles.desktopNav}>
           <nav className={styles.navLinks}>
             {status === 'authenticated' ? (
               <>
-                <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
-                <Link href="/chart" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Chart</Link>
-                <Link href="/timing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Timeline</Link>
-                <Link href="/clarity" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Get Clarity</Link>
-                <Link href="/synastry" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Synastry</Link>
-                <Link href="/blog" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Blogs</Link>
-                <Link href="/pricing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Credit</Link>
+                <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.activeLink : ''}`}>Home</Link>
+                <Link href="/chart" className={`${styles.navLink} ${pathname === '/chart' ? styles.activeLink : ''}`}>Chart</Link>
+                <Link href="/timing" className={`${styles.navLink} ${pathname === '/timing' ? styles.activeLink : ''}`}>Timeline</Link>
+                <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Get Clarity</Link>
+                <Link href="/synastry" className={`${styles.navLink} ${pathname === '/synastry' ? styles.activeLink : ''}`}>Synastry</Link>
+                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Blogs</Link>
+                <Link href="/pricing" className={`${styles.navLink} ${pathname === '/pricing' ? styles.activeLink : ''}`}>Credit</Link>
               </>
             ) : (
               <>
-                <Link href="/" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
-                <Link href="/about" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>About</Link>
-                <Link href="/#how-it-works" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>How it Works</Link>
-                <Link href="/blog" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Blogs</Link>
-                <Link href="/clarity" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>Ask for Clarity</Link>
+                <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.activeLink : ''}`}>Home</Link>
+                <Link href="/about" className={`${styles.navLink} ${pathname === '/about' ? styles.activeLink : ''}`}>About</Link>
+                <Link href="/#how-it-works" className={styles.navLink}>How it Works</Link>
+                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Blogs</Link>
+                <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Ask for Clarity</Link>
               </>
             )}
           </nav>
@@ -64,47 +77,113 @@ export default function Header() {
             <ThemeToggle />
             {status === 'authenticated' ? (
               <div className={styles.authGroup}>
-                <button
-                  className={styles.testBtn}
-                  onClick={async () => {
-                    setIsMenuOpen(false);
-                    try {
-                      const res = await fetch('/api/credits/add-test', { method: 'POST' });
-                      if (res.ok) {
-                        alert('10 test credits added!');
-                        window.location.reload();
-                      }
-                    } catch (err) {
-                      console.error('Failed to add credits:', err);
-                    }
-                  }}
-                >
-                  + Credits (Test)
-                </button>
-                <Link href="/dashboard" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.activeLink : ''}`}>
                   Dashboard
                 </Link>
                 {/* Admin Link */}
                 {session?.user?.isAdmin && (
-                  <Link href="/admin" className={styles.navLink} style={{ color: '#D4AF37' }} onClick={() => setIsMenuOpen(false)}>
-                    Admin Control
+                  <Link href="/admin" className={`${styles.navLink} ${styles.adminLink} ${pathname === '/admin' ? styles.activeLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                    Admin
                   </Link>
                 )}
                 <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    signOut({ callbackUrl: '/' });
-                  }}
+                  onClick={() => signOut({ callbackUrl: '/' })}
                   className={styles.signOutBtn}
                 >
-                  Sign Out
+                  <LogOut size={16} />
                 </button>
               </div>
             ) : (
-              <Link href="/login" className={styles.loginBtn} onClick={() => setIsMenuOpen(false)}>Sign In</Link>
+              <Link href="/login" className={styles.loginBtn}>Sign In</Link>
             )}
           </div>
         </div>
+
+        {/* Mobile Menu Portal-like Drawer */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <>
+              <motion.div
+                className={styles.mobileBackdrop}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMenuOpen(false)}
+              />
+              <motion.div
+                className={styles.mobileMenu}
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              >
+                <div className={styles.mobileMenuHeader}>
+                  <Logo width={120} height={40} />
+                  <button onClick={() => setIsMenuOpen(false)} className={styles.closeBtn}>
+                    <X size={24} />
+                  </button>
+                </div>
+
+                <nav className={styles.mobileNavLinks}>
+                  {status === 'authenticated' ? (
+                    <>
+                      <Link href="/" className={`${styles.mobileNavLink} ${pathname === '/' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <Sparkles size={20} /> Home
+                      </Link>
+                      <Link href="/chart" className={`${styles.mobileNavLink} ${pathname === '/chart' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <CreditCard size={20} /> Chart Analysis
+                      </Link>
+                      <Link href="/timing" className={`${styles.mobileNavLink} ${pathname === '/timing' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <Info size={20} /> Timeline
+                      </Link>
+                      <Link href="/dashboard" className={`${styles.mobileNavLink} ${pathname === '/dashboard' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <LayoutDashboard size={20} /> Dashboard
+                      </Link>
+                      <Link href="/clarity" className={`${styles.mobileNavLink} ${pathname === '/clarity' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <MessageSquare size={20} /> Get Clarity
+                      </Link>
+                      <Link href="/synastry" className={`${styles.mobileNavLink} ${pathname === '/synastry' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <Users size={20} /> Synastry
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
+                      <Link href="/about" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>About Us</Link>
+                      <Link href="/blog" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Wisdom Blog</Link>
+                    </>
+                  )}
+                </nav>
+
+                <div className={styles.mobileActions}>
+                  <div className={styles.mobileSeparator} />
+                  <div className={styles.mobileRow}>
+                    <span>Appearance</span>
+                    <ThemeToggle />
+                  </div>
+                  {status === 'authenticated' ? (
+                    <>
+                      <button
+                        className={styles.mobileSignOut}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          signOut({ callbackUrl: '/' });
+                        }}
+                      >
+                        <LogOut size={20} /> Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <Link href="/login" className={styles.mobileLoginBtn} onClick={() => setIsMenuOpen(false)}>
+                      Sign In to Chetna
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
       </div>
     </header>
   );

@@ -1337,3 +1337,110 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+/* AI Insights & Detailed Analysis */
+.detailedAnalysisHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+}
+
+.detailedAnalysisTitle {
+    font-size: 1.75rem;
+    font-family: var(--font-heading);
+    color: var(--accent-gold);
+    margin: 0;
+}
+
+.aiReflecting {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--accent-gold);
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.insightCardGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.insightCard {
+    padding: 32px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.insightCard:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.insightHeader {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.insightTitle {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+}
+
+.insightSeparator {
+    color: var(--foreground);
+    opacity: 0.5;
+    font-size: 1.5rem;
+}
+
+.insightSubtitle {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.insightContent {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--foreground);
+    opacity: 0.9;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.planetLabel {
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.degreeLabel {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+
+    .insightTitle,
+    .insightSubtitle {
+        font-size: 1.5rem;
+    }
+
+    .insightCard {
+        padding: 24px;
+    }
+}

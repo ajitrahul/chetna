@@ -1,0 +1,256 @@
+Below is a clean, backend-ready “chronological analysis framework” you can directly implement.
+I’ll give you:
+
+Conceptual architecture (how the engine should think)
+
+Strict analysis order (immutable)
+
+Data model (tables / JSON schema)
+
+Planet evaluation algorithm (pseudo-code)
+
+Reusable scoring + narrative hooks
+
+Why this works across all divisional charts
+
+No fluff. This is production-grade logic.
+
+1️⃣ CORE DESIGN PRINCIPLE (IMPORTANT)
+
+The engine must NEVER jump to prediction.
+It must only evaluate status, load, behaviour, and awareness need.
+
+So we separate:
+
+WHAT the planet is
+
+WHERE it acts
+
+HOW it behaves
+
+WHY it repeats
+
+WHAT SUPPORT IS REQUIRED
+
+2️⃣ IMMUTABLE CHRONOLOGY (APPLIES TO ALL CHARTS)
+
+This order must not change whether D1, D9, D10, etc.
+
+Planet → Functional Role → House → Sign → Dignity
+→ Associations → Aspects → Load → Nakshatra → Synthesis
+
+
+If you break this order, interpretations become noisy.
+
+3️⃣ DATA MODEL (BACKEND STRUCTURE)
+🔹 PLANET MASTER TABLE
+Planet {
+  id,
+  name,
+  natural_nature,        // benefic, malefic, neutral, shadow
+  core_themes[],         // action, mind, discipline, etc
+  natural_strengths[],
+  natural_challenges[]
+}
+
+🔹 SIGN MASTER TABLE
+Sign {
+  id,
+  name,
+  element,               // fire, earth, air, water
+  modality,              // cardinal, fixed, mutable
+  ruler,
+  emotional_tone,        // stable, intense, adaptable
+  supports[],            // planets supported
+  challenges[]           // planets strained
+}
+
+🔹 HOUSE MASTER TABLE
+House {
+  id,
+  domain,                // effort, marriage, gains, etc
+  category,              // kendra, trikona, dusthana, upachaya
+  behaviour_theme,       // struggle, repetition, growth
+  requires_effort        // true/false
+}
+
+🔹 PLANET PLACEMENT OBJECT
+PlanetPlacement {
+  planet_id,
+  house_id,
+  sign_id,
+  degree,
+  nakshatra_id,
+  is_combust,
+  is_retrograde,
+  is_eclipsed
+}
+
+🔹 FUNCTIONAL LORDSHIP MAP (PER CHART)
+FunctionalLordship {
+  ascendant,
+  planet_id,
+  houses_ruled[],
+  functional_nature       // benefic / malefic / mixed
+}
+
+4️⃣ PLANET ANALYSIS ENGINE (PSEUDO-CODE)
+
+This is the heart of your system.
+
+function analysePlanet(planetPlacement, chartType):
+
+    result = {}
+
+    // STEP 1: Planet Identity
+    result.core_theme = getPlanetCoreTheme(planetPlacement.planet)
+
+    // STEP 2: Functional Role
+    result.functional_role = getFunctionalLordship(
+        planetPlacement.planet,
+        chartType.ascendant
+    )
+
+    // STEP 3: House Placement
+    result.behaviour_zone = getHouseTheme(planetPlacement.house)
+
+    // STEP 4: Sign Placement
+    result.emotional_tone = getSignEmotionalTone(planetPlacement.sign)
+
+    // STEP 5: Dignity
+    result.dignity = evaluateDignity(
+        planetPlacement.planet,
+        planetPlacement.sign,
+        planetPlacement.degree,
+        planetPlacement.is_combust,
+        planetPlacement.is_retrograde
+    )
+
+    // STEP 6: Associations
+    result.influences = analyseConjunctions(
+        planetPlacement,
+        chartType.planets
+    )
+
+    // STEP 7: Aspects
+    result.pressures = analyseAspects(
+        planetPlacement,
+        chartType.planets
+    )
+
+    // STEP 8: Load Calculation
+    result.load = calculatePlanetLoad(
+        planetPlacement.planet,
+        chartType
+    )
+
+    // STEP 9: Nakshatra Compulsion
+    result.repetition_cause = getNakshatraTheme(
+        planetPlacement.nakshatra
+    )
+
+    // STEP 10: Synthesis
+    result.summary = synthesiseInsight(result)
+
+    return result
+
+5️⃣ LOAD CALCULATION (VERY IMPORTANT & RARELY DONE)
+
+This is where your platform becomes different.
+
+function calculatePlanetLoad(planet, chart):
+
+    load = 0
+
+    load += numberOfHousesRuled(planet)
+    load += numberOfPlanetsConjunct(planet)
+    load += numberOfPlanetsAspecting(planet)
+
+    if planet.isFunctionalMalefic:
+        load += 1
+
+    return classifyLoad(load)
+
+function classifyLoad(load):
+    if load <= 2: return "Under-utilised"
+    if load <= 4: return "Balanced"
+    if load <= 6: return "Overloaded"
+    else: return "Highly Pressured"
+
+
+This directly feeds burnout, silence, repetition themes.
+
+6️⃣ DIGNITY EVALUATION LOGIC (NON-SUPERFICIAL)
+function evaluateDignity(planet, sign, degree, combust, retro):
+
+    dignityScore = 0
+
+    if isExalted(planet, sign): dignityScore += 2
+    if isOwnSign(planet, sign): dignityScore += 1
+    if isEnemySign(planet, sign): dignityScore -= 1
+    if isDebilitated(planet, sign): dignityScore -= 2
+
+    if combust: dignityScore -= 1
+    if retro: dignityScore -= 0.5
+
+    return dignityScore
+
+
+⚠️ Never label dignity as good/bad in frontend.
+Convert to:
+
+“High delivery capacity”
+
+“Requires conscious handling”
+
+7️⃣ UNIVERSAL SYNTHESIS FORMAT (FRONTEND SAFE)
+
+Every planet output must follow this structure:
+
+{
+  "theme": "Action & assertion",
+  "acts_in": "Effort & communication",
+  "feels_like": "Controlled, serious",
+  "strength": "High but pressured",
+  "challenge": "Over-effort without emotional release",
+  "repeats_when": "Validation is missing",
+  "balances_with": "Early expression & pacing"
+}
+
+
+This makes:
+
+D1 = personality awareness
+
+D9 = relationship awareness
+
+D10 = work behaviour awareness
+
+Same engine. Different context.
+
+8️⃣ WHY THIS WORKS FOR ALL DIVISIONAL CHARTS
+
+Because:
+
+House meaning changes, but behaviour logic doesn’t
+
+Planet psychology remains constant
+
+Sign emotional tone remains constant
+
+Only the life area (house) shifts
+
+So:
+
+D1 → “How I behave”
+
+D9 → “How I bond”
+
+D10 → “How I perform”
+
+Same engine. Different lens.
+
+🧭 CHETNA CORE RULE (WRITE THIS IN CODE COMMENTS)
+// Astrology engine principle:
+// Do not predict events.
+// Identify patterns, load, repetition, and awareness gaps.

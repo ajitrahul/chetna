@@ -6,7 +6,8 @@
     height: 60px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--accent-gold), #ffc107);
-    color: white;
+    color: #1a1a1a;
+    /* Improved contrast */
     border: none;
     box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
     cursor: pointer;

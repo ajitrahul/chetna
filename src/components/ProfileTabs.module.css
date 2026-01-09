@@ -64,11 +64,13 @@
 .tab.active {
     background: var(--accent-gold);
     border-color: var(--accent-gold);
-    color: white;
+    color: #1a1a1a;
+    /* Dark text for better contrast on gold */
+    font-weight: 600;
 }
 
 .tab.active .tabDate {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(26, 26, 26, 0.8);
 }
 
 .tabName {

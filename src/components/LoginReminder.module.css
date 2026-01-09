@@ -74,7 +74,8 @@
     justify-content: center;
     gap: 10px;
     background: var(--accent-gold);
-    color: black;
+    color: #1a1a1a;
+    /* Improved contrast / Consistency */
     border: none;
     border-radius: 8px;
     padding: 12px;

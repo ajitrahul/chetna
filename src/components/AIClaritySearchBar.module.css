@@ -52,7 +52,8 @@
 
 .searchBtn {
     background: var(--accent-gold);
-    color: var(--background);
+    color: #1a1a1a;
+    /* Improved contrast */
     border: none;
     border-radius: 40px;
     padding: 0.8rem 1.5rem;

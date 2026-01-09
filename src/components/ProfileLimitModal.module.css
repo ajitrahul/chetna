@@ -157,7 +157,8 @@
     margin-top: 8px;
     padding: 4px 12px;
     background: var(--accent-gold);
-    color: white;
+    color: #1a1a1a;
+    /* Improved contrast */
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
     font-weight: 600;
@@ -175,5 +176,83 @@
     .optionCard {
         flex-direction: column;
         text-align: center;
+    }
+}
+
+/* Confirmation View Styles */
+.confirmationView {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px 0;
+    animation: fadeIn 0.3s ease;
+}
+
+.confirmationText {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 400px;
+}
+
+.confirmationText strong {
+    color: var(--accent-gold);
+    font-weight: 700;
+}
+
+.confirmationActions {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    justify-content: center;
+}
+
+.btnCancel {
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnCancel:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    background: rgba(var(--foreground-rgb), 0.05);
+}
+
+.btnConfirm {
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    background: var(--accent-gold);
+    border: none;
+    color: #1a1a1a;
+    /* Improved contrast */
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btnConfirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
+    filter: brightness(1.1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

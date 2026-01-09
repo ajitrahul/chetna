@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
-import { ChartData } from '../astrology/calculator';
+import { ChartData, getNakshatra } from '../astrology/calculator';
+import { VedicAnalysisEngine } from '../astrology/engine';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
@@ -17,10 +18,10 @@ const openai = new OpenAI({
 
 /**
  * Utility to get the correct model name based on provider and complexity
- * Now supports a "HYBRID" strategy to use best-of-breed for each feature
  */
 function getModel(feature: 'REPORT' | 'CLARITY' | 'SYNASTRY' | 'JOURNAL') {
-    const strategy = process.env.AI_STRATEGY || 'HYBRID';
+    const provider = process.env.AI_PROVIDER || process.env.REPORT_LLM_PROVIDER || 'gemini';
+    const strategy = process.env.AI_STRATEGY || 'SINGLE';
 
     // Default provider mapping for SINGLE mode
     const defaultProvider = process.env.REPORT_LLM_PROVIDER || 'gemini';
@@ -59,8 +60,8 @@ function getModel(feature: 'REPORT' | 'CLARITY' | 'SYNASTRY' | 'JOURNAL') {
 
     const complexity = (feature === 'REPORT' || feature === 'CLARITY' || feature === 'SYNASTRY') ? 'HIGH' : 'STANDARD';
     return {
-        provider: defaultProvider,
-        modelName: config[defaultProvider as keyof typeof config]?.[complexity] || config.gemini[complexity]
+        provider: provider,
+        modelName: config[provider as keyof typeof config]?.[complexity] || config.gemini[complexity]
     };
 }
 
@@ -120,13 +121,15 @@ export interface ClarityResponse {
     ethicalClosing: string;
 }
 
-export interface SynastryResponse {
+export type SynastryResponse = {
     connectionOverview: string;
     magneticPull: string;
     growthEdges: string[];
     communicationFlow: string;
     harmonyTips: string[];
-}
+};
+
+export type PlanetInsights = Record<string, string>;
 
 export interface JournalAnalysis {
     correlation: string;
@@ -148,6 +151,7 @@ User wrote: "${content}"
 
 Current Timing: ${currentDasha.lord} Mahadasha, ${currentDasha.antardasha} Antardasha.
 Chart Snapshot: ${JSON.stringify(sanitizedChart, null, 2)}
+Detailed Analysis: ${JSON.stringify(VedicAnalysisEngine.analyze(chartData), null, 2)}
 
 TASK:
 1. CORRELATION: How does their internal mood/experience correlate with the current timing lord or house patterns? (2 sentences)
@@ -190,6 +194,8 @@ RESPONSE STRUCTURE:
 
 CHART A: ${JSON.stringify(sanitizedA, null, 2)}
 CHART B: ${JSON.stringify(sanitizedB, null, 2)}
+ANALYSIS A: ${JSON.stringify(VedicAnalysisEngine.analyze(chartA), null, 2)}
+ANALYSIS B: ${JSON.stringify(VedicAnalysisEngine.analyze(chartB), null, 2)}
 
 Return sections with headers OVERVIEW:, MAGNETIC PULL:, GROWTH EDGES:, COMMUNICATION:, HARMONY TIPS:.`;
 
@@ -203,7 +209,51 @@ Return sections with headers OVERVIEW:, MAGNETIC PULL:, GROWTH EDGES:, COMMUNICA
             harmonyTips: extractBulletPoints(text, 'HARMONY TIPS:') || ["Active listening"]
         };
     } catch (error) {
-        throw new Error('Failed to generate synastry');
+        console.error('Synastry AI error:', error);
+        return {
+            connectionOverview: "A cosmic connection is forming...",
+            magneticPull: "Stable",
+            growthEdges: ["Communication"],
+            harmonyTips: ["Patience"]
+        } as SynastryResponse;
+    }
+}
+
+/**
+ * 4. PLANET INSIGHTS (DETAILED PLACEMENT ANALYSIS)
+ */
+export async function generatePlanetInsights(
+    chartData: ChartData,
+    chartName: string
+): Promise<PlanetInsights> {
+    const sanitizedChart = sanitizeChartData(chartData);
+    const analysis = VedicAnalysisEngine.analyze(chartData);
+
+    const prompt = `You are a Master Vedic Astrologer. Provide ultra-detailed, empathetic insights for EACH planet in the ${chartName} chart.
+    "Awareness, not prediction". Focus on psychological patterns, reactive habits, and awareness triggers.
+    
+    CHART DATA: ${JSON.stringify(sanitizedChart, null, 2)}
+    ANALYSIS DATA: ${JSON.stringify(analysis, null, 2)}
+    
+    RETURN A JSON OBJECT where:
+    - Keys are planet names (Sun, Moon, Mars, etc.)
+    - Values are 150-200 word deep-dives explaining the planet's specific "State of consciousness" in this department (${chartName}).
+    - MANDATORY: You MUST explicitly mention the planet's Nakshatra, its Pada, and its precise degree in your narrative.
+    - Analyze the Functional Role (Benefic/Malefic/Mixed) and how it affects the specific house domain.
+    - Use the provided LOAD and SYNTHESIS metrics to ground your explanation.
+    - Format: { "Sun": "...", "Moon": "...", ... }
+    
+    Return ONLY valid JSON. Keep the tone empathetic, awareness-focused, and deeply technical yet accessible. Avoid generic filler. Every profile's insight MUST feel unique based on these specific calculations.`;
+
+    try {
+        const text = await callAI(prompt, 'CLARITY'); // Using 'CLARITY' settings for moderate cost/speed
+        // Robust JSON parsing
+        const cleanJson = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+        return JSON.parse(cleanJson);
+    } catch (error) {
+        console.error('Planet Insights AI error:', error);
+        // Fallback: return empty or basic strings if AI fails
+        return {};
     }
 }
 
@@ -220,6 +270,9 @@ export async function generateClarityResponse(
 CHART DATA: ${JSON.stringify(sanitizedChart, null, 2)}
 TIMING: ${JSON.stringify(sanitizedChart.dashas?.find((d: any) => d.isCurrent), null, 2)}
 QUESTION: ${question}
+
+ADDITIONAL ANALYSIS (LOAD & PATTERNS):
+${JSON.stringify(VedicAnalysisEngine.analyze(chartData), null, 2)}
 
 STRUCTURE:
 SECTION B - Phase Overview
@@ -257,6 +310,7 @@ export async function generateReportChapters(data: { name: string; gender: strin
 
     const promptPart1 = `You are a Master Vedic Sage. Creating PART 1 (Chapters 1-5) of a Premium Life Report for ${data.name}.
     CONTEXT: ${JSON.stringify(sanitizedChart)}
+    DETAILED ANALYSIS: ${JSON.stringify(VedicAnalysisEngine.analyze(data.chartData), null, 2)}
     
     RETURN JSON with these keys:
     {
@@ -269,6 +323,7 @@ export async function generateReportChapters(data: { name: string; gender: strin
 
     const promptPart2 = `You are a Master Vedic Sage. Creating PART 2 (Chapters 6-10) of a Premium Life Report for ${data.name}.
     CONTEXT: ${JSON.stringify(sanitizedChart)}
+    DETAILED ANALYSIS: ${JSON.stringify(VedicAnalysisEngine.analyze(data.chartData), null, 2)}
     
     RETURN JSON with these keys:
     {
@@ -320,7 +375,8 @@ function sanitizeChartData(data: any): any {
                 isRetrograde: pos.isRetrograde,
                 house: pos.house,
                 navamsaSign: pos.navamsaSign,
-                dignity: pos.dignity
+                dignity: pos.dignity,
+                nakshatra: getNakshatra(pos.longitude).name
                 // Stripped: latitude, distance, speed, latitude_speed etc.
             };
         }

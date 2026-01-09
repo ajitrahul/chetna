@@ -15,5 +15,6 @@
 .toggle:hover {
     transform: scale(1.1);
     background: var(--accent-gold);
-    color: var(--background);
+    color: #1a1a1a;
+    /* Improved contrast on gold hover */
 }

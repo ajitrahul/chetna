@@ -50,7 +50,8 @@
 
 .navItem.active {
     background-color: var(--accent-gold);
-    color: #fff;
+    color: #1a1a1a;
+    /* Improved contrast */
 }
 
 .content {
@@ -210,13 +211,14 @@
 .saveBtn,
 .sendBtn {
     background-color: var(--accent-gold);
-    color: #fff;
+    color: #1a1a1a;
+    /* Improved contrast */
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
     font-weight: 600;
-    transition: background-color 0.2s;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .saveBtn:hover,
@@ -249,7 +251,8 @@
 
 .editBtn:hover {
     background: var(--accent-gold);
-    color: #fff;
+    color: #1a1a1a;
+    /* Improved contrast */
 }
 
 .deleteBtn {

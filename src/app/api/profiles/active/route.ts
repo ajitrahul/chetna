@@ -37,6 +37,12 @@ export async function GET() {
         });
         const expansionCost = serviceCost?.credits || 50;
 
+        console.log('API /api/profiles/active returning:', {
+            expansionCost,
+            dbValue: serviceCost,
+            key: 'EXPAND_PROFILE_LIMIT'
+        });
+
         return NextResponse.json({
             profiles: activeProfiles,
             limit: totalLimit,

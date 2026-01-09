@@ -6,9 +6,9 @@ import BirthDataForm, { UserProfile } from '@/components/BirthDataForm';
 import ChartDisplay from '@/components/ChartDisplay';
 import DashaDisplay from '@/components/DashaDisplay';
 import ProfileTabs from '@/components/ProfileTabs';
-import ProfileDrawer from '@/components/ProfileDrawer';
-import ProfileLimitModal from '@/components/ProfileLimitModal';
-import { ChartData, getZodiacSign } from '@/lib/astrology/calculator';
+// import ProfileDrawer from '@/components/ProfileDrawer'; // Moved to global context
+// import ProfileLimitModal from '@/components/ProfileLimitModal'; // Moved to global context
+import { ChartData, getZodiacSign, getNakshatra } from '@/lib/astrology/calculator';
 import {
     PLANET_SORT_ORDER,
     SIGN_LORDS,
@@ -20,93 +20,94 @@ import {
 } from '@/lib/astrology/interpretations';
 import styles from './ChartPageContent.module.css';
 import { useSession } from 'next-auth/react';
+import { useProfile } from '@/context/ProfileContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PlusCircle, ArrowLeft, Lock, Info, CheckCircle, Sparkles, Zap, Loader2, Download, Clock, Compass } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const VARGA_DEFINITIONS: Record<string, { title: string, definition: string, tips: string }> = {
     'D1': {
-        title: 'D1 (Rashi Chart)',
+        title: 'D1: How I Behave',
         definition: 'The D1 chart, or Rashi chart, is the foundational birth chart in Vedic astrology, representing the physical blueprint of your life. It acts as the "root" or the main tree from which all other divisional charts grow. This chart maps the exact positions of the planets across the twelve zodiac signs at the moment you took your first breath. It governs your overall personality, physical appearance, health, and the general trajectory of your destiny. Think of it as the overview of your life\'s mission. While other charts look at specific departments like career or marriage, the D1 tells us about your core existence and your natural orientation toward the world. A strong D1 indicates a person who has the vitality and basic opportunities to navigate life successfully, regardless of the challenges presented in other areas.',
         tips: 'USE THIS CHART WHEN: You need to understand your overall life direction, physical health, or basic personality structure. HOW TO USE: Start here before analyzing any other divisional chart. Look at the strength of your Ascendant lord and the overall planetary balance to assess your general vitality and life opportunities. This is your foundation—strengthen it through aligned daily habits, physical exercise, and authentic self-expression.'
     },
     'Moon': {
-        title: 'Moon Chart (Chandra)',
+        title: 'Moon: How I Feel',
         definition: 'In Vedic astrology, the Moon represents the mind, your emotional landscape, and how you perceive reality. The Moon Chart (Chandra Lagna) is created by treating the sign where your Moon is placed as the first house. This chart is often considered more important than the Sun sign because it reveals your internal world—your subconscious needs, comforts, and mental peace. While the D1 chart (Rashi) tells us what will happen in your physical life, the Moon Chart tells us how you will FEEL about it. It describes your psychological resilience, your relationship with your mother, and your instinctive reactions to stress. If the Moon is well-placed, you will find emotional stability and satisfaction, even during difficult external circumstances. It is the filter through which you experience joy and pain.',
         tips: 'USE THIS CHART WHEN: You are experiencing emotional turbulence, mental confusion, or seeking to understand your subconscious patterns. HOW TO USE: Compare this chart with your D1 to see how your inner emotional world differs from your outer persona. Consult this chart when making decisions that affect your peace of mind, choosing a living environment, or understanding maternal relationships. Strengthen your Moon through meditation, nurturing routines, and emotional self-awareness.'
     },
     'D2': {
-        title: 'D2 (Hora Chart)',
+        title: 'D2: How I Value',
         definition: 'The D2 chart, known as the Hora, is the microscopic lens used to examine your relationship with wealth, resources, and family values. It divides each sign into two halves (Horas): one ruled by the Sun (Solar) and the other by the Moon (Lunar). This chart reveals whether your wealth comes from self-effort, leadership, and "hard" activities (Sun) or through family support, inheritance, social connections, and "soft" nurturance (Moon). Beyond just money, the D2 represents your speech, your upbringing, and your capacity to manage what you have earned. It shows if you are naturally inclined toward accumulation or if you are a provider for others. Understanding your D2 helps you align your financial goals with your innate capacity for abundance and stability.',
         tips: 'USE THIS CHART WHEN: You are planning financial strategies, assessing wealth potential, or understanding your family\'s financial legacy. HOW TO USE: Check if your ascendant lord here is in a Solar (Sun) or Lunar (Moon) hora to determine if your wealth comes from independent effort or collaborative/family support. Use this insight to choose career paths and investment strategies that align with your natural wealth-building tendencies.'
     },
     'D3': {
-        title: 'D3 (Drekkana Chart)',
+        title: 'D3: How I Act',
         definition: 'The D3 chart, or Drekkana, focuses on your inherent courage, willpower, and your relationship with your siblings. It divides each zodiac sign into three equal parts. In astrology, the third house represents the "arms" of the individual—your capacity to take action and initiate new projects. The D3 chart provides a deeper look into this sector, revealing if you have the mental and physical stamina to follow through on your ambitions. It also indicates the support or challenges you might face from brothers and sisters. If you are an entrepreneur or someone who relies on self-effort, the D3 is crucial for seeing if your "seed" of an idea will actually grow into a successful venture. It is the chart of the warrior within you.',
         tips: 'USE THIS CHART WHEN: Starting new ventures, evaluating your capacity for independent action, or assessing sibling dynamics. HOW TO USE: Before launching a business or creative project, check the strength of the 3rd house lord and Mars in this chart to gauge your courage and stamina. Use this chart to understand whether you should pursue solo ventures or partnerships. Strengthen areas of weakness through skill development, communication training, and building your self-confidence.'
     },
     'D4': {
-        title: 'D4 (Chaturamsa Chart)',
+        title: 'D4: How I Settle',
         definition: 'The D4 chart represents your "fixed destiny" regarding property, home, and permanent happiness. While many charts look at dynamic events, the D4 looks at your roots—where you feel settled and safe. It governs real estate, vehicles, and the sense of security you derive from your mother and your homeland. This chart shows if you are destined to own your own home, if your life will involve moving frequently, or if you will find great comfort in settled physical assets. It is also the chart of "Bhagya" or general luck in the material world. A strong D4 suggests that no matter what happens in the outside world, you will always have a roof over your head and a foundation of comfort and peace to return to.',
         tips: 'USE THIS CHART WHEN: Making real estate decisions, seeking emotional security, or trying to understand your relationship with your mother and homeland. HOW TO USE: Before buying property or relocating, examine the 4th house and its lord in this chart. A strong D4 suggests favorable outcomes for property investments and domestic happiness. Use this chart to determine the best location for your home base and to cultivate inner peace through grounding practices and ancestral healing.'
     },
     'D5': {
-        title: 'D5 (Panchamsa Chart)',
+        title: 'D5: How I Lead',
         definition: 'The D5 chart, or Panchamsa, reveals your moral fiber, spiritual authority, and potential for fame. It represents the "Purva Punya" or past-life merit that you bring into this life, specifically regarding your character and reputation. This chart shows if you will attain a position of power and influence, and more importantly, if you will wield that power ethically. It is the chart of sovereignty and royal favor. A strong D5 indicates a person who naturally commands respect and may rise to high public standing, often seemingly without effort, due to the good deeds of previous lifetimes.',
         tips: 'USE THIS CHART WHEN: Assessing potential for fame, seeking authority in your field, or analyzing your ethical alignment. HOW TO USE: Examine the 1st, 5th, and 9th houses to gauge your spiritual credit. A strong Sun or Jupiter here indicates natural leadership and moral authority. Use this chart to understand the responsibilities that come with your success and to ensure your path to power remains aligned with dharma.'
     },
     'D6': {
-        title: 'D6 (Shashtamsa Chart)',
+        title: 'D6: How I Serve',
         definition: 'The D6 chart provides a microscopic view of health, litigation, and enemies. It expands on the 6th house of the Rashi chart, offering detailed insights into the nature of your struggles and your capacity to overcome them. This chart reveals your physiological vulnerabilities and the types of illnesses you may be prone to. It also indicates the outcome of legal battles, competitions, and open conflicts. However, D6 is not just about problems; it is about resilience. A strong D6 shows a warrior spirit—someone who can face illness or opposition and emerge stronger. It is the chart of "Seva" or service, showing how you navigate the difficulties of life through discipline and hard work.',
         tips: 'USE THIS CHART WHEN: Diagnosing health issues, facing legal challenges, or dealing with intense competition. HOW TO USE: Look at the 6th house and its lord to understand the nature of your obstacles. Benefics here can reduce enmity, while Malefics can give the strength to conquer it. Use this chart to adopt proactive health routines and to understand the karmic lessons behind your struggles. It is a powerful tool for developing resilience.'
     },
     'D7': {
-        title: 'D7 (Saptamsa Chart)',
+        title: 'D7: How I Create',
         definition: 'The D7 chart, or Saptamsa, is the chart of creativity, legacy, and progeny. It is primarily used to understand one\'s relationship with their children and the legacy they leave behind. This isn\'t limited to just biological children; it encompasses anything you "give birth to" in the world, such as creative projects, students, or lasting businesses. The D7 reveals the happiness, challenges, and growth you will experience through the next generation. It shows your capacity for nurturing and the specific traits of those who will follow in your footsteps. Whether you are looking for insights into fertility or the potential success of a life-long creative endeavor, the D7 provides the fine detail needed to understand your contribution to the future.',
         tips: 'USE THIS CHART WHEN: Planning to have children, launching creative projects, or seeking to understand your legacy. HOW TO USE: Examine the 5th house, Jupiter, and the ascendant lord to assess timing for parenthood or creative ventures. If considering fertility treatments or adoption, consult this chart for insights. Use it to nurture your creative intelligence and understand what lasting impact you will have on future generations through your creations or children.'
     },
     'D8': {
-        title: 'D8 (Ashtamsa Chart)',
+        title: 'D8: How I Transform',
         definition: 'The D8 chart dives deep into longevity, sudden transformations, and the occult. It is the chart of the unexpected—sudden windfalls, accidents, inheritances, or mystical experiences. While D1 shows the general span of life, D8 reveals the quality of your endurance and the hidden forces that shape your survival. It is often consulted to understand chronic ailments or life-altering events that seem to come from nowhere. On a spiritual level, D8 represents "Kundalini" energy and the capacity for deep, tantric transformation. It shows your ability to die to the old self and be reborn, making it a crucial chart for those on a path of radical self-discovery.',
         tips: 'USE THIS CHART WHEN: You are facing sudden changes, exploring the occult, or concerned about longevity and chronic health. HOW TO USE: This chart requires careful analysis. Look at the 8th house and the lord of the 22nd Drekkana for critical insights. Use D8 to navigate crisis periods with wisdom, viewing sudden upheavals as opportunities for profound transformation. It guides you in managing unearned wealth and deep psychological shifts.'
     },
     'D9': {
-        title: 'D9 (Navamsa Chart)',
+        title: 'D9: How I Bond',
         definition: 'The Navamsa (D9) is considered the "fruit" of the life-tree (D1). It is arguably the most important chart after the main birth chart because it reveals your inner strength and the true disposition of your planets. While D1 shows the initial strength of your planets, D9 shows their final outcome. It is the chart of marriage and partnerships, revealing the quality of your spouse and your internal harmony. The D9 describes your "Dharma"—your true life purpose and moral fiber. Many times, a person may have a weak D1 but a very strong D9, meaning they may start life with struggles but will finish with great success and internal peace. It represents the maturity of your soul and the ultimate resolution of your karmic debts through partnership and spiritual discipline.',
         tips: 'USE THIS CHART WHEN: Assessing marriage potential, evaluating partnership quality, or seeking to understand your spiritual maturity. HOW TO USE: This is the MOST IMPORTANT chart after D1. Check the placement and strength of Venus (for women) or Jupiter (for men) here to assess spouse quality. Before marriage decisions, examine the 7th house and its lord. Use this chart to cultivate inner strength, dharma, and integrity—qualities that will sustain you through life\'s second half and in intimate relationships.'
     },
     'D10': {
-        title: 'D10 (Dasamsa Chart)',
+        title: 'D10: How I Perform',
         definition: 'The D10, or Dasamsa, is the high-definition chart of your career, profession, and status in society. It provides a detailed view of how you manifest your power in the world. While the 10th house of your Rashi chart shows your general vocation, the D10 breaks it down into your specific career path, your relationship with authority figures, and the level of recognition you will achieve. It reveals if you are better suited for government work, independent business, or a service-oriented role. The D10 also indicates your public reputation—what the world thinks of you and the legacy of work you leave behind. If you are facing a career crossroads or seeking a promotion, the D10 reveals the underlying currents that are shaping your professional success and societal impact.',
         tips: 'USE THIS CHART WHEN: Making career decisions, seeking promotions, changing professions, or building your public reputation. HOW TO USE: Examine the 10th house, its lord, and the Sun to understand your career potential and ideal profession. Before accepting a job offer or starting a business, check if your D10 supports that path. Use this chart to align your professional choices with your natural talents and to build a legacy that reflects your values and brings lasting recognition.'
     },
     'D12': {
-        title: 'D12 (Dwadashamsa Chart)',
+        title: 'D12: How I Inherit',
         definition: 'The D12 chart provides a window into your lineage, including your parents and grandparents. It represents your genetic heritage and the deep-seated psychological patterns you have inherited from your family line. This chart is essential for understanding the quality of nurture you received in childhood and the overall well-being of your parents. It also touches upon past life influences that have shaped your current family dynamics. In Vedic astrology, we say that the sins or merits of the ancestors can manifest in our own lives; the D12 is where we see those "inherited seeds." By understanding your D12, you can begin to heal ancestral wounds and leverage the wisdom that has been passed down through generations, finding peace with your origin story.',
         tips: 'USE THIS CHART WHEN: Seeking to understand parental influences, healing family trauma, or exploring inherited patterns. HOW TO USE: Look at the condition of the Sun (father) and Moon (mother) to understand your parents\' well-being and their influence on you. Use this chart for ancestral healing work, understanding genetic predispositions to illness, and recognizing which family patterns to honor versus which to transform. This is powerful for therapy and genealogical exploration.'
     },
     'D16': {
-        title: 'D16 (Shodashamsa Chart)',
+        title: 'D16: How I Enjoy',
         definition: 'The D16 chart focuses on "higher happiness"—the luxuries, conveyances, and material comforts that make life easy. It specifically governs vehicles (anything that carries you) and the sense of enjoyment you get from worldly pleasures. While the D4 looks at your home, the D16 looks at the quality of life you lead within that home and when you travel. It reveals if you are destined to enjoy the refinements of life, like fine art, beautiful cars, and sophisticated atmospheres. However, the D16 also has a deeper psychological layer: it shows your capacity for gratitude and contentment. A person with a strong D16 can find joy in the smallest material things, whereas a weak D16 might lead to constant dissatisfaction regardless of how much one owns.',
         tips: 'USE THIS CHART WHEN: Purchasing vehicles, evaluating your capacity for material enjoyment, or assessing your gratitude levels. HOW TO USE: Before major purchases related to comfort or travel, check the 4th house (vehicles/comforts) in this chart. A strong D16 indicates you will derive great joy from material refinements. Use this chart to cultivate gratitude practices and to understand the quality of happiness you experience from worldly pleasures. Strengthen it by appreciating what you already have.'
     },
     'D20': {
-        title: 'D20 (Vimsamsa Chart)',
+        title: 'D20: How I Seek',
         definition: 'The D20, or Vimsamsa, is the chart of deep spirituality, religious devotion, and meditation. It is used to see your progress on the path of inner realization. This chart goes beyond religious rituals and looks at your personal connection with the Divine. It reveals your "Ista Devata"—your preferred form of the Divine that resonates with your soul. The D20 shows if you have the patience for long-term spiritual practices, the capacity for true devotion, and the likelihood of attaining enlightenment or higher states of consciousness. If you are someone who feels a deep inner calling for something beyond the material world, the D20 chart will reveal the obstacles and blessings you will encounter on your journey into the vast landscape of the spirit.',
         tips: 'USE THIS CHART WHEN: Beginning a spiritual path, choosing a meditation practice, or seeking your personal deity (Ista Devata). HOW TO USE: Examine the 9th house, 12th house, Jupiter, and Ketu to understand your spiritual inclinations. Use this chart to determine which spiritual practices will be most effective for you—devotional (Bhakti), knowledge-based (Jnana), or meditative (Dhyana). Consult this when selecting a guru, choosing mantras, or deepening your connection with the Divine.'
     },
     'D24': {
-        title: 'D24 (Chaturvimsamsa Chart)',
+        title: 'D24: How I Learn',
         definition: 'The D24 chart is the chart of learning, specialized knowledge, and intellectual prowess. It is primarily analyzed to see one\'s academic achievements and the depth of their technical or philosophical understanding. While the 5th house of a birth chart shows intelligence, the D24 shows the application of that search for knowledge. It reveals if you will attain higher degrees, if you are inclined toward science, arts, or occult studies, and the level of mastery you will achieve in your chosen field. For students, researchers, or anyone in a knowledge-based profession, the D24 is the map of their intellectual journey. It tells us how effectively you can translate your curiosity into a structured and respected body of knowledge that serves your career and personal growth.',
         tips: 'USE THIS CHART WHEN: Choosing educational paths, pursuing higher degrees, or specializing in a field of knowledge. HOW TO USE: Before committing to advanced studies or research, check the 5th house (education), Mercury (learning), and Jupiter (wisdom) in this chart. This will reveal your natural aptitude for different subjects and the level of mastery you can achieve. Use this chart to choose your specialization wisely and to understand how effectively you can apply knowledge in service to others.'
     },
     'D27': {
-        title: 'D27 (Saptavimsamsa Chart)',
+        title: 'D27: How I Sustain',
         definition: 'The D27 chart represents your inherent "nature" (Bhamsha) and your general physical and mental strength. It divides each sign into twenty-seven parts, correlating with the 27 lunar mansions (Nakshatras). This chart is crucial for seeing your resilience—how much "vibration" or stress you can handle before your health or mind begins to suffer. It provides a microscopic view of your physical stamina and your instinctive temperament. While the D1 shows your overall health, the D27 shows your vitality—the life-force or "Prana" that flows through you. A strong D27 indicates a person with a robust constitution who can bounce back quickly from illness or emotional trauma. It is the chart of your inner energy dynamics and your capacity for sustained effort.',
         tips: 'USE THIS CHART WHEN: Assessing your energy levels, understanding health vulnerabilities, or evaluating your resilience to stress. HOW TO USE: Examine the overall strength of planets and houses to gauge your vitality and stamina. Use this chart before undertaking demanding physical or mental projects to see if you have the constitution to sustain the effort. Strengthen your D27 through pranayama (breathwork), proper rest, regular exercise, and energy management practices like Yoga or Qigong.'
     },
     'D30': {
-        title: 'D30 (Trimsamsa Chart)',
+        title: 'D30: How I Overcome',
         definition: 'The D30, or Trimsamsa, is often called the "chart of misfortunes," but it is better understood as the chart of your inner shadows and inherited vulnerabilities. It reveals the psychological weaknesses and "hidden enemies" within your own personality that might lead to external difficulties. Historically, it was used to see diseases, scandals, or calamities. In modern psychological astrology, the D30 shows the areas where we need to apply the most self-discipline and awareness. It highlights the karmic obstacles we have brought into this life to overcome. By understanding your D30, you can identify the self-sabotaging patterns that lead to trouble and proactively transform them through ethical living and conscious awareness. It is the chart of ultimate redemption through facing one\'s own darkness.',
         tips: 'USE THIS CHART WHEN: Facing repeated obstacles, experiencing self-sabotage, or seeking to understand hidden psychological weaknesses. HOW TO USE: This is a chart for shadow work and deep self-awareness. Examine the 6th, 8th, and 12th houses to identify areas of vulnerability. Use this chart in conjunction with therapy, spiritual practices, or when recovering from addiction or trauma. Do not fear what you find here—use it as a map for conscious transformation and ethical living to transcend karmic patterns.'
     }
@@ -318,8 +319,7 @@ export default function ChartPageContent() {
     const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null);
     const [profileLimit, setProfileLimit] = useState(5);
     const [canAddMore, setCanAddMore] = useState(true);
-    const [showProfileDrawer, setShowProfileDrawer] = useState(false);
-    const [showLimitModal, setShowLimitModal] = useState(false);
+    const { openNewProfileModal } = useProfile();
 
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [chartData, setChartData] = useState<ChartData | null>(null);
@@ -334,6 +334,8 @@ export default function ChartPageContent() {
     const [initializing, setInitializing] = useState(false);
     const [activeCategory, setActiveCategory] = useState('Abundance');
     const [isExporting, setIsExporting] = useState(false);
+    const [aiInsights, setAiInsights] = useState<Record<string, Record<string, string>>>({});
+    const [isFetchingAi, setIsFetchingAi] = useState(false);
 
     // Fetch all active profiles on mount
     useEffect(() => {
@@ -394,10 +396,36 @@ export default function ChartPageContent() {
 
     const toggleChartDetails = (key: string) => {
         if (activeChart === key) {
-            setActiveChart(null); // Close if clicking the same chart
+            setActiveChart(null);
         } else {
-            setActiveChart(key); // Open new chart, closing any others
-            setActiveTab(0); // Reset to first tab
+            setActiveChart(key);
+            setActiveTab(0);
+            // Fetch AI insights if not already cached
+            if (!aiInsights[key] && profile?.chartData?.vargas?.[key]) {
+                fetchPlanetInsights(key, profile.chartData.vargas[key] as unknown as ChartData);
+            }
+        }
+    };
+
+    const fetchPlanetInsights = async (chartKey: string, chartData: ChartData) => {
+        setIsFetchingAi(true);
+        try {
+            const res = await fetch('/api/ai/planet-insights', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chartData,
+                    chartName: VARGA_DEFINITIONS[chartKey]?.title || chartKey
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setAiInsights(prev => ({ ...prev, [chartKey]: data.insights }));
+            }
+        } catch (e) {
+            console.error('Failed to fetch AI insights:', e);
+        } finally {
+            setIsFetchingAi(false);
         }
     };
 
@@ -407,6 +435,14 @@ export default function ChartPageContent() {
             handleInitializeVargas();
         }
     }, [profile, initializing, loading]);
+
+    // Reset AI insights when switching profiles to prevent data leakage
+    useEffect(() => {
+        if (profile?.id) {
+            setAiInsights({});
+            setActiveChart(null);
+        }
+    }, [profile?.id]);
 
     // Initial Profile Fetch
     useEffect(() => {
@@ -538,43 +574,6 @@ export default function ChartPageContent() {
         }
     };
 
-    const handleAddProfile = () => {
-        if (canAddMore) {
-            setShowProfileDrawer(true);
-        } else {
-            setShowLimitModal(true);
-        }
-    };
-
-    const handleUpgradeLimit = async () => {
-        try {
-            const res = await fetch('/api/profiles/expand-limit', {
-                method: 'POST',
-            });
-
-            if (res.ok) {
-                await fetchActiveProfiles();
-                setShowLimitModal(false);
-                setShowProfileDrawer(true);
-            } else {
-                const data = await res.json();
-                alert(data.error || 'Failed to expand limit');
-            }
-        } catch (error) {
-            console.error('Expansion error:', error);
-            alert('Failed to expand profile limit');
-        }
-    };
-
-    const handleManageProfiles = () => {
-        setShowLimitModal(false);
-        router.push('/dashboard?section=profiles');
-    };
-
-    const handleProfileCreated = () => {
-        fetchActiveProfiles();
-        setShowProfileDrawer(false);
-    };
 
     const handleChartGenerated = async (data: ChartData) => {
         try {
@@ -754,29 +753,13 @@ export default function ChartPageContent() {
                         profiles={activeProfiles}
                         activeProfileId={selectedProfile?.id}
                         onSelectProfile={handleSelectProfile}
-                        onAddProfile={handleAddProfile}
-                        onUpgradeLimit={() => setShowLimitModal(true)}
+                        onAddProfile={openNewProfileModal} // Use Context
+                        onUpgradeLimit={openNewProfileModal} // Use Context (it handles logic)
                         canAddMore={canAddMore}
                         currentCount={activeProfiles.length}
                         maxProfiles={profileLimit}
                     />
                 )}
-
-                <ProfileDrawer
-                    isOpen={showProfileDrawer}
-                    onClose={() => setShowProfileDrawer(false)}
-                    onSuccess={handleProfileCreated}
-                />
-
-                <ProfileLimitModal
-                    isOpen={showLimitModal}
-                    onClose={() => setShowLimitModal(false)}
-                    onUpgrade={handleUpgradeLimit}
-                    onManageProfiles={handleManageProfiles}
-                    currentCount={activeProfiles.length}
-                    maxProfiles={profileLimit}
-                    expansionCost={50}
-                />
 
                 <button onClick={() => setIsEditing(true)} className={styles.addProfileBtn}>
                     <PlusCircle size={18} />
@@ -1168,10 +1151,10 @@ export default function ChartPageContent() {
 
                                                                 return (
                                                                     <tr key={pName}>
-                                                                        <td className="font-medium text-[var(--foreground)]">{pName}</td>
+                                                                        <td className={styles.planetLabel}>{pName}</td>
                                                                         <td>{signName}</td>
                                                                         <td>{signLord}</td>
-                                                                        <td className="font-mono text-xs opacity-75">{degree}</td>
+                                                                        <td className={styles.degreeLabel}>{degree}</td>
                                                                         <td>{house}</td>
                                                                     </tr>
                                                                 );
@@ -1180,10 +1163,18 @@ export default function ChartPageContent() {
                                                     </table>
                                                 </div>
 
-                                                <div className="space-y-6">
-                                                    <h3 className="text-2xl font-serif text-[var(--accent-gold)] border-b border-[var(--border-color)] pb-2 mb-4">Planetary Detailed Analysis</h3>
+                                                <div className={styles.insightCardGrid}>
+                                                    <div className={styles.detailedAnalysisHeader}>
+                                                        <h3 className={styles.detailedAnalysisTitle}>Planetary Detailed Analysis</h3>
+                                                        {isFetchingAi && (
+                                                            <div className={styles.aiReflecting}>
+                                                                <Sparkles size={14} />
+                                                                <span>AI Reflecting...</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     {PLANET_SORT_ORDER.filter(p => p !== 'Ascendant').map(pName => {
-                                                        const varga = profile.chartData?.vargas?.[activeChart];
+                                                        const varga = profile.chartData?.vargas?.[activeChart!];
                                                         if (!varga) return null;
                                                         const pData = varga.planets?.[pName];
                                                         if (!pData) return null;
@@ -1206,6 +1197,21 @@ export default function ChartPageContent() {
                                                         const conjunctText = conjunctions.length > 0 ? `It is conjunct with ${conjunctions.join(', ')}.` : 'It stands alone in this sign.';
 
                                                         const getDetailedInsight = (planet: string, sign: string, house: number, chart: string) => {
+                                                            // If currently fetching for this chart, show loading
+                                                            if (isFetchingAi && !aiInsights[chart]) {
+                                                                return "The stars are reflecting on your unique path... Our AI is currently synthesizing your personal planetary alignment, Nakshatra themes, and house lordships. This will take just a few seconds.";
+                                                            }
+
+                                                            // Check if AI insight is available
+                                                            if (aiInsights[chart] && aiInsights[chart][planet]) {
+                                                                return aiInsights[chart][planet];
+                                                            }
+
+                                                            // Final check for loading state if cache is empty but we're about to fetch or retrying
+                                                            if (isFetchingAi) {
+                                                                return "Refining your personal awareness triggers...";
+                                                            }
+
                                                             const planetQualities: Record<string, string> = {
                                                                 'Sun': 'your core identity, vitality, and life purpose',
                                                                 'Moon': 'your emotional nature, instincts, and subconscious mind',
@@ -1240,23 +1246,23 @@ export default function ChartPageContent() {
                                                         };
 
                                                         return (
-                                                            <div key={pName} className="p-6 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]/50 shadow-sm relative overflow-hidden group hover:border-[var(--accent-gold)]/50 transition-all duration-300">
-                                                                <h5 style={{ fontSize: '2.25rem', fontWeight: 700, marginBottom: '1.5rem' }} className="text-[var(--primary)] flex items-center flex-wrap gap-3">
-                                                                    <span>{pName} in {signName}</span>
-                                                                    <span className="text-[var(--foreground)] opacity-70"> - </span>
-                                                                    <span className="text-[var(--primary)]" style={{ fontSize: '2.25rem', fontWeight: 700 }}>
+                                                            <div key={pName} className={styles.insightCard}>
+                                                                <h5 className={styles.insightHeader}>
+                                                                    <span className={styles.insightTitle}>{pName} in {signName}</span>
+                                                                    <span className={styles.insightSeparator}> - </span>
+                                                                    <span className={styles.insightSubtitle}>
                                                                         {house}{getOrdinal(house)} House
                                                                     </span>
                                                                 </h5>
-                                                                <div style={{ fontSize: '1.125rem', lineHeight: '1.75' }} className="text-[var(--foreground)] opacity-90 space-y-4">
+                                                                <div className={styles.insightContent}>
                                                                     <p>
-                                                                        <strong>Placement:</strong> {pName} is placed in the <strong>{house}{getOrdinal(house)} House</strong> in the sign of <strong>{signName}</strong>.
+                                                                        <strong>Placement:</strong> {pName} is placed at <strong>{formatDegree(pData.longitude)}</strong> in <strong>{getNakshatra(pData.longitude).name}</strong> Nakshatra in the <strong>{house}{getOrdinal(house)} House</strong> of <strong>{signName}</strong>.
                                                                     </p>
                                                                     <p>
                                                                         <strong>Associations:</strong> {conjunctText} {aspectText}
                                                                     </p>
                                                                     <p>
-                                                                        <strong>Insight:</strong> <span className="italic">{getDetailedInsight(pName, signName, house, activeChart)}</span>
+                                                                        <strong>Awareness Insight:</strong> <span className="italic">{getDetailedInsight(pName, signName, house, activeChart!)}</span>
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1272,7 +1278,7 @@ export default function ChartPageContent() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div >
+        </div>
     );
 }
 

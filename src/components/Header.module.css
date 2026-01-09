@@ -17,10 +17,16 @@
     justify-content: space-between;
 }
 
-.rightSection {
+.desktopNav {
     display: flex;
     align-items: center;
     gap: 32px;
+}
+
+@media (max-width: 968px) {
+    .desktopNav {
+        display: none;
+    }
 }
 
 .navLinks {
@@ -39,35 +45,42 @@
     color: var(--foreground);
     font-size: 0.95rem;
     font-weight: 500;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
     position: relative;
     text-decoration: none;
     white-space: nowrap;
+    opacity: 0.7;
 }
 
-.navLink::after {
+.navLink:hover {
+    opacity: 1;
+    color: var(--accent-gold);
+}
+
+.activeLink {
+    opacity: 1;
+    color: var(--accent-gold);
+}
+
+.activeLink::after {
     content: '';
     position: absolute;
     bottom: -4px;
     left: 0;
-    width: 0;
+    width: 100%;
     height: 2px;
     background: var(--accent-gold);
-    transition: width 0.3s ease;
+    border-radius: 2px;
 }
 
-.navLink:hover {
-    color: var(--primary);
-}
-
-.navLink:hover::after {
-    width: 100%;
+.adminLink {
+    color: var(--accent-gold) !important;
+    font-weight: 600;
 }
 
 .loginBtn {
     padding: 10px 24px;
     background: #1B2B41;
-    /* Dark navy from reference */
     color: white;
     border-radius: 50px;
     font-size: 0.9rem;
@@ -82,7 +95,6 @@
 .loginBtn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(27, 43, 65, 0.2);
-    opacity: 0.95;
 }
 
 .authGroup {
@@ -92,16 +104,17 @@
 }
 
 .signOutBtn {
-    padding: 6px 16px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: 1px solid var(--card-border);
     color: var(--foreground);
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 500;
+    border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
-    white-space: nowrap;
 }
 
 .signOutBtn:hover {
@@ -109,47 +122,6 @@
     color: var(--accent-rose);
     background: rgba(var(--foreground-rgb), 0.02);
 }
-
-.testBtn {
-    padding: 6px 12px;
-    background: transparent;
-    border: 1px dashed var(--accent-gold);
-    color: var(--accent-gold);
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.testBtn:hover {
-    background: rgba(var(--accent-gold-rgb), 0.05);
-    border-style: solid;
-    transform: translateY(-1px);
-}
-
-.themeToggle {
-    background: transparent;
-    border: 1px solid var(--card-border);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--foreground);
-    transition: all 0.2s ease;
-}
-
-.themeToggle:hover {
-    border-color: var(--accent-gold);
-    color: var(--accent-gold);
-    background: rgba(var(--foreground-rgb), 0.02);
-}
-
 
 .menuToggle {
     display: none;
@@ -161,76 +133,131 @@
     z-index: 1100;
 }
 
-@media (max-width: 968px) {
-    .navLinks {
-        gap: 20px;
-    }
-
-    .rightSection {
-        gap: 20px;
-    }
-
-    .navLink {
-        font-size: 0.9rem;
-    }
+/* Mobile Menu Styles */
+.mobileBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 1050;
 }
 
-@media (max-width: 768px) {
+.mobileMenu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    background: var(--background);
+    z-index: 1060;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 32px 24px;
+}
+
+.mobileMenuHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.closeBtn {
+    background: transparent;
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.mobileNavLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-grow: 1;
+}
+
+.mobileNavLink {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: var(--foreground);
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.mobileNavLink:hover {
+    background: rgba(var(--accent-gold-rgb), 0.05);
+    color: var(--accent-gold);
+}
+
+.mobileActiveLink {
+    background: rgba(var(--accent-gold-rgb), 0.1);
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+.mobileActions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mobileSeparator {
+    height: 1px;
+    background: var(--card-border);
+    margin: 10px 0;
+}
+
+.mobileRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.mobileSignOut {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    color: var(--accent-rose);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.mobileLoginBtn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #1B2B41;
+    color: white;
+    text-align: center;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+@media (max-width: 968px) {
     .menuToggle {
         display: block;
     }
 
-    .rightSection {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 80%;
-        max-width: 300px;
-        height: 100vh;
-        background: var(--background);
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 100px 40px;
-        gap: 40px;
-        transition: right 0.3s ease-in-out;
-        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
-        z-index: 1050;
-    }
-
-    .menuOpen {
-        right: 0 !important;
-    }
-
-    .navLinks {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 24px;
-        width: 100%;
-        margin-top: 20px;
-    }
-
-    .actions {
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        gap: 24px;
-        border-top: 1px solid var(--card-border);
-        padding-top: 24px;
-    }
-
-    .authGroup {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-        width: 100%;
-    }
-
     .container {
-        padding: 8px 16px;
-    }
-
-    .loginBtn {
-        padding: 6px 16px;
-        font-size: 0.85rem;
+        padding: 12px 20px;
     }
 }
