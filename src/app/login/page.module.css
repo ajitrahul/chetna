@@ -9,7 +9,8 @@
 
 .loginBox {
     max-width: 450px;
-    width: 100%;
+    width: calc(100% - 32px);
+    margin: 0 auto;
     background: var(--card-bg);
     padding: 48px;
     border-radius: 16px;
@@ -19,7 +20,7 @@
 }
 
 .title {
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
     font-family: var(--font-heading);
     color: var(--primary);
     margin-bottom: 12px;
@@ -215,10 +216,7 @@
 
 @media (max-width: 480px) {
     .loginBox {
-        padding: 32px 24px;
-    }
-
-    .title {
-        font-size: 2rem;
+        padding: 32px 20px;
+        width: calc(100% - 24px);
     }
 }

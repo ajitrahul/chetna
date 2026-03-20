@@ -152,6 +152,7 @@ export async function generateTimingInsight(
 ): Promise<TimingInsight> {
     const sanitizedChart = sanitizeChartData(chartData);
     const analysis = VedicAnalysisEngine.analyze(chartData);
+    const yogas = VedicAnalysisEngine.detectYogas(chartData);
 
     const prompt = `You are a Vedantic Sage. Provide a deeply personal "Cosmic Weather" report for the user's current life phase.
     "Awareness, not prediction".
@@ -161,6 +162,7 @@ export async function generateTimingInsight(
     
     USER CHART: ${JSON.stringify(sanitizedChart, null, 2)}
     PERSONALIZED ANALYSIS: ${JSON.stringify(analysis, null, 2)}
+    DETECTED YOGAS: ${JSON.stringify(yogas, null, 2)}
     
     TASK:
     Generate 3 specific sections based on how ${currentDasha.lord} behaves in THEIR specific chart (house, sign, nakshatra, and functional role).
@@ -198,6 +200,7 @@ User wrote: "${content}"
 Current Timing: ${currentDasha.lord} Mahadasha, ${currentDasha.antardasha} Antardasha.
 Chart Snapshot: ${JSON.stringify(sanitizedChart, null, 2)}
 Detailed Analysis: ${JSON.stringify(VedicAnalysisEngine.analyze(chartData), null, 2)}
+DETECTED YOGAS: ${JSON.stringify(VedicAnalysisEngine.detectYogas(chartData), null, 2)}
 
 TASK:
 1. CORRELATION: How does their internal mood/experience correlate with the current timing lord or house patterns? (2 sentences)
@@ -242,6 +245,8 @@ CHART A: ${JSON.stringify(sanitizedA, null, 2)}
 CHART B: ${JSON.stringify(sanitizedB, null, 2)}
 ANALYSIS A: ${JSON.stringify(VedicAnalysisEngine.analyze(chartA), null, 2)}
 ANALYSIS B: ${JSON.stringify(VedicAnalysisEngine.analyze(chartB), null, 2)}
+YOGAS A: ${JSON.stringify(VedicAnalysisEngine.detectYogas(chartA), null, 2)}
+YOGAS B: ${JSON.stringify(VedicAnalysisEngine.detectYogas(chartB), null, 2)}
 
 Return sections with headers OVERVIEW:, MAGNETIC PULL:, GROWTH EDGES:, COMMUNICATION:, HARMONY TIPS:.`;
 
@@ -274,12 +279,14 @@ export async function generatePlanetInsights(
 ): Promise<PlanetInsights> {
     const sanitizedChart = sanitizeChartData(chartData);
     const analysis = VedicAnalysisEngine.analyze(chartData);
+    const yogas = VedicAnalysisEngine.detectYogas(chartData);
 
     const prompt = `You are a Master Vedic Astrologer. Provide ultra-detailed, empathetic insights for EACH planet in the ${chartName} chart.
     "Awareness, not prediction". Focus on psychological patterns, reactive habits, and awareness triggers.
     
     CHART DATA: ${JSON.stringify(sanitizedChart, null, 2)}
     ANALYSIS DATA: ${JSON.stringify(analysis, null, 2)}
+    DETECTED YOGAS: ${JSON.stringify(yogas, null, 2)}
     
     RETURN A JSON OBJECT where:
     - Keys are planet names (Sun, Moon, Mars, etc.)
@@ -319,6 +326,8 @@ QUESTION: ${question}
 
 ADDITIONAL ANALYSIS (LOAD & PATTERNS):
 ${JSON.stringify(VedicAnalysisEngine.analyze(chartData), null, 2)}
+DETECTED YOGAS:
+${JSON.stringify(VedicAnalysisEngine.detectYogas(chartData), null, 2)}
 
 STRUCTURE:
 SECTION B - Phase Overview
@@ -357,6 +366,7 @@ export async function generateReportChapters(data: { name: string; gender: strin
     const promptPart1 = `You are a Master Vedic Sage. Creating PART 1 (Chapters 1-5) of a Premium Life Report for ${data.name}.
     CONTEXT: ${JSON.stringify(sanitizedChart)}
     DETAILED ANALYSIS: ${JSON.stringify(VedicAnalysisEngine.analyze(data.chartData), null, 2)}
+    DETECTED YOGAS: ${JSON.stringify(VedicAnalysisEngine.detectYogas(data.chartData), null, 2)}
     
     RETURN JSON with these keys:
     {
@@ -370,6 +380,7 @@ export async function generateReportChapters(data: { name: string; gender: strin
     const promptPart2 = `You are a Master Vedic Sage. Creating PART 2 (Chapters 6-10) of a Premium Life Report for ${data.name}.
     CONTEXT: ${JSON.stringify(sanitizedChart)}
     DETAILED ANALYSIS: ${JSON.stringify(VedicAnalysisEngine.analyze(data.chartData), null, 2)}
+    DETECTED YOGAS: ${JSON.stringify(VedicAnalysisEngine.detectYogas(data.chartData), null, 2)}
     
     RETURN JSON with these keys:
     {

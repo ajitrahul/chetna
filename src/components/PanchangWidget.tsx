@@ -12,7 +12,19 @@ interface PanchangData {
     karana: string;
     sunSign: string;
     moonSign: string;
+    muhurtas?: {
+        sunrise: string;
+        sunset: string;
+        rahuKaalam: { start: string, end: string };
+        yamaganda: { start: string, end: string };
+        abhijit: { start: string, end: string };
+    };
 }
+
+const formatTime = (isoString?: string) => {
+    if (!isoString) return '--:--';
+    return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
 
 export default function PanchangWidget() {
     const [data, setData] = useState<PanchangData | null>(null);
@@ -108,6 +120,32 @@ export default function PanchangWidget() {
                     <div className={styles.awareness}>
                         <p><strong>Awareness:</strong> The lunar energy of <em>{data.tithi.name}</em> invites you to reflect on your {data.tithi.index < 15 ? 'growth and expansion' : 'release and inner contemplation'} today.</p>
                     </div>
+
+                    {data.muhurtas && (
+                        <div className={styles.muhurtaSection}>
+                            <h4 className={styles.muhurtaTitle}>Daily Timings</h4>
+                            <div className={styles.muhurtaGrid}>
+                                <div className={styles.muhurtaItem}>
+                                    <span className={styles.muhurtaLabel}>Abhijit Muhurta</span>
+                                    <span className={styles.muhurtaValue + ' ' + styles.auspicious}>
+                                        {formatTime(data.muhurtas.abhijit.start)} - {formatTime(data.muhurtas.abhijit.end)}
+                                    </span>
+                                </div>
+                                <div className={styles.muhurtaItem}>
+                                    <span className={styles.muhurtaLabel}>Rahu Kaalam</span>
+                                    <span className={styles.muhurtaValue + ' ' + styles.inauspicious}>
+                                        {formatTime(data.muhurtas.rahuKaalam.start)} - {formatTime(data.muhurtas.rahuKaalam.end)}
+                                    </span>
+                                </div>
+                                <div className={styles.muhurtaItem}>
+                                    <span className={styles.muhurtaLabel}>Yamaganda</span>
+                                    <span className={styles.muhurtaValue + ' ' + styles.inauspicious}>
+                                        {formatTime(data.muhurtas.yamaganda.start)} - {formatTime(data.muhurtas.yamaganda.end)}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
         </div>

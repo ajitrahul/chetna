@@ -765,6 +765,87 @@ export function calculateTaraBala(transitMoonLong: number, natalMoonLong: number
 
 export const VARAS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+export function calculateSunriseSunsetApproximation(year: number, month: number, day: number, lat: number, lng: number) {
+    // A robust, standard JS approximation of solar noon, sunrise, and sunset without risking WASM timeouts.
+    const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    const startOfYear = new Date(Date.UTC(date.getUTCFullYear(), 0, 0));
+    const diff = (date.getTime() - startOfYear.getTime()) + ((startOfYear.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000);
+    const dayOfYear = Math.floor(diff / 86400000);
+
+    // Declination of the Sun
+    const declination = 23.45 * Math.sin((360 / 365) * (dayOfYear - 81) * (Math.PI / 180));
+    const decRad = declination * (Math.PI / 180);
+    const latRad = lat * (Math.PI / 180);
+
+    // Hour Angle
+    const hourAngleCos = -Math.tan(latRad) * Math.tan(decRad);
+    let hourAngle = 90; // Default 6 hours if math exceeds bounds (e.g., poles)
+    if (hourAngleCos >= -1 && hourAngleCos <= 1) {
+        hourAngle = Math.acos(hourAngleCos) * (180 / Math.PI);
+    }
+
+    const sunriseOffsetHours = hourAngle / 15;
+    const solarNoonUTC = 12 - (lng / 15);
+    
+    // In UTC hours
+    let sunriseUTC = solarNoonUTC - sunriseOffsetHours;
+    let sunsetUTC = solarNoonUTC + sunriseOffsetHours;
+
+    // Adjust for date wrap
+    if (sunriseUTC < 0) sunriseUTC += 24;
+    if (sunsetUTC >= 24) sunsetUTC -= 24;
+
+    return {
+        sunriseUTC,
+        sunsetUTC,
+        solarNoonUTC
+    };
+}
+
+export function calculateMuhurtas(year: number, month: number, day: number, lat: number, lng: number) {
+    const { sunriseUTC, sunsetUTC, solarNoonUTC } = calculateSunriseSunsetApproximation(year, month, day, lat, lng);
+    
+    // Convert to target day Date objects in UTC
+    const sunriseDate = new Date(Date.UTC(year, month - 1, day, Math.floor(sunriseUTC), (sunriseUTC % 1) * 60));
+    let sunsetDate = new Date(Date.UTC(year, month - 1, day, Math.floor(sunsetUTC), (sunsetUTC % 1) * 60));
+    // Handle wrap around if sunset crossed UTC midnight
+    if (sunsetUTC < sunriseUTC) {
+         sunsetDate = new Date(Date.UTC(year, month - 1, day + 1, Math.floor(sunsetUTC), (sunsetUTC % 1) * 60));
+    }
+    const noonDate = new Date(Date.UTC(year, month - 1, day, Math.floor(solarNoonUTC), (solarNoonUTC % 1) * 60));
+
+    const dayDurationMs = sunsetDate.getTime() - sunriseDate.getTime();
+    
+    // 1. Rahu Kaalam & Yamaganda (Total day duration divided into 8 parts)
+    const partMs = dayDurationMs / 8;
+    const weekday = new Date(year, month - 1, day).getDay(); // Local day
+    
+    // Indices for parts (0-7): Sun, Mon, Tue, Wed, Thu, Fri, Sat
+    const rahuParts = [7, 1, 6, 4, 5, 3, 2];
+    const yamaParts = [4, 3, 2, 1, 0, 6, 5];
+
+    const rahuStart = new Date(sunriseDate.getTime() + rahuParts[weekday] * partMs);
+    const rahuEnd = new Date(rahuStart.getTime() + partMs);
+
+    const yamaStart = new Date(sunriseDate.getTime() + yamaParts[weekday] * partMs);
+    const yamaEnd = new Date(yamaStart.getTime() + partMs);
+
+    // 2. Abhijit Muhurta (1/15th of day around Solar Noon)
+    const abhijitDurationMs = dayDurationMs / 15;
+    const abhijitStart = new Date(noonDate.getTime() - (abhijitDurationMs / 2));
+    const abhijitEnd = new Date(noonDate.getTime() + (abhijitDurationMs / 2));
+
+    const formatTime = (d: Date) => d.toISOString();
+
+    return {
+        sunrise: formatTime(sunriseDate),
+        sunset: formatTime(sunsetDate),
+        rahuKaalam: { start: formatTime(rahuStart), end: formatTime(rahuEnd) },
+        yamaganda: { start: formatTime(yamaStart), end: formatTime(yamaEnd) },
+        abhijit: { start: formatTime(abhijitStart), end: formatTime(abhijitEnd) }
+    };
+}
+
 export async function calculatePanchang(
     year: number,
     month: number,
@@ -811,6 +892,8 @@ export async function calculatePanchang(
         karanaName = KARANAS[karanaIndex - 51]; // Fixed Karanas at the end
     }
 
+    const muhurtas = calculateMuhurtas(year, month, day, lat, lng);
+
     return {
         tithi: { name: tithiName, paksha, index: tithiIndex + 1 },
         vara: varaName,
@@ -818,6 +901,7 @@ export async function calculatePanchang(
         yoga: yogaName,
         karana: karanaName,
         sunSign: getZodiacSign(sunLong),
-        moonSign: getZodiacSign(moonLong)
+        moonSign: getZodiacSign(moonLong),
+        muhurtas
     };
 }

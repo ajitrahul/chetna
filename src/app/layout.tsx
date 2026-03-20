@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Montserrat, Cormorant_Garamond } from 'next/font/google';
+import { Inter, Cinzel } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -11,16 +11,16 @@ import FloatingActionButton from '@/components/FloatingActionButton';
 import { ProfileProvider } from '@/context/ProfileContext';
 import ProfileManager from '@/components/ProfileManager';
 
-const montserrat = Montserrat({
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-main',
   display: 'swap',
 });
 
-const cormorant = Cormorant_Garamond({
+const cinzel = Cinzel({
   subsets: ['latin'],
   variable: '--font-heading',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -51,8 +51,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${montserrat.variable} ${cormorant.variable}`}>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <body className={`${inter.variable} ${cinzel.variable}`}>
+        <div className="stars-bg"></div>
         <AuthProvider>
           <ProfileProvider>
             <Header />

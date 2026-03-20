@@ -91,31 +91,37 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
             <style jsx>{`
                 .dasha-container {
                     margin-top: 40px;
-                    padding: clamp(16px, 4vw, 32px);
-                    background: var(--card-bg);
-                    border-radius: 16px;
-                    border: 1px solid var(--card-border);
+                    padding: clamp(24px, 4vw, 40px);
+                    background: linear-gradient(180deg, rgba(22, 11, 32, 0.85) 0%, rgba(11, 5, 16, 0.95) 100%);
+                    border-radius: var(--radius-lg);
+                    border: 1px solid rgba(212, 175, 55, 0.3);
+                    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.4), 0 20px 50px rgba(0, 0, 0, 0.6);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
                 }
 
                 .section-title {
-                    color: var(--primary);
+                    color: var(--accent-gold);
                     font-family: var(--font-heading);
-                    font-size: clamp(1.2rem, 5vw, 1.8rem);
+                    font-size: clamp(1.4rem, 5vw, 2.2rem);
                     text-align: center;
                     margin-bottom: 8px;
+                    text-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
                 }
 
                 .subtitle {
                     text-align: center;
                     color: var(--secondary);
-                    font-size: 0.95rem;
+                    font-size: 1.05rem;
                     margin-bottom: 32px;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
                 }
 
                 .timeline {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(max(280px, 100%), 1fr));
-                    gap: 16px;
+                    gap: 20px;
                 }
 
                 @media (min-width: 640px) {
@@ -125,24 +131,27 @@ export default function DashaDisplay({ dashas }: DashaDisplayProps) {
                 }
 
                 .dasha-card {
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid var(--card-border);
-                    padding: 16px;
+                    background: rgba(11, 5, 16, 0.6);
+                    border: 1px solid rgba(212, 175, 55, 0.2);
+                    padding: 20px;
                     border-radius: 12px;
-                    transition: all 0.2s ease;
+                    transition: all 0.3s ease;
                     position: relative;
                     overflow: hidden;
+                    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.1);
                 }
 
                 .dasha-card:hover {
-                    background: rgba(212, 175, 55, 0.05); /* Gold tint on hover */
-                    border-color: var(--accent-gold);
+                    background: linear-gradient(180deg, rgba(30, 15, 45, 0.8) 0%, rgba(15, 8, 22, 0.95) 100%);
+                    border-color: rgba(212, 175, 55, 0.5);
+                    transform: translateY(-4px);
+                    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.6), 0 10px 20px rgba(212, 175, 55, 0.1);
                 }
 
                 .dasha-card.current {
-                    background: rgba(212, 175, 55, 0.1);
+                    background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, rgba(11, 5, 16, 0.8) 100%);
                     border: 1px solid var(--accent-gold);
-                    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+                    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.8), 0 4px 15px rgba(212, 175, 55, 0.2);
                 }
 
                 .dasha-header {

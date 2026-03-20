@@ -405,7 +405,18 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                             <stop offset="0%" stopColor="rgba(212, 175, 55, 0.2)" />
                             <stop offset="100%" stopColor="rgba(212, 175, 55, 0.4)" />
                         </linearGradient>
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="2" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                        <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="rgba(212, 175, 55, 0.15)" />
+                            <stop offset="100%" stopColor="rgba(212, 175, 55, 0)" />
+                        </radialGradient>
                     </defs>
+
+                    {/* Mystical Background Glow */}
+                    <circle cx="200" cy="200" r="190" fill="url(#centerGlow)" pointerEvents="none" />
 
                     {/* Background Polygons */}
                     {houses.map((house) => {
@@ -414,27 +425,33 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                             <path
                                 key={`bg-${house.num}`}
                                 d={house.path}
-                                fill={isActive ? 'url(#activeHouseGradient)' : 'rgba(212, 175, 55, 0.05)'}
-                                stroke="rgba(212, 175, 55, 0.25)"
-                                strokeWidth="1.2"
+                                fill={isActive ? 'url(#activeHouseGradient)' : 'rgba(11, 5, 16, 0.4)'}
+                                stroke="rgba(212, 175, 55, 0.6)"
+                                strokeWidth="1.5"
                                 onClick={() => setActiveHouse(house.num)}
-                                style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
+                                style={{ cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}
+                                className="chart-house-path"
                             />
                         );
                     })}
 
-                    {/* Main Grid Lines */}
-                    <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.6">
+                    {/* Main Grid Lines - Thick Outer Border */}
+                    <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter" fill="none" filter="url(#glow)">
                         <rect x="0" y="0" width="400" height="400" />
+                    </g>
+                    
+                    {/* Inner Diamond Lines */}
+                    <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8">
                         <line x1="0" y1="0" x2="400" y2="400" />
                         <line x1="400" y1="0" x2="0" y2="400" />
                         <path d="M 200,0 L 400,200 L 200,400 L 0,200 Z" />
                     </g>
 
                     {/* Center Symbol */}
-                    <g opacity="0.15" pointerEvents="none">
-                        <circle cx="200" cy="200" r="40" fill="none" stroke="var(--accent-gold)" strokeWidth="0.5" strokeDasharray="3 3" />
-                        <text x="200" y="204" textAnchor="middle" fontSize="9" fill="var(--accent-gold)" fontWeight="800" letterSpacing="4">CHETNA</text>
+                    <g opacity="0.4" pointerEvents="none" filter="url(#glow)">
+                        <circle cx="200" cy="200" r="45" fill="none" stroke="var(--accent-gold)" strokeWidth="0.8" strokeDasharray="4 4" />
+                        <circle cx="200" cy="200" r="35" fill="none" stroke="var(--accent-gold)" strokeWidth="0.5" opacity="0.5" />
+                        <text x="200" y="204" textAnchor="middle" fontSize="10" fill="var(--accent-gold)" fontWeight="600" letterSpacing="5" fontFamily="var(--font-heading)">CHETNA</text>
                     </g>
 
                     {/* Text Content */}
@@ -452,10 +469,11 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                                     y={house.textY}
                                     textAnchor="middle"
                                     dominantBaseline="middle"
-                                    fontSize="16"
+                                    fontSize="18"
                                     fill="var(--accent-gold)"
                                     opacity="0.95"
-                                    fontWeight="900"
+                                    fontWeight="400"
+                                    fontFamily="var(--font-heading)"
                                     style={{ pointerEvents: 'none' }}
                                 >
                                     {signNum}
@@ -465,10 +483,12 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                                     x={house.textX + (house.num === 1 ? 0 : [2, 12, 11, 10, 9, 8].includes(house.num) ? 40 : -40)}
                                     y={house.textY + ([1, 2, 12, 11, 3, 10].includes(house.num) ? -40 : 40)}
                                     textAnchor="middle"
-                                    fontSize="7"
-                                    fill="var(--secondary)"
-                                    opacity="0.4"
-                                    fontWeight="bold"
+                                    fontSize="8"
+                                    fill="rgba(244, 232, 209, 0.5)"
+                                    opacity="0.8"
+                                    fontWeight="600"
+                                    fontFamily="var(--font-main)"
+                                    letterSpacing="1"
                                     style={{ pointerEvents: 'none' }}
                                 >
                                     H{house.num}
@@ -503,10 +523,11 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                                             y={posY}
                                             textAnchor="middle"
                                             dominantBaseline="middle"
-                                            fontSize="11"
+                                            fontSize={planetObj.name === 'Ascendant' ? "12" : "11"}
                                             fill={isActive ? "var(--background)" : "var(--primary)"}
-                                            fontWeight="800"
-                                            style={{ pointerEvents: 'none', transition: 'all 0.3s ease' }}
+                                            fontWeight={planetObj.name === 'Ascendant' ? "700" : "500"}
+                                            fontFamily="var(--font-main)"
+                                            style={{ pointerEvents: 'none', transition: 'all 0.3s ease', textShadow: isActive ? 'none' : '0px 2px 4px rgba(0,0,0,0.5)' }}
                                         >
                                             {getPlanetLabel(planetObj.name === 'Asc' ? 'Ascendant' : planetObj.name)}
                                         </text>
@@ -543,6 +564,10 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                 }
                 .chart-display-container {
                     position: relative;
+                }
+                .chart-house-path:hover {
+                    fill: rgba(212, 175, 55, 0.15);
+                    stroke-width: 2.5px;
                 }
             `}</style>
         </div>

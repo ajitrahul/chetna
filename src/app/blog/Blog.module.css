@@ -6,11 +6,9 @@
 .hero {
     padding: 120px 24px 80px;
     text-align: center;
-    background: var(--bg-foggy-mountains);
-    background-size: cover;
-    background-position: center;
+    background: transparent;
     position: relative;
-    border-bottom: 1px solid var(--border-soft);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
 }
 
 .hero::before {
@@ -20,7 +18,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(var(--background-rgb), 0.3);
+    background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.15), transparent 70%);
     z-index: 0;
 }
 

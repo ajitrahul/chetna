@@ -1,5 +1,6 @@
 import { ChartData, getNavamsaSign, getDignity, getZodiacSign, getNakshatra } from './calculator';
 import { SIGN_LORDS, SIGNS, getSignIndex, getAspects, getConjunctions } from './interpretations';
+import { analyzePlanetAshtakavarga } from './ashtakavarga';
 
 export interface AnalysisResult {
     planet: string;
@@ -221,6 +222,149 @@ export class VedicAnalysisEngine {
             challenge: load === 'Highly Pressured' ? "Potential for burnout or over-effort" : "Integration into daily life",
             repeats_when: "Awareness is dimmed by habit",
             balances_with: "Conscious observation and pacing"
+        };
+    }
+
+    static detectYogas(chartData: ChartData): string[] {
+        const yogas: string[] = [];
+        const p = chartData.planets;
+        
+        const getSignIdx = (long: number) => Math.floor(long / 30);
+        
+        // 1. Gajakesari Yoga
+        if (p['Moon'] && p['Jupiter']) {
+            const moonSign = getSignIdx(p['Moon'].longitude);
+            const jupSign = getSignIdx(p['Jupiter'].longitude);
+            const dist = (jupSign - moonSign + 12) % 12 + 1;
+            if ([1, 4, 7, 10].includes(dist)) {
+                yogas.push("Gajakesari Yoga (Jupiter in Kendra from Moon - brings wisdom, respect, and lasting reputation)");
+            }
+        }
+
+        // 2. Kuja Dosha (Manglik)
+        if (p['Mars']) {
+            const ascSign = Math.floor(chartData.ascendant / 30);
+            const marsSign = getSignIdx(p['Mars'].longitude);
+            const marsHouse = (marsSign - ascSign + 12) % 12 + 1;
+            if ([1, 4, 7, 8, 12].includes(marsHouse)) {
+                yogas.push(`Kuja Dosha / Manglik (Mars in ${marsHouse}th house - brings intense relational energy and passion)`);
+            }
+        }
+
+        // 3. Kemadruma Yoga
+        if (p['Moon']) {
+            const moonSign = getSignIdx(p['Moon'].longitude);
+            const sign2 = (moonSign + 1) % 12;
+            const sign12 = (moonSign + 11) % 12;
+            let hasPlanetIn2 = false;
+            let hasPlanetIn12 = false;
+            
+            const validPlanets = ['Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+            for (const name of validPlanets) {
+                if (p[name]) {
+                    const sign = getSignIdx(p[name].longitude);
+                    if (sign === sign2) hasPlanetIn2 = true;
+                    if (sign === sign12) hasPlanetIn12 = true;
+                }
+            }
+            if (!hasPlanetIn2 && !hasPlanetIn12) {
+                yogas.push("Kemadruma Yoga (Moon isolated from true planets - indicates profound independence or episodic loneliness)");
+            }
+        }
+
+        // 4. Kala Sarpa Dosha
+        if (p['Rahu'] && p['Ketu']) {
+            const rahuL = p['Rahu'].longitude;
+            const traditional = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+            let allForward = true;
+            let allBackward = true;
+            
+            for (const name of traditional) {
+                if (p[name]) {
+                    let dF = p[name].longitude - rahuL;
+                    if (dF < 0) dF += 360;
+                    if (dF > 180) allForward = false;
+                    if (dF < 180) allBackward = false;
+                }
+            }
+            if (allForward || allBackward) {
+                yogas.push("Kala Sarpa Dosha (All planets hemmed between nodes - brings intense karmic extremes and profound spiritual awakening)");
+            }
+        }
+
+        return yogas;
+    }
+
+    static analyzeTransits(natal: ChartData, transit: ChartData) {
+        const getSignIdx = (long: number) => Math.floor(long / 30);
+        
+        let natalMoonSign = getSignIdx(natal.ascendant);
+        if (natal.planets['Moon']) {
+            natalMoonSign = getSignIdx(natal.planets['Moon'].longitude);
+        }
+        
+        const keyTransits: string[] = [];
+        let sadeSatiActive = false;
+        let sadeSatiPhase = '';
+        let jupiterBlessing = false;
+        let rahuKetuAxis = '';
+
+        // 1. Sade Sati (Saturn transit relating to Natal Moon)
+        if (transit.planets['Saturn']) {
+            const saturnSign = getSignIdx(transit.planets['Saturn'].longitude);
+            const saturnHouse = (saturnSign - natalMoonSign + 12) % 12 + 1;
+            
+            if (saturnHouse === 12) {
+                sadeSatiActive = true; sadeSatiPhase = 'Rising';
+                keyTransits.push("Sade Sati (Rising Phase): Saturn is transiting the 12th house from your Moon. A period of letting go, internal preparation, and facing subconscious fears.");
+            } else if (saturnHouse === 1) {
+                sadeSatiActive = true; sadeSatiPhase = 'Peak';
+                keyTransits.push("Sade Sati (Peak Phase): Saturn is transiting over your natal Moon. A crucial phase of deep psychological restructuring, pressure, and maturity.");
+            } else if (saturnHouse === 2) {
+                sadeSatiActive = true; sadeSatiPhase = 'Setting';
+                keyTransits.push("Sade Sati (Setting Phase): Saturn is transiting the 2nd house from your Moon. Focus shifts to financial restructuring, family values, and bringing these heavy karmic lessons to a close.");
+            }
+        }
+
+        // 2. Jupiter blessings
+        if (transit.planets['Jupiter']) {
+            const jupSign = getSignIdx(transit.planets['Jupiter'].longitude);
+            const jupHouse = (jupSign - natalMoonSign + 12) % 12 + 1;
+            if ([5, 7, 9].includes(jupHouse)) {
+                jupiterBlessing = true;
+                keyTransits.push(`Jupiter Blessing: Jupiter transit in the ${jupHouse}th house from your Moon indicates a period of grace, expansion, teaching, and spiritual protection.`);
+            }
+            if (jupHouse === 1) {
+                keyTransits.push(`Jupiter Return / Conjunction: Jupiter transiting your Moon sign brings a new 12-year cycle of personal growth and emotional expansion.`);
+            }
+        }
+
+        // 3. Rahu/Ketu Axis
+        if (transit.planets['Rahu'] && transit.planets['Ketu']) {
+            const rahuSign = getSignIdx(transit.planets['Rahu'].longitude);
+            const rahuHouse = (rahuSign - natalMoonSign + 12) % 12 + 1;
+            const ketuSign = getSignIdx(transit.planets['Ketu'].longitude);
+            const ketuHouse = (ketuSign - natalMoonSign + 12) % 12 + 1;
+            
+            rahuKetuAxis = `${rahuHouse}/${ketuHouse}`;
+            keyTransits.push(`Karmic Axis: The Nodes are transiting the ${rahuHouse}/${ketuHouse} houses from your Moon, shifting your collective karma between obsession (${rahuHouse}H) and detachment (${ketuHouse}H).`);
+        }
+
+        const ashtakavargaScores = [];
+        const traditional = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+        for (const p of traditional) {
+            if (transit.planets[p]) {
+                const score = analyzePlanetAshtakavarga(natal, p, transit.planets[p].longitude);
+                ashtakavargaScores.push(score);
+            }
+        }
+
+        return {
+            sadeSati: { active: sadeSatiActive, phase: sadeSatiPhase },
+            jupiterBlessing,
+            rahuKetuAxis,
+            keyTransits,
+            ashtakavargaScores
         };
     }
 }

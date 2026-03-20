@@ -1,9 +1,8 @@
 .footer {
-    background: var(--card-bg);
-    border-top: 1px solid var(--card-border);
+    background: transparent;
+    border-top: 1px solid rgba(212, 175, 55, 0.15);
     padding: 60px 24px 32px;
     margin-top: 100px;
-    backdrop-filter: blur(12px);
 }
 
 .footerContent {
@@ -25,9 +24,10 @@
 }
 
 .footerSection p {
-    color: var(--secondary);
+    color: var(--foreground);
     line-height: 1.7;
     font-size: 0.95rem;
+    opacity: 0.9;
 }
 
 .footerLinks {

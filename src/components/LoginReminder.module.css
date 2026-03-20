@@ -2,7 +2,8 @@
     position: fixed;
     top: 24px;
     right: 24px;
-    width: 380px;
+    width: calc(100% - 48px);
+    max-width: 380px;
     background: var(--card-bg);
     border: 1px solid var(--accent-gold);
     backdrop-filter: blur(20px);
@@ -91,9 +92,10 @@
 
 @media (max-width: 480px) {
     .reminder {
-        left: 16px;
-        right: 16px;
-        width: auto;
+        top: auto;
         bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 32px);
     }
 }

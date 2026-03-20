@@ -446,44 +446,54 @@
 
 /* Glassmorphism 2.0 & Premium Aesthetics */
 .trinityCard {
-    background: var(--card-bg);
-    border: 1px solid rgba(212, 175, 55, 0.25);
+    background: linear-gradient(180deg, rgba(22, 11, 32, 0.85) 0%, rgba(11, 5, 16, 0.95) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.3);
     border-radius: var(--radius-lg);
     padding: 32px;
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(24px);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(212, 175, 55, 0.05);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.5), 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(212, 175, 55, 0.05);
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .trinityCard:hover {
     transform: translateY(-12px) scale(1.02);
     border-color: var(--accent-gold);
-    box-shadow: 0 30px 60px rgba(212, 175, 55, 0.15), inset 0 0 30px rgba(212, 175, 55, 0.1);
+    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.8), 0 30px 60px rgba(212, 175, 55, 0.15), inset 0 0 50px rgba(212, 175, 55, 0.1);
 }
 
 .vargaCard {
-    background: var(--card-bg);
-    border: 2px solid rgba(212, 175, 55, 0.2);
+    background: linear-gradient(180deg, rgba(22, 11, 32, 0.8) 0%, rgba(11, 5, 16, 0.95) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.25);
     border-radius: var(--radius-lg);
     padding: 28px 24px;
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.4), 0 15px 40px rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(16px);
-    transition: all 0.4s ease;
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     overflow: hidden;
     min-height: 400px;
 }
 
+.vargaCard::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.8), transparent);
+    opacity: 0.5;
+}
+
 .vargaCard:hover {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(10, 10, 10, 0.4) 100%);
-    border-color: rgba(212, 175, 55, 0.4);
-    transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.15);
+    background: linear-gradient(180deg, rgba(30, 15, 45, 0.8) 0%, rgba(15, 8, 22, 0.95) 100%);
+    border-color: rgba(212, 175, 55, 0.5);
+    transform: translateY(-8px);
+    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.6), 0 20px 50px rgba(212, 175, 55, 0.1);
 }
 
 .analysisBtn {

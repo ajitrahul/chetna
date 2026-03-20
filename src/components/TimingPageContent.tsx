@@ -80,6 +80,8 @@ export default function TimingPageContent() {
     const [activeProfiles, setActiveProfiles] = useState<UserProfile[]>([]);
     const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
     const [aiInsight, setAiInsight] = useState<any>(null);
+    const [transits, setTransits] = useState<any>(null);
+    const [transitsLoading, setTransitsLoading] = useState(false);
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -106,6 +108,7 @@ export default function TimingPageContent() {
 
                 setSelectedProfileId(initialId);
                 fetchDashas(initialId);
+                fetchTransits(initialId);
             } else {
                 setLoading(false);
                 setProfilesLoading(false);
@@ -142,6 +145,22 @@ export default function TimingPageContent() {
         }
     };
 
+    const fetchTransits = async (profileId: string) => {
+        try {
+            setTransitsLoading(true);
+            setTransits(null);
+            const res = await fetch(`/api/astrology/transits?profileId=${profileId}`);
+            if (res.ok) {
+                const data = await res.json();
+                setTransits(data.transits);
+            }
+        } catch (e) {
+            console.error('Failed to load transits', e);
+        } finally {
+            setTransitsLoading(false);
+        }
+    };
+
     const fetchAiInsight = async () => {
         if (!selectedProfileId || !currentDasha) return;
         setFetchingAi(true);
@@ -174,6 +193,7 @@ export default function TimingPageContent() {
     const handleProfileChange = (id: string) => {
         setSelectedProfileId(id);
         fetchDashas(id);
+        fetchTransits(id);
         router.push(`/timing?profileId=${id}`, { scroll: false });
     };
 
@@ -321,6 +341,56 @@ export default function TimingPageContent() {
                     </div>
                 </div>
             )}
+
+            {/* Daily Transits Section (Gochar) */}
+            <section className={styles.timelineSection}>
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>Current Cosmic Weather (Gochar)</h2>
+                    <p className="text-sm text-[var(--text-muted)] mt-1 tracking-wide">
+                        Temporary planetary movements currently interacting with your natal chart.
+                    </p>
+                </div>
+                {transitsLoading ? (
+                    <div className="flex justify-center p-8 opacity-50"><div className={styles.spinner}></div></div>
+                ) : transits ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {transits.keyTransits.length > 0 ? transits.keyTransits.map((transitText: string, idx: number) => {
+                            const [title, rest] = transitText.split(': ');
+                            const isSadeSati = title.includes('Sade Sati');
+                            const isJupiter = title.includes('Jupiter');
+                            return (
+                                <div key={idx} className={`${styles.card} border-l-4 ${isSadeSati ? 'border-amber-500' : isJupiter ? 'border-green-500' : 'border-[var(--primary)]'}`}>
+                                    <h4 className="font-semibold text-[var(--primary)] text-sm mb-1 uppercase tracking-wider">{title}</h4>
+                                    <p className="text-sm text-[var(--foreground)]">{rest || transitText}</p>
+                                </div>
+                            );
+                        }) : (
+                            <div className={`${styles.card} col-span-full text-center py-8 opacity-70`}>
+                                <p>No major heavy-planet transits are currently active. Enjoy this period of relative cosmic calm.</p>
+                            </div>
+                        )}
+
+                        {transits.ashtakavargaScores && transits.ashtakavargaScores.length > 0 && (
+                            <div className="col-span-full mt-6">
+                                <h3 className="font-semibold text-[var(--primary)] mb-4 uppercase tracking-widest text-sm">Ashtakavarga Transit Strengths</h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                                    {transits.ashtakavargaScores.map((av: any) => (
+                                        <div key={av.planet} className={`${styles.card} flex flex-col items-center p-4 text-center`} title={av.meaning}>
+                                            <span className="font-bold text-md">{av.planet}</span>
+                                            <div className="text-3xl font-light my-2" style={{ color: av.score >= 5 ? 'var(--success, #4ade80)' : av.score <= 3 ? 'var(--error, #f87171)' : 'var(--primary)' }}>
+                                                {av.score}<span className="text-sm text-[var(--text-muted)]">/8</span>
+                                            </div>
+                                            <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: av.score >= 5 ? 'var(--success, #4ade80)' : av.score <= 3 ? 'var(--error, #f87171)' : 'var(--secondary)' }}>
+                                                {av.quality}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : null}
+            </section>
 
             <section className={styles.timelineSection}>
                 <div className={styles.sectionHeader}>
