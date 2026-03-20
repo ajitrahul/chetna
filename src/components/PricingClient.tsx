@@ -105,7 +105,9 @@ export default function PricingClient({ plans }: PricingClientProps) {
 
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={styles.title}>Pricing</h1>
+                    <span className="cosmic-label mb-2 block">Value & Exchange · Dana</span>
+                    <h1 className="mystic-text text-5xl mb-4">Sacred Exchange</h1>
+                    <div className="sacred-divider mb-8"></div>
                     <p className={styles.subtitle}>
                         Chetna follows a simple and transparent pricing model. You pay only for what you choose to explore — no subscriptions, no pressure.
                     </p>
@@ -115,7 +117,7 @@ export default function PricingClient({ plans }: PricingClientProps) {
                     {sortedPlans.map((plan) => {
                         const isFeatured = plan.credits === 5; // Highlight 5-pack as featured if desired
                         return (
-                            <div key={plan.key} className={`${styles.priceCard} ${isFeatured ? styles.featured : ''}`}>
+                            <div key={plan.key} className={`${styles.priceCard} ${isFeatured ? styles.featured : ''} sacred-card`}>
                                 <div className={styles.cardLabel}>{plan.credits === 1 ? 'Single Question' : 'Credit Pack'}</div>
                                 <div className={styles.price}>₹{plan.price / 100}</div>
                                 <div className={styles.priceUnit}>
@@ -137,7 +139,7 @@ export default function PricingClient({ plans }: PricingClientProps) {
                                 </ul>
                                 <button
                                     onClick={() => handlePurchase(plan)}
-                                    className={styles.ctaBtn}
+                                    className="primary-btn-cosmic w-full"
                                     disabled={loading === plan.key}
                                 >
                                     {loading === plan.key ? 'Processing...' : (plan.credits > 1 ? 'Get Credits' : 'Ask Now')}
@@ -148,7 +150,7 @@ export default function PricingClient({ plans }: PricingClientProps) {
                 </div>
 
                 <div className={styles.infoSection}>
-                    <h2>What You&apos;re Paying For</h2>
+                    <h2 className="mystic-text text-2xl mb-4">What You&apos;re Paying For</h2>
                     <ul>
                         <li>Structured astrological interpretation</li>
                         <li>AI-assisted reflection and guidance</li>
@@ -158,7 +160,7 @@ export default function PricingClient({ plans }: PricingClientProps) {
                 </div>
 
                 <div className={styles.infoSection}>
-                    <h2>You Are NOT Paying For</h2>
+                    <h2 className="mystic-text text-2xl mb-4">You Are NOT Paying For</h2>
                     <ul>
                         <li>Fortune-telling or predictions</li>
                         <li>Emergency answers or urgent decisions</li>

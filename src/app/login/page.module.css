@@ -68,19 +68,20 @@
 .formGroup input {
     width: 100%;
     padding: 14px 16px;
-    background: var(--background);
+    background: rgba(var(--background-rgb), 0.8);
     border: 1px solid var(--card-border);
     border-radius: 8px;
     color: var(--foreground);
     font-size: 1rem;
     font-family: var(--font-main);
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .formGroup input:focus {
     outline: none;
     border-color: var(--accent-gold);
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15), inset 0 0 10px rgba(212, 175, 55, 0.05);
+    background: rgba(var(--background-rgb), 1);
 }
 
 .checkboxGroup {

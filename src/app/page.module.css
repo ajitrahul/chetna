@@ -35,14 +35,29 @@
   max-width: 700px;
 }
 
+.heroLabel {
+  margin-bottom: 24px;
+}
+
+.mandalaHero {
+  position: absolute;
+  top: 50%;
+  right: -100px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+}
+
 .heroTitle {
   font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem);
   line-height: 1.1;
   font-family: var(--font-heading);
   color: var(--foreground);
   margin-bottom: 40px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
 }
 
 .heroSubtitle {
@@ -93,12 +108,14 @@
   background: linear-gradient(135deg, var(--accent-gold) 0%, #b8860b 100%);
   color: #101010;
   border-radius: 50px;
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+  font-family: var(--font-heading);
+  letter-spacing: 0.05em;
 }
 
 .secondaryBtn {
@@ -117,8 +134,110 @@
 
 .primaryBtn:hover,
 .secondaryBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+}
+
+/* ─── Navagraha Planet Strip ─── */
+.navagrahaStrip {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 80px;
+  padding: 32px 0;
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.navagrahaItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+.planetGlyph {
+  font-size: 1.8rem;
+  color: var(--accent-gold);
+  text-shadow: 0 0 16px rgba(212, 175, 55, 0.6), 0 0 40px rgba(212, 175, 55, 0.2);
+  transition: text-shadow 0.3s ease;
+  line-height: 1;
+}
+
+.navagrahaItem:hover .planetGlyph {
+  text-shadow: 0 0 24px rgba(212, 175, 55, 0.9), 0 0 60px rgba(212, 175, 55, 0.4);
+}
+
+.planetSanskrit {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* ─── Zodiac Scroll Band ─── */
+.zodiacSection {
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  background: rgba(22, 11, 32, 0.3);
+  overflow: hidden;
+  padding: 16px 0;
+}
+
+.zodiacScroll {
+  display: flex;
+  gap: 48px;
+  animation: zodiacMarquee 40s linear infinite;
+  width: max-content;
+}
+
+@keyframes zodiacMarquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.zodiacItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.zodiacGlyph {
+  font-size: 1.6rem;
+  color: var(--accent-gold);
+  text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+}
+
+.zodiacSanskrit {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+/* ─── Dashboard Mandala BG ─── */
+.dashboardMandalaBg {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.dashboardGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
 }
 
 /* "How Chetna Works" Section */

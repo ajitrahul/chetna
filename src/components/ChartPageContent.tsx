@@ -292,18 +292,148 @@ const getPersonalizedInterpretation = (key: string, vargaData: any, userName: st
                 text: `Beyond just money, this chart looks at what makes you feel secure and "at home" in the material world. It points to the psychological comfort derived from your tangible achievements.`
             }
         ];
+    } else if (key === 'D3') {
+        questions = [
+            {
+                title: 'Inner Warrior',
+                question: 'What is your natural capacity for courage and initiative?',
+                text: `In your D3 (Drekkana) chart, the ${ascSign} Ascendant reveals how you initiate action. You are naturally equipped with the courage archetype of ${ascSign} — whether that manifests as direct, fiery initiative (Fire signs), patient, strategic effort (Earth signs), communicative agility (Air signs), or intuitive, emotionally-charged drive (Water signs). This is the chart of your inner warrior, revealing how you push through obstacles and break new ground. It governs brothers, male allies, and the people who stand beside you in the arena. If you want to understand why some ventures feel effortless while others drain you, look here.`
+            },
+            {
+                title: 'Sibling & Alliance Dynamics',
+                question: 'What role do close allies and siblings play in your story?',
+                text: `The D3 shows the energetic signature of your relationships with siblings and close co-workers. Planets placed strongly here indicate who will be your most powerful supporters in life. Malefics here can indicate rivalry or challenging relationships that ultimately forge your strength; benefics suggest nurturing allies. This chart also reveals if you are more effective as a solo operator or as the driving force within a team.`
+            }
+        ];
+    } else if (key === 'D5') {
+        questions = [
+            {
+                title: 'Authority & Fame',
+                question: 'What kind of authority or recognition are you destined for?',
+                text: `Your D5 (Panchamsa) chart with ${ascSign} rising reveals your "Purva Punya" — the spiritual merit and authority you carry from past-life actions. A strong D5 indicates someone who naturally commands respect and gravitates toward positions of leadership without forcing it. Your chart shows the style of your authority: with ${ascSign} Ascendant, your power is expressed through this sign's archetypal energy — whether as a bold pioneer, a steady guardian, or a wise communicator. This is the chart of sovereignty.`
+            },
+            {
+                title: 'Ethical Alignment',
+                question: 'How do your moral values shape your rise to power?',
+                text: `The D5 chart is deeply tied to ethics. How you use power defines the lasting quality of your reputation. Benefic planets here indicate a natural inclination toward fair and inspired leadership, while malefics suggest an individual who must consciously wrestle with their shadow side to avoid abuses of power. Your dharmic alignment — or its absence — is clearly written in this chart.`
+            }
+        ];
+    } else if (key === 'D6') {
+        questions = [
+            {
+                title: 'Resilience & Service',
+                question: 'How do you navigate health challenges and difficult opposition?',
+                text: `Your D6 (Shashtamsa) chart with ${ascSign} rising is the microscope on your resilience. This chart governs health challenges, enemies, debts, and litigation. Far from being a chart of doom, the D6 reveals your fighting spirit — the capacity to overcome exactly these kinds of obstacles. The ${ascSign} energy here shapes HOW you deal with trouble: direct confrontation, strategic endurance, intellectual navigation, or emotional transmutation. A strong D6 indicates someone who not only survives adversity but emerges fundamentally stronger. It is also the chart of service and daily discipline.`
+            },
+            {
+                title: 'Health Blueprint',
+                question: 'What are your physiological strengths and vulnerabilities?',
+                text: `Each planet in the D6 represents a specific system of the body or a class of challenge. Benefics here protect health and reduce the power of enemies; malefics, while challenging, can give you an extraordinary fighting capacity. By understanding your D6, you can adopt proactive health strategies tailored to your constitution.`
+            }
+        ];
+    } else if (key === 'D7') {
+        questions = [
+            {
+                title: 'Creative Legacy',
+                question: 'What kind of lasting legacy are you here to create?',
+                text: `Your D7 (Saptamsa) chart with ${ascSign} rising is the lens on your progeny — both biological children and everything you bring to life through creative effort. This is the chart of what you leave behind. Your ${ascSign} Ascendant here colors the nature of your creations: Aries creates boldly and immediately, Taurus builds works of lasting beauty, Gemini leaves behind ideas and communications, Cancer nurtures the next generation emotionally. This chart tells you if children will bring you profound joy, if creative projects will succeed, and how the next generation will remember you.`
+            },
+            {
+                title: 'Parental Capacity',
+                question: 'How are you wired for nurturing?',
+                text: `The D7 also reveals your instinctive parenting style. Jupiter here is a powerful blessing for children. The condition of the 5th lord shows your capacity for joyful, spontaneous love. Challenges in this chart are not denials but invitations to work through specific blockages — often related to the parent-child relationship you yourself experienced — before the channel of creative or biological progeny can flow freely.`
+            }
+        ];
+    } else if (key === 'D8') {
+        questions = [
+            {
+                title: 'Depth & Transformation',
+                question: 'Where do you carry the capacity for radical self-renewal?',
+                text: `Your D8 (Ashtamsa) chart with ${ascSign} rising is one of the most powerful and misunderstood charts. It governs sudden events, longevity, the occult, and deep psychological transformation. Rather than fear this chart, understand it as your alchemical furnace. The ${ascSign} energy on your D8 Ascendant describes your relationship with crisis: how you confront the sudden, the unexpected, the liminal. A well-placed D8 gives people a remarkable ability to survive things that would break others, and to emerge not broken but transformed.`
+            },
+            {
+                title: 'Hidden Foundations',
+                question: 'What unearned resources or esoteric gifts do you carry?',
+                text: `This chart also governs unearned wealth (inheritance, windfalls, partner's assets) and occult power. Planets placed strongly here indicate your capacity for esoteric knowledge, psychic sensitivity, or access to resources that come through unexpected channels rather than daily work. Understanding your D8 gives you a roadmap for navigating the inevitable "plot twists" of your life.`
+            }
+        ];
+    } else if (key === 'D12') {
+        questions = [
+            {
+                title: 'Ancestral Inheritance',
+                question: 'What patterns have you inherited from your family lineage?',
+                text: `Your D12 (Dvadasamsa) chart with ${ascSign} rising is the cosmic record of your parents' and grandparents' well-being. The Sun and Moon in this chart speak directly to your father's and mother's condition in life. But more profoundly, this chart shows the psychological imprints — both gifts and wounds — that have flowed down through your family line into your own body and behavior. Your ${ascSign} Ascendant here suggests the core energy you have inherited and must integrate or transform.`
+            },
+            {
+                title: 'Healing the Family Line',
+                question: 'What ancestral patterns are you here to transform?',
+                text: `Planets in the 4th, 8th, and 12th houses of the D12 often indicate deeply held family karma that is ready to be healed in your lifetime. Rather than seeing this as a burden, understand that you are the "chosen one" who has the awareness to break a cycle that has run for generations. Strong benefics here suggest powerful ancestral blessings you can consciously call upon.`
+            }
+        ];
+    } else if (key === 'D20') {
+        questions = [
+            {
+                title: 'Spiritual Practice',
+                question: 'Which spiritual path is most aligned with your nature?',
+                text: `Your D20 (Vimsamsa) chart with ${ascSign} rising reveals the frequency of your deepest spiritual alignment. This chart shows your Ista Devata — the form of the Divine that most resonates with your individual soul. The ${ascSign} energy rising here tells you if your natural path is one of devotion (Bhakti), knowledge (Jnana), action (Karma), or energetic practice (Tantra/Kundalini). This is not about organized religion; it is about the innate frequency of your soul's connection to the source.`
+            },
+            {
+                title: 'Meditative Depth',
+                question: 'How deep can your inner practice take you?',
+                text: `Jupiter and Ketu in this chart are the most important planets for assessing your spiritual depth. The 9th house (guru, divine grace) and the 12th house (liberation, dissolution) show how close you are to realizing a state beyond ordinary mind. Even small spiritual efforts will yield large results for those with a strong D20, as past-life practice has already built the foundation.`
+            }
+        ];
+    } else if (key === 'D24') {
+        questions = [
+            {
+                title: 'Intellect & Mastery',
+                question: 'In which fields can you achieve true intellectual mastery?',
+                text: `Your D24 (Chaturvimsamsa) chart with ${ascSign} rising is the map of your academic and intellectual journey. Mercury and Jupiter are the primary rulers of this chart. The ${ascSign} energy shapes the style of your learning: Fire signs learn by doing and inspiring; Earth signs by systematic, applied practice; Air signs by conceptual frameworks and dialogue; Water signs by intuition, absorption, and feeling-level knowing. This chart reveals your capacity for specialized knowledge, research, and teaching.`
+            },
+            {
+                title: 'Path of Learning',
+                question: 'How does your educational journey unfold?',
+                text: `Planets in the 4th house (foundational learning), 5th house (intelligence, memory), and 9th house (higher wisdom, philosophy) of the D24 tell the full story of your educational journey. Strong Mercury here gives analytical brilliance; strong Jupiter gives wisdom and the capacity to teach; the Sun gives authority in your field; while Saturn gives a slow but incredibly thorough depth of mastery.`
+            }
+        ];
+    } else if (key === 'D27') {
+        questions = [
+            {
+                title: 'Vital Force',
+                question: 'What is the quality and strength of your life-force energy?',
+                text: `Your D27 (Bhamsa) chart with ${ascSign} rising reveals your Prana — the life-force that flows through your constitution. This chart shows your physical and psychological resilience, calibrated through the 27 Nakshatras. Your ${ascSign} Ascendant gives you access to a specific kind of energy: some signs give explosive, short-burst vitality; others give slow-burning, marathon stamina. Understanding your D27 helps you manage your energy sustainably, knowing when to push hard and when you must rest and replenish.`
+            },
+            {
+                title: 'Stress & Resilience',
+                question: 'How does your system respond to prolonged pressure?',
+                text: `This chart works with the Nakshatra lords to reveal your intrinsic temperament under stress. If multiple malefics afflict the key houses here, you may have a lower threshold for certain kinds of environmental or emotional stress, requiring conscious management. Benefics in strength here give you an almost preternatural ability to bounce back. Your D27 is the answer to the question: "How much can my soul take before it breaks?"`
+            }
+        ];
+    } else if (key === 'D30') {
+        questions = [
+            {
+                title: 'Shadow Work',
+                question: 'What inner patterns create your biggest obstacles?',
+                text: `Your D30 (Trimsamsa) chart with ${ascSign} rising is the most challenging but ultimately most liberating chart to study. It maps your psychological shadow — the self-sabotaging patterns, hidden fears, and karmic blind spots that consistently create difficulty in your outer life. The ${ascSign} energy rising here points to the archetypal challenges you must consciously integrate. This is not a chart of doom; it is a chart of profound self-awareness, showing exactly what you must transform to stop repeating painful cycles.`
+            },
+            {
+                title: 'Karmic Redemption',
+                question: 'How do you transform your darkest patterns into your greatest strength?',
+                text: `Planets in challenging positions in the D30 reveal the specific karmas that are "pending" from previous lifetimes, now ready for conscious resolution. Mars and Saturn are particularly telling here. However, a willingly-examined D30 becomes a treasure map: every pattern you identify and consciously transform turns from a wound into a source of deep wisdom and compassionate strength. This is the chart of the healer who cured themselves first.`
+            }
+        ];
     } else {
-        // Generic Fallback for other charts
+        // Generic Fallback for any chart not yet covered
         questions = [
             {
                 title: `${key} Essence`,
                 question: `What is the core essence of this ${key} chart?`,
-                text: `The ${key} chart acts as a microscopic view of a specific area of your life. With the Ascendant in ${ascSign}, your approach to the matters of this chart (whether health, spirituality, or siblings) starts with an attitude of ${ascSign}.`
+                text: `The ${key} chart provides a high-resolution view of a specific domain of your life. With the Ascendant in ${ascSign}, the energy of this sign acts as your primary lens and approach for the matters governed by this chart. Examine the lord of the Ascendant and the natural significators of this chart's theme to draw specific conclusions about your strengths and challenges in this area.`
             },
             {
                 title: 'Hidden Potential',
-                question: 'Where lies your untapped potential here?',
-                text: `Planetary placements in this divisional chart suggest hidden reserves of strength or specific challenges to be overcome to unlock the full potential of this life area.`
+                question: 'Where lies your untapped potential in this life area?',
+                text: `The overall planetary balance in this divisional chart points to specific reserves of strength that you may not have fully accessed for this life domain. Benefics placed in angular houses (1st, 4th, 7th, 10th) give direct empowerment; benefics in trine houses (5th, 9th) give grace and talent; malefics can give tremendous strength if well-dignified, or show the specific areas requiring the most conscious inner work.`
             }
         ];
     }
@@ -652,16 +782,8 @@ export default function ChartPageContent() {
                     whileHover={{ y: isTrinity ? -12 : -4 }}
                     className={isTrinity ? styles.trinityCard : styles.vargaCard}
                 >
-                    {isTrinity && <span className={styles.trinityBadge}>Foundational</span>}
-
                     {!isUnlocked && (
                         <div className={styles.lockOverlay}>
-                            <div className={styles.mysticLock}>
-                                <Lock size={40} className={styles.lockIcon} />
-                                <div className={styles.lockGlow}></div>
-                            </div>
-                            <h3 className={styles.unlockTitle}>{info.title}</h3>
-                            <p className={styles.unlockDescription}>Unlock deep celestial insights into this specific area of your life.</p>
                             <button
                                 className={styles.unlockBtn}
                                 onClick={() => handleUnlockChart(key)}
@@ -712,9 +834,11 @@ export default function ChartPageContent() {
 
     return (
         <div className={`container ${styles.pageContainer}`}>
-            <div className="flex flex-col md:flex-row justify-between items-end mb-4 gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
                 <div className="text-left w-full">
-                    <h1 className={styles.title}>Varga Portfolio</h1>
+                    <span className="cosmic-label mb-2 inline-block">Varga Portfolio · Divisional Insights</span>
+                    <h1 className="mystic-text">Your Evolutionary Blueprint</h1>
+                    <div className="sacred-divider ml-0 justify-start"></div>
                     <div className={styles.subtitle}>
                         <p>Cosmic blueprint for <span className="text-[var(--primary)] font-semibold">{profile?.name}</span> • {new Date(profile!.dateOfBirth).toLocaleDateString()}</p>
                         {profile && profile.chartData && (
@@ -778,9 +902,9 @@ export default function ChartPageContent() {
             </div>
 
             {!hasVargas && (
-                <div className={styles.initializeSection}>
+                <div className={`${styles.initializeSection} sacred-card`}>
                     <Sparkles size={32} className="mx-auto text-[var(--accent-gold)] mb-4" />
-                    <h2>Advanced Insights Available</h2>
+                    <h2 className="mystic-text">Advanced Insights Available</h2>
                     <p>Your profile needs one-time synchronization to unlock 16 additional divisional charts.</p>
                     <button
                         className={styles.initializeBtn}

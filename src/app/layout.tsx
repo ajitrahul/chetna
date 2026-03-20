@@ -53,7 +53,11 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${cinzel.variable}`}>
-        <div className="stars-bg"></div>
+        <div className="cosmic-bg-overlay"></div>
+        <div className="stars-layer-1"></div>
+        <div className="stars-layer-2"></div>
+        <div className="central-portal-glow"></div>
+        <div className="noise-overlay"></div>
         <AuthProvider>
           <ProfileProvider>
             <Header />

@@ -279,6 +279,9 @@ export default function DashboardPage() {
     return (
         <div className={styles.profileContainer}>
             <header className={styles.header}>
+                <span className="cosmic-label mb-2 block">Dharma Dashboard</span>
+                <h1 className="mystic-text text-4xl mb-4">Your Cosmic Center</h1>
+                <div className="sacred-divider ml-0 justify-start mb-8"></div>
                 <div className={styles.userBasicInfo}>
                     <div className={styles.avatar}>
                         {session.user?.image ? (
@@ -292,18 +295,18 @@ export default function DashboardPage() {
                         <p className={styles.userEmail}>{session.user?.email}</p>
                     </div>
                 </div>
-                <div className={styles.statsBar}>
+                <div className={`${styles.statsBar} sacred-card`}>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>Credits</span>
-                        <span className={styles.statValue}>{stats.credits}</span>
+                        <span className="text-[var(--accent-gold)] font-bold text-xl">{stats.credits}</span>
                     </div>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>Profiles</span>
-                        <span className={styles.statValue}>{stats.profilesCount}</span>
+                        <span className="text-[var(--accent-gold)] font-bold text-xl">{stats.profilesCount}</span>
                     </div>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>Questions</span>
-                        <span className={styles.statValue}>{stats.questionsCount}</span>
+                        <span className="text-[var(--accent-gold)] font-bold text-xl">{stats.questionsCount}</span>
                     </div>
                 </div>
             </header>
@@ -349,14 +352,14 @@ export default function DashboardPage() {
                     {/* Overview Section */}
                     {activeSection === 'overview' && (
                         <div className={styles.overviewGrid}>
-                            <section className={styles.heroSection}>
-                                <h2>Welcome back, {session.user?.name?.split(' ')[0] || 'Friend'}</h2>
-                                <p>You have {stats.credits} clarity credits available. Need deeper insights?</p>
+                            <section className={`${styles.heroSection} sacred-card`}>
+                                <h2 className="mystic-text text-2xl">Welcome back, {session.user?.name?.split(' ')[0] || 'Friend'}</h2>
+                                <p className="text-white/70 italic my-2">The stars have moved since your last visit.</p>
                                 <div className={styles.heroActions}>
-                                    <Link href="/clarity" className={styles.primaryBtn}>
+                                    <Link href="/clarity" className="primary-btn-cosmic text-sm">
                                         <Sparkles size={16} /> Ask AI Astrologer
                                     </Link>
-                                    <button onClick={openNewProfileModal} className={styles.secondaryBtn}>
+                                    <button onClick={openNewProfileModal} className="secondary-btn-cosmic text-sm">
                                         <PlusCircle size={16} /> New Profile
                                     </button>
                                 </div>

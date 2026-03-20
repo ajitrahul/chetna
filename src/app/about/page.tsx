@@ -10,11 +10,15 @@ export default function AboutPage() {
     return (
         <main className={styles.legalPage}>
             <div className={styles.container}>
-                <h1>About Chetna</h1>
-                <p className={styles.lastUpdated}>Awareness, Not Prediction</p>
+                <div className={styles.hero}>
+                    <span className="cosmic-label mb-2">Our Vision · Darshana</span>
+                    <h1 className="mystic-text text-6xl">About Chetna</h1>
+                    <div className="sacred-divider"></div>
+                    <p className={styles.heroSubtitle}>Awareness, Not Prediction</p>
+                </div>
 
-                <section>
-                    <h2>What is Chetna?</h2>
+                <section className="mb-12">
+                    <h2 className="mystic-text text-3xl mb-4">What is Chetna?</h2>
                     <p>
                         <strong>Chetna</strong> (चेतना) is a Sanskrit word meaning "awareness" or "consciousness." It represents the essence of our platform: a space for self-reflection, understanding, and conscious decision-making through the lens of Vedic astrology.
                     </p>
@@ -23,10 +27,10 @@ export default function AboutPage() {
                     </p>
                 </section>
 
-                <section>
-                    <h2>Our Philosophy</h2>
-                    <div className={styles.importantNotice}>
-                        <h3>What Chetna Is:</h3>
+                <section className="mb-12">
+                    <h2 className="mystic-text text-3xl mb-4">Our Philosophy</h2>
+                    <div className={`${styles.importantNotice} sacred-card`}>
+                        <h3 className="mystic-text !text-xl mb-4 text-[var(--accent-gold)]">What Chetna Is:</h3>
                         <ul>
                             <li><strong>A tool for self-awareness</strong> — Understanding your strengths, challenges, and natural tendencies</li>
                             <li><strong>A guide for timing</strong> — Recognizing favorable and challenging periods in your life</li>

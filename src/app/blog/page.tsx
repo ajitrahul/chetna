@@ -61,8 +61,8 @@ export default function BlogPage() {
     if (isLoading || status === 'loading') {
         return (
             <div className={styles.loadingContainer}>
-                <div className={styles.loader}></div>
-                <p>Aligning with cosmic insights...</p>
+            <div className="loader-cosmic mb-6"></div>
+            <p className="mystic-text text-xl">Aligning with cosmic insights...</p>
             </div>
         );
     }
@@ -75,10 +75,10 @@ export default function BlogPage() {
                 <div className={styles.loginOverlay}>
                     <div className={styles.loginCard}>
                         <div className={styles.lockIcon}>
-                            <Lock size={32} />
+                            <Lock size={32} className="text-[var(--accent-gold)]" />
                         </div>
-                        <h2>Unlock Cosmic Wisdom</h2>
-                        <p>Sign in to access our exclusive astrological insights and reflections.</p>
+                        <h2 className="mystic-text text-2xl mb-4">Unlock Cosmic Wisdom</h2>
+                        <p className="text-white/70 mb-6">Sign in to access our exclusive astrological insights and reflections.</p>
                         <button
                             className={styles.googleSignIn}
                             onClick={() => signIn('google')}

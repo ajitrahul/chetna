@@ -40,13 +40,16 @@
 }
 
 .footerLinks a {
-    color: var(--secondary);
+    color: var(--accent-gold);
     font-size: 0.95rem;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    opacity: 0.8;
 }
 
 .footerLinks a:hover {
-    color: var(--primary);
+    color: #fff;
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .socialLinks {

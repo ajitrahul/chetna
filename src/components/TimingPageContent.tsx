@@ -230,9 +230,11 @@ export default function TimingPageContent() {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <h1 className={styles.title}>Timing & Seasons</h1>
+                <span className="cosmic-label mb-2 inline-block">Gochar & Dasha · Celestial Weather</span>
+                <h1 className="mystic-text">Timing & Seasons</h1>
+                <div className="sacred-divider"></div>
                 <p className={styles.subtitle}>
-                    Planetary periods (Dashas) are not destiny. They are foundational cycles that influence your capacity to act and perceive.
+                    Planetary periods are foundational cycles that influence your capacity to act and perceive.
                 </p>
             </header>
 
@@ -259,9 +261,9 @@ export default function TimingPageContent() {
             )}
 
             {currentDasha && (
-                <div className={styles.currentPeriod}>
+                <div className={`${styles.currentPeriod} sacred-card`}>
                     <div className={styles.periodLabel}>Current Major Phase (Mahadasha)</div>
-                    <h2 className={styles.periodName}>{currentDasha.lord} Period</h2>
+                    <h2 className="mystic-text text-3xl my-2">{currentDasha.lord} Period</h2>
                     <div className={styles.periodDates}>
                         {new Date(currentDasha.start).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} —
                         {new Date(currentDasha.end).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
@@ -269,7 +271,7 @@ export default function TimingPageContent() {
 
                     {!aiInsight && (
                         <button
-                            className={styles.aiRevealBtn}
+                            className="primary-btn-cosmic mt-4"
                             onClick={fetchAiInsight}
                             disabled={fetchingAi}
                         >
@@ -287,10 +289,10 @@ export default function TimingPageContent() {
             {/* AI Insight Section */}
             {aiInsight && (
                 <div className={styles.aiInsightSection}>
-                    <div className={styles.aiCard}>
+                    <div className={`${styles.aiCard} sacred-card !border-[var(--accent-gold)]`}>
                         <div className={styles.aiCardHeader}>
-                            <Sparkles size={20} />
-                            <h3>Cosmic Flavor Analysis</h3>
+                            <Sparkles size={20} className="text-[var(--accent-gold)]" />
+                            <h3 className="mystic-text !text-xl">Cosmic Flavor Analysis</h3>
                         </div>
                         <p className={styles.aiContent}>{aiInsight.phaseFlavor}</p>
                     </div>
