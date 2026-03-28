@@ -5,7 +5,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
-import LoginReminder from '@/components/LoginReminder';
+
 import AnalyticsTracker from '@/components/AnalyticsTracker';
 import FloatingActionButton from '@/components/FloatingActionButton';
 import { ProfileProvider } from '@/context/ProfileContext';
@@ -65,7 +65,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
-            <LoginReminder />
+
             <ProfileManager />
             <FloatingActionButton />
             <Suspense fallback={null}>
