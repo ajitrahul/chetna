@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Inter, Cinzel } from 'next/font/google';
+import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -17,10 +17,10 @@ const inter = Inter({
   display: 'swap',
 });
 
-const cinzel = Cinzel({
+const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-heading',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap',
 });
 
@@ -52,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${cinzel.variable}`}>
+      <body className={`${inter.variable} ${playfair.variable}`}>
         <div className="cosmic-bg-overlay"></div>
         <div className="stars-layer-1"></div>
         <div className="stars-layer-2"></div>

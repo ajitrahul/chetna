@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Send, Sparkles, MessageSquare, History, ArrowLeft } from 'lucide-react';
 import styles from '../app/clarity/page.module.css';
 
 import ProfileGuard from '@/components/ProfileGuard';
@@ -92,140 +94,217 @@ export default function ClarityPageContent() {
         triggerAsk(question);
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.3
+            }
+        }
+    };
+
+    const itemVariants: Variants = {
+        hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
+        visible: { 
+            opacity: 1, 
+            y: 0, 
+            filter: 'blur(0px)', 
+            transition: { duration: 0.8, ease: "circOut" } 
+        }
+    };
+
     return (
         <ProfileGuard>
             <div className={`container ${styles.pageContainer}`}>
-                <h1 className={styles.title}>Ask for Clarity</h1>
-                <p className={styles.subtitle}>
-                    Ask one focused question to understand a pattern in your chart.
-                </p>
-
-                {credits !== null && (
-                    <p className={styles.creditsInfo}>Remaining Credits: {credits}</p>
-                )}
-
-                {error && (
-                    <div className={styles.errorBox}>
-                        <p>{error}</p>
-                        {error.includes('credits') && (
-                            <Link href="/pricing" className={styles.actionLink}>Buy Credits</Link>
-                        )}
-                        {error.includes('chart') && (
-                            <Link href="/chart" className={styles.actionLink}>Create Chart</Link>
-                        )}
-                    </div>
-                )}
-
-                {!result && (
-                    <>
-                        <div className={styles.rulesBox}>
-                            <h3>Before You Ask</h3>
-                            <ul>
-                                <li>One question at a time</li>
-                                <li>No predictions or guarantees</li>
-                                <li>Astrology supports reflection, not decisions</li>
-                            </ul>
+                <div className={styles.historyHeader}>
+                    <Link href="/dashboard" className={styles.backLink}>
+                        <ArrowLeft size={16} /> Dashboard
+                    </Link>
+                    {credits !== null && (
+                        <div className={styles.historyMeta}>
+                            <div className={styles.historyLabel}>ENERGY UNITS</div>
+                            <div className={styles.historyDate}>{credits} AVAILABLE</div>
                         </div>
+                    )}
+                </div>
 
-                        <form onSubmit={handleAsk} className={styles.inputContainer}>
-                            <textarea
-                                className={styles.questionInput}
-                                placeholder="e.g., 'How should I approach communication in my relationship right now?'"
-                                value={question}
-                                onChange={(e) => setQuestion(e.target.value)}
-                                disabled={isAnalyzing}
-                            />
-                            <button
-                                type="submit"
-                                className={styles.askBtn}
-                                disabled={isAnalyzing || !question.trim() || question.length < 10}
-                            >
-                                {isAnalyzing ? 'Reflecting on patterns...' : 'Seek Clarity'}
-                            </button>
-                        </form>
-                    </>
-                )}
+                <motion.h1 
+                    className={styles.title}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1 }}
+                >
+                    Oracle Portal
+                </motion.h1>
+                <motion.p 
+                    className={styles.subtitle}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 1 }}
+                >
+                    Speak your question. Understand the patterns. Act with awareness.
+                </motion.p>
 
-                {isAnalyzing && (
-                    <div className={styles.loadingState}>
-                        <div className={styles.orb}></div>
-                        <p>Connecting to your chart patterns...</p>
-                    </div>
-                )}
-
-                {result && (
-                    <div className={styles.resultContainer}>
-                        {/* Section A: Question Context */}
-                        <div className={styles.section}>
-                            <h2 className={styles.sectionTitle}>Your Question</h2>
-                            <p className={styles.questionContext}>&quot;{result.questionContext}&quot;</p>
-                        </div>
-
-                        {/* Section BA: Decision Tree Verdict */}
-                        <div className={`${styles.section} ${styles.verdictSection}`}>
-                            <div className={styles.verdictHeader}>
-                                <h2 className={styles.sectionTitle}>Action Verdict</h2>
-                                <div className={`${styles.verdictBadge} ${styles[result.finalVerdict.toLowerCase()]}`}>
-                                    {result.finalVerdict}
-                                </div>
-                            </div>
-                            <p className={styles.verdictSubtitle}>Vimshottari Decision Tree Analysis:</p>
-                            <ul className={styles.treeList}>
-                                {result.decisionTreeSteps.map((step, i) => (
-                                    <li key={i} className={styles.treeStep}>{step}</li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Section B: Current Phase Overview */}
-                        <div className={`${styles.section} ${styles.phaseSection}`}>
-                            <h2 className={styles.sectionTitle}>Current Timing Overview</h2>
-                            <p>{result.phaseOverview}</p>
-                        </div>
-
-                        {/* Section C: Pattern Insights */}
-                        <div className={styles.section}>
-                            <h2 className={styles.sectionTitle}>What This Phase Highlights</h2>
-                            <ul className={styles.insightList}>
-                                {result.patternInsights.map((insight: string, i: number) => (
-                                    <li key={i}>{insight}</li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Section D: Action Guidance (Most Valuable) */}
-                        <div className={`${styles.section} ${styles.guidanceSection}`}>
-                            <h2 className={styles.sectionTitle}>How You Can Respond Consciously</h2>
-                            <ul className={styles.actionList}>
-                                {result.actionGuidance.map((action: string, i: number) => (
-                                    <li key={i}>{action}</li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Section E: Reflective Questions */}
-                        <div className={styles.section}>
-                            <h2 className={styles.sectionTitle}>Questions Worth Reflecting On</h2>
-                            <ul className={styles.reflectionList}>
-                                {result.reflectiveQuestions.map((q: string, i: number) => (
-                                    <li key={i}>{q}</li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Section F: Ethical Closing */}
-                        <div className={`${styles.section} ${styles.closingSection}`}>
-                            <p className={styles.ethicalClosing}>{result.ethicalClosing}</p>
-                        </div>
-
-                        <button
-                            onClick={() => { setResult(null); setQuestion(''); }}
-                            className={styles.resetBtn}
+                <AnimatePresence mode="wait">
+                    {error && (
+                        <motion.div 
+                            className={styles.errorBox}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
                         >
-                            Ask Another Question
-                        </button>
-                    </div>
-                )}
+                            <p>{error}</p>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '16px', justifyContent: 'center' }}>
+                                {error.includes('credits') && (
+                                    <Link href="/pricing" className={styles.actionLink}>Buy Credits</Link>
+                                )}
+                                {error.includes('chart') && (
+                                    <Link href="/chart" className={styles.actionLink}>Create Chart</Link>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {!result && !isAnalyzing && (
+                        <motion.div 
+                            className={styles.rulesBox}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                        >
+                            <h3>Seekers Principles</h3>
+                            <ul>
+                                <li>Ask focused questions for maximum resonance</li>
+                                <li>Observe patterns behind events, not just outcomes</li>
+                                <li>Astrology offers perspective, not prescription</li>
+                            </ul>
+                        </motion.div>
+                    )}
+
+                    {isAnalyzing && (
+                        <motion.div 
+                            className={styles.loadingState}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        >
+                            <div className={styles.orb}></div>
+                            <p>Reading from your planetary configuration...</p>
+                        </motion.div>
+                    )}
+
+                    {result && (
+                        <motion.div 
+                            className={styles.resultContainer}
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                        >
+                            {/* Section A: Question Context */}
+                            <motion.div className={styles.section} variants={itemVariants}>
+                                <div className={styles.sectionIconHeader}>
+                                    <MessageSquare size={16} className={styles.accentIcon} />
+                                    <h2 className={styles.sectionTitle}>The Query</h2>
+                                </div>
+                                <p className={styles.questionContext}>&quot;{result.questionContext}&quot;</p>
+                            </motion.div>
+
+                            {/* Section Verdict */}
+                            <motion.div className={`${styles.section} ${styles.verdictSection}`} variants={itemVariants}>
+                                <div className={styles.verdictHeader}>
+                                    <div>
+                                        <div className={styles.sectionIconHeader}>
+                                            <Sparkles size={16} className={styles.accentIcon} />
+                                            <h2 className={styles.sectionTitle}>Action Verdict</h2>
+                                        </div>
+                                    </div>
+                                    <div className={`${styles.verdictBadge} ${styles[result.finalVerdict.toLowerCase()]}`}>
+                                        {result.finalVerdict}
+                                    </div>
+                                </div>
+                                <p className={styles.verdictSubtitle}>Celestial Decision Matrix Analysis:</p>
+                                <ul className={styles.treeList}>
+                                    {result.decisionTreeSteps.map((step, i) => (
+                                        <li key={i} className={styles.treeStep}>{step}</li>
+                                    ))}
+                                </ul>
+                            </motion.div>
+
+                            {/* Section B: Current Phase Overview */}
+                            <motion.div className={`${styles.section} ${styles.phaseSection}`} variants={itemVariants}>
+                                <h2 className={styles.sectionTitle}>Timing of the Soul</h2>
+                                <p>{result.phaseOverview}</p>
+                            </motion.div>
+
+                            {/* Section C: Pattern Insights */}
+                            <motion.div className={styles.section} variants={itemVariants}>
+                                <h2 className={styles.sectionTitle}>Forces at Play</h2>
+                                <ul className={styles.insightList}>
+                                    {result.patternInsights.map((insight: string, i: number) => (
+                                        <li key={i}>{insight}</li>
+                                    ))}
+                                </ul>
+                            </motion.div>
+
+                            {/* Section D: Action Guidance */}
+                            <motion.div className={`${styles.section} ${styles.guidanceSection}`} variants={itemVariants}>
+                                <h2 className={styles.sectionTitle}>Path to Awareness</h2>
+                                <ul className={styles.actionList}>
+                                    {result.actionGuidance.map((action: string, i: number) => (
+                                        <li key={i}>{action}</li>
+                                    ))}
+                                </ul>
+                            </motion.div>
+
+                            {/* Section E: Reflective Questions */}
+                            <motion.div className={styles.section} variants={itemVariants}>
+                                <h2 className={styles.sectionTitle}>Contemplations</h2>
+                                <ul className={styles.reflectionList}>
+                                    {result.reflectiveQuestions.map((q: string, i: number) => (
+                                        <li key={i}>{q}</li>
+                                    ))}
+                                </ul>
+                            </motion.div>
+
+                            <motion.button
+                                onClick={() => { setResult(null); setQuestion(''); }}
+                                className={styles.resetBtn}
+                                variants={itemVariants}
+                            >
+                                Ask Another Question
+                            </motion.button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <motion.form 
+                    onSubmit={handleAsk} 
+                    className={styles.inputContainer}
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.6, duration: 0.8 }}
+                >
+                    <textarea
+                        className={styles.questionInput}
+                        placeholder="What do you seek to understand?"
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        disabled={isAnalyzing}
+                    />
+                    <button
+                        type="submit"
+                        className={styles.askBtn}
+                        disabled={isAnalyzing || !question.trim() || question.length < 10}
+                    >
+                        {isAnalyzing ? <div className={styles.loaderSmall}></div> : <Send size={20} />}
+                    </button>
+                    {isAnalyzing && (
+                        <p style={{ fontSize: '0.7rem', color: 'var(--accent-gold)', marginTop: '-8px', textAlign: 'center' }}>
+                            Seeking clarity...
+                        </p>
+                    )}
+                </motion.form>
             </div>
         </ProfileGuard>
     );

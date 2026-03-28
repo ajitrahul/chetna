@@ -205,7 +205,13 @@ export default function Home() {
             </div>
 
             <div className={styles.featuresGrid}>
-              <div className={`${styles.featureCard} sacred-card`}>
+              <motion.div 
+                className={`${styles.featureCard} ${styles.cardLeft} sacred-card`}
+                initial={{ opacity: 0, x: -50, y: 50 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
                 <div className={`${styles.featureIcon} ${styles.iconColors}`}>
                   <span className="planet-glyph">☉</span>
                 </div>
@@ -213,19 +219,31 @@ export default function Home() {
                 <p className={styles.featureText}>
                   We generate your birth chart using accurate astronomical calculations. It tells your blueprint of life. Personality, appearance etc.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className={`${styles.featureCard} sacred-card`}>
+              <motion.div 
+                className={`${styles.featureCard} ${styles.cardRight} sacred-card`}
+                initial={{ opacity: 0, x: 50, y: 50 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
                 <div className={`${styles.featureIcon} ${styles.iconColors}`}>
                   <span className="planet-glyph">☽</span>
                 </div>
                 <h3 className={styles.featureTitle}>Understand Patterns, Not Outcomes</h3>
                 <p className={styles.featureText}>
-                  Your chart is explained through psychological and behavioral patterns, how you respond to situations, what themes repeat in your life, what kinds of environments support you.
+                  Your chart is explained through psychological and behavioral patterns, how you respond to situations, what themes repeat in your life.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className={`${styles.featureCard} sacred-card`}>
+              <motion.div 
+                className={`${styles.featureCard} ${styles.cardLeft} sacred-card`}
+                initial={{ opacity: 0, x: -50, y: 50 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
                 <div className={`${styles.featureIcon} ${styles.iconColors}`}>
                   <span className="planet-glyph">♃</span>
                 </div>
@@ -233,19 +251,31 @@ export default function Home() {
                 <p className={styles.featureText}>
                   Awareness based insights for specific areas of life drawn from multiple chart layers. Without predictions or fear.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className={`${styles.featureCard} sacred-card`}>
+              <motion.div 
+                className={`${styles.featureCard} ${styles.cardRight} sacred-card`}
+                initial={{ opacity: 0, x: 50, y: 50 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
                 <div className={`${styles.featureIcon} ${styles.iconColors}`}>
                   <span className="planet-glyph">♄</span>
                 </div>
-                <h3 className={styles.featureTitle}>Explore Timing Through Dasha & Transit</h3>
+                <h3 className={styles.featureTitle}>Timing Through Dasha</h3>
                 <p className={styles.featureText}>
                   Chetna explains dasha and transit as capacity windows — what this phase supports, what it resists, where patience or effort is required.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className={`${styles.featureCard} sacred-card`}>
+              <motion.div 
+                className={`${styles.featureCard} ${styles.cardCenter} sacred-card`}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
                 <div className={`${styles.featureIcon} ${styles.iconColors}`}>
                   <span className="planet-glyph">☿</span>
                 </div>
@@ -253,7 +283,7 @@ export default function Home() {
                 <p className={styles.featureText}>
                   You can ask focused questions related to — relationships, career, difficult decisions, personal growth.
                 </p>
-              </div>
+              </motion.div>
             </div>
           </section>
 

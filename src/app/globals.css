@@ -33,32 +33,33 @@
 }
 
 [data-theme='dark'] {
-  --background: #050208;
-  --background-rgb: 5, 2, 8;
-  --bg-soft: #0F0818;
-  --bg-soft-rgb: 15, 8, 24;
-  --bg-primary: #050208;
-  --foreground: #F4E8D1;
-  --foreground-rgb: 244, 232, 209;
-  --primary: #F4E8D1;
-  --secondary: #D4CDE0;
-  --text-muted: #B4A9C3;
+  --background: #0B0F2F;
+  --background-rgb: 11, 15, 47;
+  --bg-soft: #121640;
+  --bg-soft-rgb: 18, 22, 64;
+  --bg-primary: #0B0F2F;
+  --foreground: #DFE0FF;
+  --foreground-rgb: 223, 224, 255;
+  --primary: #DFE0FF;
+  --secondary: #C7C5CF;
+  --brand-secondary: #5D3FD3;
+  --text-muted: #919098;
   --success: #4ade80;
   --success-bg: rgba(74, 222, 128, 0.15);
-  --error: #f87171;
-  --error-bg: rgba(248, 113, 113, 0.15);
+  --error: #ffb4ab;
+  --error-bg: rgba(255, 180, 171, 0.15);
   --accent-gold: #D4AF37;
   --accent-gold-rgb: 212, 175, 55;
   --accent-gold-dim: #9E8329;
-  --card-bg: rgba(15, 8, 32, 0.85);
-  --card-border: rgba(212, 175, 55, 0.25);
-  --border-soft: rgba(244, 232, 209, 0.08);
-  --glass-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.95);
+  --card-bg: rgba(18, 22, 64, 0.85); /* No lines, soft depth */
+  --card-border: rgba(212, 175, 55, 0.0); /* Removed harsh border */
+  --border-soft: rgba(93, 63, 211, 0.2); /* Iris border fallback */
+  --glass-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 30px -5px rgba(93, 63, 211, 0.15);
   
   /* Cosmic specific colors */
-  --nebula-purple: rgba(88, 28, 135, 0.4);
-  --nebula-indigo: rgba(55, 48, 163, 0.3);
-  --nebula-gold: rgba(212, 175, 55, 0.15);
+  --nebula-purple: rgba(159, 122, 234, 0.35); /* #9F7AEA */
+  --nebula-indigo: rgba(93, 63, 211, 0.4);    /* #5D3FD3 */
+  --nebula-gold: rgba(212, 175, 55, 0.15);    /* #D4AF37 */
 }
 
 [data-theme='light'] {
@@ -131,10 +132,10 @@ body {
 
 [data-theme='dark'] .cosmic-bg-overlay {
   background: 
-    radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.45) 0%, transparent 45%),
-    radial-gradient(circle at 85% 85%, rgba(67, 56, 202, 0.4) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.2) 0%, transparent 60%),
-    radial-gradient(circle at 80% 20%, rgba(192, 38, 211, 0.25) 0%, transparent 35%);
+    radial-gradient(circle at 15% 15%, var(--nebula-purple) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, var(--nebula-indigo) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, var(--nebula-gold) 0%, transparent 60%),
+    radial-gradient(circle at 80% 20%, rgba(159, 122, 234, 0.25) 0%, transparent 35%);
   background-attachment: fixed;
 }
 
@@ -205,7 +206,7 @@ body {
    TYPOGRAPHY & HEADINGS
    ═══════════════════════════════════════════════ */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading), 'Cinzel', serif;
+  font-family: var(--font-heading), 'Playfair Display', 'Cinzel', serif;
   font-weight: 600;
   line-height: 1.1;
   letter-spacing: 0.02em;

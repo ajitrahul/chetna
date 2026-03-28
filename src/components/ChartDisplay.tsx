@@ -192,8 +192,8 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 style={{
-                    background: 'var(--background, #0a0a0a)', // Explicit opaque background
-                    border: '1px solid var(--accent-gold)',
+                    background: 'var(--bg-primary)',
+                    border: '1px solid var(--border-soft)',
                     borderRadius: '24px',
                     boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8)',
                     width: '100%',
@@ -402,15 +402,19 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                 <svg viewBox="-10 -10 420 420" style={{ width: '100%', height: typeof height === 'number' ? `${height}px` : height, background: 'transparent', overflow: 'visible' }}>
                     <defs>
                         <linearGradient id="activeHouseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="rgba(212, 175, 55, 0.2)" />
-                            <stop offset="100%" stopColor="rgba(212, 175, 55, 0.4)" />
+                            <stop offset="0%" stopColor="var(--nebula-purple)" />
+                            <stop offset="100%" stopColor="var(--nebula-gold)" />
                         </linearGradient>
+                        <radialGradient id="houseGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="rgba(93, 63, 211, 0.2)" />
+                            <stop offset="100%" stopColor="rgba(18, 22, 64, 0.3)" />
+                        </radialGradient>
                         <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="2" result="blur" />
+                            <feGaussianBlur stdDeviation="3" result="blur" />
                             <feComposite in="SourceGraphic" in2="blur" operator="over" />
                         </filter>
                         <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stopColor="rgba(212, 175, 55, 0.15)" />
+                            <stop offset="0%" stopColor="rgba(212, 175, 55, 0.25)" />
                             <stop offset="100%" stopColor="rgba(212, 175, 55, 0)" />
                         </radialGradient>
                     </defs>
@@ -425,9 +429,10 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                             <path
                                 key={`bg-${house.num}`}
                                 d={house.path}
-                                fill={isActive ? 'url(#activeHouseGradient)' : 'rgba(11, 5, 16, 0.4)'}
-                                stroke="rgba(212, 175, 55, 0.6)"
-                                strokeWidth="1.5"
+                                fill={isActive ? 'url(#activeHouseGradient)' : 'url(#houseGlow)'}
+                                stroke={isActive ? 'var(--accent-gold)' : 'var(--brand-secondary)'}
+                                strokeWidth={isActive ? "2" : "1"}
+
                                 onClick={() => setActiveHouse(house.num)}
                                 style={{ cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}
                                 className="chart-house-path"
@@ -441,16 +446,16 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                     </g>
                     
                     {/* Inner Diamond Lines */}
-                    <g pointerEvents="none" stroke="var(--accent-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8">
+                    <g pointerEvents="none" stroke="var(--border-soft)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8">
                         <line x1="0" y1="0" x2="400" y2="400" />
                         <line x1="400" y1="0" x2="0" y2="400" />
                         <path d="M 200,0 L 400,200 L 200,400 L 0,200 Z" />
                     </g>
 
                     {/* Center Symbol */}
-                    <g opacity="0.4" pointerEvents="none" filter="url(#glow)">
-                        <circle cx="200" cy="200" r="45" fill="none" stroke="var(--accent-gold)" strokeWidth="0.8" strokeDasharray="4 4" />
-                        <circle cx="200" cy="200" r="35" fill="none" stroke="var(--accent-gold)" strokeWidth="0.5" opacity="0.5" />
+                    <g opacity="0.6" pointerEvents="none" filter="url(#glow)">
+                        <circle cx="200" cy="200" r="45" fill="none" stroke="var(--accent-gold)" strokeWidth="0.8" strokeDasharray="4 4" className="pulse-rotation" />
+                        <circle cx="200" cy="200" r="35" fill="none" stroke="var(--accent-gold)" strokeWidth="0.5" opacity="0.5" className="pulse-glow" />
                         <text x="200" y="204" textAnchor="middle" fontSize="10" fill="var(--accent-gold)" fontWeight="600" letterSpacing="5" fontFamily="var(--font-heading)">CHETNA</text>
                     </g>
 
@@ -566,8 +571,24 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                     position: relative;
                 }
                 .chart-house-path:hover {
-                    fill: rgba(212, 175, 55, 0.15);
-                    stroke-width: 2.5px;
+                    fill: url(#activeHouseGradient);
+                    stroke-width: 2px;
+                    stroke: var(--accent-gold);
+                }
+                @keyframes pulse-glow-anim {
+                    0% { opacity: 0.3; transform: scale(0.98); transform-origin: center; stroke-width: 0.5; }
+                    50% { opacity: 0.8; transform: scale(1.02); transform-origin: center; stroke-width: 1.5; }
+                    100% { opacity: 0.3; transform: scale(0.98); transform-origin: center; stroke-width: 0.5; }
+                }
+                .pulse-glow {
+                    animation: pulse-glow-anim 4s infinite ease-in-out;
+                }
+                @keyframes slow-rotate {
+                    0% { transform: rotate(0deg); transform-origin: 200px 200px; }
+                    100% { transform: rotate(360deg); transform-origin: 200px 200px; }
+                }
+                .pulse-rotation {
+                    animation: slow-rotate 60s linear infinite;
                 }
             `}</style>
         </div>
