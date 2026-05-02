@@ -34,6 +34,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-wrap: wrap;
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 1px solid var(--card-border);
@@ -68,6 +69,7 @@
     line-height: 1.8;
     color: var(--foreground);
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .repliesHeader {
@@ -95,6 +97,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
     margin-bottom: 16px;
 }
 
@@ -166,12 +169,35 @@
     padding: 100px 0;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+    .container {
+        margin: 24px auto;
+        padding: 0 16px;
+    }
+
     .topicTitle {
         font-size: 2rem;
     }
 
     .mainPost {
         padding: 24px;
+    }
+
+    .content {
+        font-size: 1rem;
+    }
+
+    .replyForm {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .topicTitle {
+        font-size: 1.75rem;
+    }
+
+    .repliesHeader {
+        font-size: 1.55rem;
     }
 }

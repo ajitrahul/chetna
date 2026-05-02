@@ -93,6 +93,7 @@
 .blogMeta {
     display: flex;
     gap: 16px;
+    flex-wrap: wrap;
     opacity: 0.8;
 }
 
@@ -150,6 +151,7 @@
 .detailMeta {
     display: flex;
     gap: 24px;
+    flex-wrap: wrap;
     margin-bottom: 24px;
 }
 
@@ -218,12 +220,30 @@
 }
 
 @media (max-width: 768px) {
+    .hero {
+        padding: 92px 16px 56px;
+    }
+
     .container {
         margin: 40px auto;
+        padding: 0 16px;
+    }
+
+    .blurredContainer {
+        margin: 40px auto;
+        padding: 0 16px;
     }
 
     .heroTitle {
         font-size: 2.5rem;
+    }
+
+    .blogItem {
+        padding: 20px 16px;
+    }
+
+    .blogRow {
+        align-items: flex-start;
     }
 
     .blogTitle {
@@ -232,6 +252,10 @@
 
     .fullPost {
         padding: 32px 24px;
+    }
+
+    .detailMeta {
+        gap: 12px;
     }
 
     .detailTitle {

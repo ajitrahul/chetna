@@ -345,9 +345,9 @@ export default function AdminDashboard() {
 
                 {activeTab === 'users' && (
                     <div className={styles.section}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <div className={styles.sectionToolbar}>
                             <h3>User Management</h3>
-                            <button className={styles.saveBtn} onClick={fetchData} style={{ padding: '4px 12px', fontSize: '0.8rem' }}>Refresh</button>
+                            <button className={`${styles.saveBtn} ${styles.compactBtn}`} onClick={fetchData}>Refresh</button>
                         </div>
 
                         {/* Filters Bar */}
@@ -357,8 +357,7 @@ export default function AdminDashboard() {
                                 <select
                                     value={userFilters.subscribed}
                                     onChange={(e) => setUserFilters({ ...userFilters, subscribed: e.target.value })}
-                                    className={styles.input}
-                                    style={{ width: '120px' }}
+                                    className={`${styles.input} ${styles.inputMd}`}
                                 >
                                     <option value="all">All Users</option>
                                     <option value="true">Subscribed</option>
@@ -372,8 +371,7 @@ export default function AdminDashboard() {
                                     placeholder="Search city..."
                                     value={userFilters.city}
                                     onChange={(e) => setUserFilters({ ...userFilters, city: e.target.value })}
-                                    className={styles.input}
-                                    style={{ width: '150px' }}
+                                    className={`${styles.input} ${styles.inputLg}`}
                                 />
                             </div>
                             <div className={styles.filterGroup}>
@@ -382,15 +380,14 @@ export default function AdminDashboard() {
                                     type="number"
                                     value={userFilters.minCredits}
                                     onChange={(e) => setUserFilters({ ...userFilters, minCredits: parseInt(e.target.value || '0') })}
-                                    className={styles.input}
-                                    style={{ width: '100px' }}
+                                    className={`${styles.input} ${styles.inputSm}`}
                                 />
                             </div>
                         </div>
 
-                        {error && <div style={{ color: '#F44336', marginBottom: '1rem' }}>{error}</div>}
+                        {error && <div className={styles.mutedError}>{error}</div>}
 
-                        <div style={{ overflowX: 'auto' }}>
+                        <div className={styles.tableScroll}>
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
@@ -407,7 +404,7 @@ export default function AdminDashboard() {
                                         <tr key={u.id}>
                                             <td>{u.name}</td>
                                             <td>{u.email}</td>
-                                            <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{u.city}</td>
+                                            <td><span className={styles.mutedText}>{u.city}</span></td>
                                             <td>{new Date(u.createdAt).toLocaleDateString()}</td>
                                             <td><strong>{u.credits}</strong></td>
                                             <td>
@@ -422,7 +419,7 @@ export default function AdminDashboard() {
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                            <td colSpan={6} className={styles.tableEmptyCell}>
                                                 No users found matching your filters.
                                             </td>
                                         </tr>
@@ -435,29 +432,28 @@ export default function AdminDashboard() {
 
                 {activeTab === 'creditRequests' && (
                     <div className={styles.section}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
+                        <div className={styles.sectionToolbar}>
                             <h3>Credit Request Approvals</h3>
-                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                            <div className={styles.toolbarActions}>
                                 <select
                                     value={creditRequestFilter}
                                     onChange={(e) => setCreditRequestFilter(e.target.value as 'ALL' | CreditRequestStatus)}
-                                    className={styles.input}
-                                    style={{ width: '160px' }}
+                                    className={`${styles.input} ${styles.inputXl}`}
                                 >
                                     <option value="PENDING">Pending</option>
                                     <option value="APPROVED">Approved</option>
                                     <option value="REJECTED">Rejected</option>
                                     <option value="ALL">All Requests</option>
                                 </select>
-                                <button className={styles.saveBtn} onClick={fetchData} style={{ padding: '8px 14px' }}>
+                                <button className={`${styles.saveBtn} ${styles.compactBtn}`} onClick={fetchData}>
                                     Refresh
                                 </button>
                             </div>
                         </div>
 
-                        {error && <div style={{ color: '#F44336', marginBottom: '1rem' }}>{error}</div>}
+                        {error && <div className={styles.mutedError}>{error}</div>}
 
-                        <div style={{ overflowX: 'auto' }}>
+                        <div className={styles.tableScroll}>
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
@@ -467,20 +463,20 @@ export default function AdminDashboard() {
                                         <th>Status</th>
                                         <th>Requested</th>
                                         <th>Reviewed</th>
-                                        <th style={{ textAlign: 'right' }}>Actions</th>
+                                        <th className={styles.actionsRight}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {creditRequests.length > 0 ? creditRequests.map((request) => (
                                         <tr key={request.id}>
                                             <td>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                <div className={styles.userMeta}>
                                                     <strong>{request.user.name || 'Unknown User'}</strong>
-                                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{request.user.email}</span>
+                                                    <span className={styles.mutedText}>{request.user.email}</span>
                                                 </div>
                                             </td>
                                             <td><strong>{request.requestedCredits}</strong></td>
-                                            <td style={{ minWidth: '220px' }}>{request.reason || '-'}</td>
+                                            <td className={styles.reasonCell}>{request.reason || '-'}</td>
                                             <td>
                                                 <span className={
                                                     request.status === 'APPROVED'
@@ -495,7 +491,7 @@ export default function AdminDashboard() {
                                             <td>{new Date(request.createdAt).toLocaleString()}</td>
                                             <td>{request.reviewedAt ? new Date(request.reviewedAt).toLocaleString() : '-'}</td>
                                             <td>
-                                                <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
+                                                <div className={`${styles.actions} ${styles.actionsRight}`}>
                                                     {request.status === 'PENDING' ? (
                                                         <>
                                                             <button
@@ -512,14 +508,14 @@ export default function AdminDashboard() {
                                                             </button>
                                                         </>
                                                     ) : (
-                                                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{request.adminNote || '-'}</span>
+                                                        <span className={styles.mutedText}>{request.adminNote || '-'}</span>
                                                     )}
                                                 </div>
                                             </td>
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                            <td colSpan={7} className={styles.tableEmptyCell}>
                                                 No credit requests found for this filter.
                                             </td>
                                         </tr>
@@ -533,12 +529,11 @@ export default function AdminDashboard() {
                 {activeTab === 'pricing' && (
                     <div className={styles.pricingSection}>
                         <div className={styles.section}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                            <div className={styles.pricingToolbar}>
                                 <h3>Service Credit Costs</h3>
-                                <div className={styles.filterGroup} style={{ marginBottom: 0 }}>
+                                <div className={styles.filterGroup}>
                                     <select
-                                        className={styles.input}
-                                        style={{ width: '150px' }}
+                                        className={`${styles.input} ${styles.inputLg}`}
                                         onChange={(e) => {
                                             const type = e.target.value;
                                             const items = document.querySelectorAll<HTMLElement>(`.${styles.planEditor}[data-type]`);
@@ -557,7 +552,7 @@ export default function AdminDashboard() {
                                     </select>
                                 </div>
                             </div>
-                            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Define how many credits each service consumes.</p>
+                            <p className={styles.sectionHint}>Define how many credits each service consumes.</p>
                             <div className={styles.pricingList}>
                                 {services.map(service => (
                                     <div
@@ -596,7 +591,7 @@ export default function AdminDashboard() {
 
                         <div className={styles.section} style={{ marginTop: '3rem' }}>
                             <h3>Credit Pricing Plans</h3>
-                            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Set the valid purchase plans for users.</p>
+                            <p className={styles.sectionHint}>Set the valid purchase plans for users.</p>
                             <div className={styles.pricingList}>
                                 {plans.map(plan => (
                                     <div key={plan.key} className={styles.planEditor}>
@@ -665,7 +660,7 @@ export default function AdminDashboard() {
 
                 {activeTab === 'blogs' && (
                     <div className={styles.section}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <div className={styles.sectionToolbar}>
                             <h3>Blog Management</h3>
                             <button
                                 className={styles.saveBtn}
@@ -675,13 +670,13 @@ export default function AdminDashboard() {
                             </button>
                         </div>
 
-                        <div style={{ overflowX: 'auto' }}>
+                        <div className={styles.tableScroll}>
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
                                         <th>Title</th>
                                         <th>Created At</th>
-                                        <th style={{ textAlign: 'right' }}>Actions</th>
+                                        <th className={styles.actionsRight}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -690,7 +685,7 @@ export default function AdminDashboard() {
                                             <td>{blog.title}</td>
                                             <td>{new Date(blog.createdAt).toLocaleDateString()} at {new Date(blog.createdAt).toLocaleTimeString()}</td>
                                             <td>
-                                                <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
+                                                <div className={`${styles.actions} ${styles.actionsRight}`}>
                                                     <button
                                                         className={styles.editBtn}
                                                         onClick={() => router.push(`/admin/blog?id=${blog.id}`)}
@@ -708,7 +703,7 @@ export default function AdminDashboard() {
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan={3} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                            <td colSpan={3} className={styles.tableEmptyCell}>
                                                 No blogs found. Start by creating one!
                                             </td>
                                         </tr>

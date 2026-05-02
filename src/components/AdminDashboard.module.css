@@ -60,6 +60,95 @@
     overflow-y: auto;
 }
 
+.sectionToolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.toolbarActions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.compactBtn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.tableScroll {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tableEmptyCell {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+.mutedError {
+    color: #f44336;
+    margin-bottom: 1rem;
+}
+
+.inputSm {
+    width: 100px;
+}
+
+.inputMd {
+    width: 120px;
+}
+
+.inputLg {
+    width: 150px;
+}
+
+.inputXl {
+    width: 160px;
+}
+
+.userMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mutedText {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.reasonCell {
+    min-width: 220px;
+    white-space: normal;
+}
+
+.actionsRight {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.pricingToolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.sectionHint {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
 .loading {
     display: flex;
     justify-content: center;
@@ -158,6 +247,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .planHeader h4 {
@@ -178,6 +269,8 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .planBody label {
@@ -188,6 +281,7 @@
 .priceInputGroup {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .priceInputGroup input,
@@ -269,6 +363,7 @@
 .actions {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .pendingBadge,
@@ -435,5 +530,51 @@
 
     .content {
         padding: 1rem;
+    }
+
+    .sectionToolbar {
+        align-items: stretch;
+    }
+
+    .toolbarActions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .filterGroup {
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .inputSm,
+    .inputMd,
+    .inputLg,
+    .inputXl {
+        width: 100%;
+    }
+
+    .table th,
+    .table td {
+        white-space: nowrap;
+        padding: 0.75rem;
+    }
+
+    .planEditor {
+        padding: 1rem;
+        align-items: flex-start;
+    }
+
+    .planBody {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .priceInputGroup {
+        width: 100%;
+    }
+
+    .priceInputGroup input {
+        flex: 1;
+        min-width: 120px;
     }
 }

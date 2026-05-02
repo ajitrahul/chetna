@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
@@ -97,6 +97,7 @@ export default function DashboardPage() {
     const [submittingCreditRequest, setSubmittingCreditRequest] = useState(false);
     const [welcomeBonusNotice, setWelcomeBonusNotice] = useState<string | null>(null);
     const [hasCheckedWelcomeBonusNotice, setHasCheckedWelcomeBonusNotice] = useState(false);
+    const welcomeBonusRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { openNewProfileModal } = useProfile();
 
     useEffect(() => {
@@ -109,32 +110,52 @@ export default function DashboardPage() {
         }
     }, [status, router]);
 
-    useEffect(() => {
-        if (status === 'authenticated' && !hasCheckedWelcomeBonusNotice) {
-            fetchWelcomeBonusNotice();
-        }
-    }, [status, hasCheckedWelcomeBonusNotice]);
-
-    const fetchWelcomeBonusNotice = async () => {
+    const fetchWelcomeBonusNotice = useCallback(async (attempt = 0) => {
         try {
             const res = await fetch('/api/credits/welcome-bonus-notice', {
                 method: 'GET'
             });
 
-            if (!res.ok) {
-                return;
-            }
-
-            const data = await res.json();
-            if (data?.show && typeof data.message === 'string') {
-                setWelcomeBonusNotice(data.message);
+            if (res.ok) {
+                const data = await res.json();
+                if (data?.show && typeof data.message === 'string') {
+                    setWelcomeBonusNotice(data.message);
+                    setHasCheckedWelcomeBonusNotice(true);
+                    return;
+                }
+            } else {
+                const errorPayload = await res.json().catch(() => null);
+                if (errorPayload?.error) {
+                    console.warn('Welcome bonus notice unavailable:', errorPayload.error);
+                }
             }
         } catch (error) {
             console.error('Welcome bonus notice fetch error:', error);
-        } finally {
-            setHasCheckedWelcomeBonusNotice(true);
         }
-    };
+
+        if (attempt < 3) {
+            welcomeBonusRetryTimerRef.current = setTimeout(() => {
+                void fetchWelcomeBonusNotice(attempt + 1);
+            }, 1200);
+            return;
+        }
+
+        setHasCheckedWelcomeBonusNotice(true);
+    }, []);
+
+    useEffect(() => {
+        if (status === 'authenticated' && !hasCheckedWelcomeBonusNotice) {
+            void fetchWelcomeBonusNotice();
+        }
+    }, [status, hasCheckedWelcomeBonusNotice, fetchWelcomeBonusNotice]);
+
+    useEffect(() => {
+        return () => {
+            if (welcomeBonusRetryTimerRef.current) {
+                clearTimeout(welcomeBonusRetryTimerRef.current);
+            }
+        };
+    }, []);
 
     const acknowledgeWelcomeBonusNotice = () => {
         if (!welcomeBonusNotice) return;
