@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './AdminDashboard.module.css';
 
@@ -24,6 +24,7 @@ interface User {
     id: string;
     name: string;
     email: string;
+    city: string;
     createdAt: string;
     isSubscribed: boolean;
     credits: number;
@@ -46,14 +47,33 @@ interface BlogPost {
     createdAt: string;
 }
 
+type CreditRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+interface CreditRequest {
+    id: string;
+    requestedCredits: number;
+    reason: string | null;
+    status: CreditRequestStatus;
+    adminNote: string | null;
+    reviewedBy: string | null;
+    reviewedAt: string | null;
+    createdAt: string;
+    user: {
+        id: string;
+        name: string | null;
+        email: string;
+    };
+}
+
 export default function AdminDashboard() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<'analytics' | 'pricing' | 'users' | 'newsletter' | 'blogs'>('analytics');
+    const [activeTab, setActiveTab] = useState<'analytics' | 'pricing' | 'users' | 'newsletter' | 'blogs' | 'creditRequests'>('analytics');
     const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
     const [plans, setPlans] = useState<PricingPlan[]>([]);
     const [services, setServices] = useState<ServiceCost[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [blogs, setBlogs] = useState<BlogPost[]>([]);
+    const [creditRequests, setCreditRequests] = useState<CreditRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -63,17 +83,14 @@ export default function AdminDashboard() {
         city: '',
         minCredits: 0
     });
+    const [creditRequestFilter, setCreditRequestFilter] = useState<'ALL' | CreditRequestStatus>('PENDING');
 
     // Newsletter State
     const [newsletterSubject, setNewsletterSubject] = useState('');
     const [newsletterContent, setNewsletterContent] = useState('');
     const [sendingNewsletter, setSendingNewsletter] = useState(false);
 
-    useEffect(() => {
-        fetchData();
-    }, [userFilters]); // Re-fetch when filters change
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -84,13 +101,18 @@ export default function AdminDashboard() {
                 city: userFilters.city,
                 minCredits: userFilters.minCredits.toString()
             });
+            const creditRequestParams = new URLSearchParams();
+            if (creditRequestFilter !== 'ALL') {
+                creditRequestParams.set('status', creditRequestFilter);
+            }
 
-            const [analyticsRes, pricingRes, servicesRes, usersRes, blogsRes] = await Promise.all([
+            const [analyticsRes, pricingRes, servicesRes, usersRes, blogsRes, creditRequestsRes] = await Promise.all([
                 fetch('/api/admin/analytics'),
                 fetch('/api/admin/pricing'),
                 fetch('/api/admin/services'),
                 fetch(`/api/admin/users?${userParams.toString()}`),
-                fetch('/api/blogs')
+                fetch('/api/blogs'),
+                fetch(`/api/admin/credit-requests?${creditRequestParams.toString()}`)
             ]);
 
             if (analyticsRes.status === 401) {
@@ -98,7 +120,7 @@ export default function AdminDashboard() {
                 return;
             }
 
-            if (!analyticsRes.ok || !pricingRes.ok || !servicesRes.ok || !usersRes.ok || !blogsRes.ok) {
+            if (!analyticsRes.ok || !pricingRes.ok || !servicesRes.ok || !usersRes.ok || !blogsRes.ok || !creditRequestsRes.ok) {
                 throw new Error('Some data failed to load');
             }
 
@@ -107,19 +129,25 @@ export default function AdminDashboard() {
             const sData = await servicesRes.json();
             const uData = await usersRes.json();
             const bData = await blogsRes.json();
+            const cData = await creditRequestsRes.json();
 
             setAnalytics(aData);
             setPlans(pData);
             setServices(sData);
             setUsers(uData?.users || []);
             setBlogs(bData);
-        } catch (error: any) {
+            setCreditRequests(cData?.requests || []);
+        } catch (error: unknown) {
             console.error('Failed to load admin data', error);
-            setError(error.message || 'Failed to load data');
+            setError(error instanceof Error ? error.message : 'Failed to load data');
         } finally {
             setLoading(false);
         }
-    };
+    }, [router, userFilters, creditRequestFilter]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]); // Re-fetch when filters change
 
     const handleUpdatePrice = async (key: string, newPrice: number) => {
         if (!confirm(`Update price for ${key} to ₹${newPrice}?`)) return;
@@ -135,7 +163,7 @@ export default function AdminDashboard() {
             } else {
                 alert('Failed to update price');
             }
-        } catch (e) {
+        } catch {
             alert('Error updating price');
         }
     };
@@ -154,7 +182,7 @@ export default function AdminDashboard() {
             } else {
                 alert('Failed to update service cost');
             }
-        } catch (e) {
+        } catch {
             alert('Error updating service cost');
         }
     };
@@ -177,10 +205,40 @@ export default function AdminDashboard() {
             } else {
                 alert('Failed to send newsletter: ' + data.error);
             }
-        } catch (e) {
+        } catch {
             alert('Error sending newsletter');
         } finally {
             setSendingNewsletter(false);
+        }
+    };
+
+    const handleReviewCreditRequest = async (id: string, action: 'APPROVE' | 'REJECT') => {
+        const adminNote = prompt(
+            action === 'APPROVE'
+                ? 'Optional note for the user (approval message):'
+                : 'Optional reason for rejection:'
+        ) || '';
+
+        if (!confirm(`Are you sure you want to ${action.toLowerCase()} this credit request?`)) return;
+
+        try {
+            const res = await fetch(`/api/admin/credit-requests/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, adminNote })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.error || 'Failed to review request');
+                return;
+            }
+
+            alert(data.message || `Request ${action.toLowerCase()}d.`);
+            fetchData();
+        } catch (error) {
+            console.error('Credit request review error:', error);
+            alert('Error reviewing credit request');
         }
     };
 
@@ -200,6 +258,7 @@ export default function AdminDashboard() {
                 alert('Failed to delete blog: ' + (data.error || 'Unknown error'));
             }
         } catch (error) {
+            console.error('Delete blog error:', error);
             alert('Error deleting blog post');
         }
     };
@@ -222,6 +281,12 @@ export default function AdminDashboard() {
                         onClick={() => setActiveTab('users')}
                     >
                         Users
+                    </button>
+                    <button
+                        className={`${styles.navItem} ${activeTab === 'creditRequests' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('creditRequests')}
+                    >
+                        Credit Requests
                     </button>
                     <button
                         className={`${styles.navItem} ${activeTab === 'pricing' ? styles.active : ''}`}
@@ -338,7 +403,7 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {users.length > 0 ? users.map((u: any) => (
+                                    {users.length > 0 ? users.map((u) => (
                                         <tr key={u.id}>
                                             <td>{u.name}</td>
                                             <td>{u.email}</td>
@@ -368,6 +433,103 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
+                {activeTab === 'creditRequests' && (
+                    <div className={styles.section}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
+                            <h3>Credit Request Approvals</h3>
+                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                <select
+                                    value={creditRequestFilter}
+                                    onChange={(e) => setCreditRequestFilter(e.target.value as 'ALL' | CreditRequestStatus)}
+                                    className={styles.input}
+                                    style={{ width: '160px' }}
+                                >
+                                    <option value="PENDING">Pending</option>
+                                    <option value="APPROVED">Approved</option>
+                                    <option value="REJECTED">Rejected</option>
+                                    <option value="ALL">All Requests</option>
+                                </select>
+                                <button className={styles.saveBtn} onClick={fetchData} style={{ padding: '8px 14px' }}>
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+
+                        {error && <div style={{ color: '#F44336', marginBottom: '1rem' }}>{error}</div>}
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Credits</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Requested</th>
+                                        <th>Reviewed</th>
+                                        <th style={{ textAlign: 'right' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {creditRequests.length > 0 ? creditRequests.map((request) => (
+                                        <tr key={request.id}>
+                                            <td>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    <strong>{request.user.name || 'Unknown User'}</strong>
+                                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{request.user.email}</span>
+                                                </div>
+                                            </td>
+                                            <td><strong>{request.requestedCredits}</strong></td>
+                                            <td style={{ minWidth: '220px' }}>{request.reason || '-'}</td>
+                                            <td>
+                                                <span className={
+                                                    request.status === 'APPROVED'
+                                                        ? styles.approvedBadge
+                                                        : request.status === 'REJECTED'
+                                                            ? styles.rejectedBadge
+                                                            : styles.pendingBadge
+                                                }>
+                                                    {request.status}
+                                                </span>
+                                            </td>
+                                            <td>{new Date(request.createdAt).toLocaleString()}</td>
+                                            <td>{request.reviewedAt ? new Date(request.reviewedAt).toLocaleString() : '-'}</td>
+                                            <td>
+                                                <div className={styles.actions} style={{ justifyContent: 'flex-end' }}>
+                                                    {request.status === 'PENDING' ? (
+                                                        <>
+                                                            <button
+                                                                className={styles.approveBtn}
+                                                                onClick={() => handleReviewCreditRequest(request.id, 'APPROVE')}
+                                                            >
+                                                                Approve
+                                                            </button>
+                                                            <button
+                                                                className={styles.rejectBtn}
+                                                                onClick={() => handleReviewCreditRequest(request.id, 'REJECT')}
+                                                            >
+                                                                Reject
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{request.adminNote || '-'}</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                                No credit requests found for this filter.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
                 {activeTab === 'pricing' && (
                     <div className={styles.pricingSection}>
                         <div className={styles.section}>
@@ -379,8 +541,8 @@ export default function AdminDashboard() {
                                         style={{ width: '150px' }}
                                         onChange={(e) => {
                                             const type = e.target.value;
-                                            const items = document.querySelectorAll(`.${styles.planEditor}[data-type]`);
-                                            items.forEach((item: any) => {
+                                            const items = document.querySelectorAll<HTMLElement>(`.${styles.planEditor}[data-type]`);
+                                            items.forEach((item) => {
                                                 if (type === 'all' || item.dataset.type === type) {
                                                     item.style.display = 'block';
                                                 } else {

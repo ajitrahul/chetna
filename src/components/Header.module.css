@@ -87,6 +87,7 @@
     height: 2px;
     background: var(--accent-gold);
     border-radius: 2px;
+    box-shadow: 0 0 8px var(--accent-gold);
 }
 
 .adminLink {

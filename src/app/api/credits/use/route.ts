@@ -33,15 +33,28 @@ export async function POST() {
             );
         }
 
-        // Deduct one credit
-        await prisma.creditPack.update({
-            where: { id: creditPack.id },
-            data: {
-                questionsUsed: {
-                    increment: 1,
+        // Deduct one credit and log usage
+        await prisma.$transaction([
+            prisma.creditPack.update({
+                where: { id: creditPack.id },
+                data: {
+                    questionsUsed: {
+                        increment: 1,
+                    },
                 },
-            },
-        });
+            }),
+            prisma.creditTransaction.create({
+                data: {
+                    userId: session.user.id,
+                    amount: -1,
+                    description: 'Used 1 credit',
+                    metadata: {
+                        source: 'api/credits/use',
+                        packId: creditPack.id
+                    }
+                }
+            })
+        ]);
 
         const remaining = creditPack.questionsTotal - creditPack.questionsUsed - 1;
 

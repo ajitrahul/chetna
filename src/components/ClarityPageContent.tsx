@@ -8,6 +8,7 @@ import { Send, Sparkles, MessageSquare, History, ArrowLeft } from 'lucide-react'
 import styles from '../app/clarity/page.module.css';
 
 import ProfileGuard from '@/components/ProfileGuard';
+import { PAYMENTS_ENABLED, PAYMENTS_PAUSED_MESSAGE } from '@/lib/paymentConfig';
 
 export default function ClarityPageContent() {
     const searchParams = useSearchParams();
@@ -50,7 +51,11 @@ export default function ClarityPageContent() {
             }
 
             if (response.status === 402) {
-                setError("You've run out of credits. Please purchase more to seek clarity.");
+                setError(
+                    PAYMENTS_ENABLED
+                        ? "You've run out of credits. Please purchase more to seek clarity."
+                        : `You've run out of credits. ${PAYMENTS_PAUSED_MESSAGE}`
+                );
                 return;
             }
 
@@ -157,7 +162,9 @@ export default function ClarityPageContent() {
                             <p>{error}</p>
                             <div style={{ display: 'flex', gap: '12px', marginTop: '16px', justifyContent: 'center' }}>
                                 {error.includes('credits') && (
-                                    <Link href="/pricing" className={styles.actionLink}>Buy Credits</Link>
+                                    PAYMENTS_ENABLED ? (
+                                        <Link href="/pricing" className={styles.actionLink}>Buy Credits</Link>
+                                    ) : null
                                 )}
                                 {error.includes('chart') && (
                                     <Link href="/chart" className={styles.actionLink}>Create Chart</Link>

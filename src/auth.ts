@@ -82,6 +82,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return session
         },
     },
+    events: {
+        async signIn({ user }) {
+            try {
+                if (user && user.id) {
+                    const existingBonus = await prisma.creditPack.findFirst({
+                        where: { userId: user.id, packType: "WELCOME_BONUS" }
+                    });
+                    if (!existingBonus) {
+                        await prisma.creditPack.create({
+                            data: {
+                                userId: user.id,
+                                packType: "WELCOME_BONUS",
+                                questionsTotal: 10,
+                                questionsUsed: 0,
+                                paymentId: "FREE_WELCOME_BONUS",
+                                amount: 0
+                            }
+                        });
+                        await prisma.creditTransaction.create({
+                            data: {
+                                userId: user.id,
+                                amount: 10,
+                                description: "Welcome Bonus - 10 Free Credits",
+                                metadata: { source: "auth_event" }
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error granting welcome bonus:", error);
+            }
+        }
+    }
 })
 
 // Add type declaration for isAdmin

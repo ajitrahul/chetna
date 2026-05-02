@@ -5,6 +5,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
+import WelcomeBanner from '@/components/WelcomeBanner';
 
 import AnalyticsTracker from '@/components/AnalyticsTracker';
 import FloatingActionButton from '@/components/FloatingActionButton';
@@ -61,6 +62,7 @@ export default function RootLayout({
         <AuthProvider>
           <ProfileProvider>
             <Header />
+            <WelcomeBanner />
             <main style={{ paddingTop: '20px' }}>
               {children}
             </main>

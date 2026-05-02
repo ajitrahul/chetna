@@ -541,11 +541,24 @@
   flex-direction: column;
   gap: 12px;
   transition: all 0.3s ease;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.quickLinkItem span {
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .quickLinkItem:hover {
   border-color: var(--accent-gold);
   background: rgba(var(--accent-gold-rgb), 0.05);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+.quickLinkItem:hover span {
+  color: var(--accent-gold);
 }
 
 @media (max-width: 968px) {

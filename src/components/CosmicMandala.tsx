@@ -41,10 +41,10 @@ export default function CosmicMandala({
       {/* 12-pointed star (zodiac wheel outer) */}
       {Array.from({ length: 12 }).map((_, i) => {
         const angle = (i * 30 * Math.PI) / 180;
-        const x1 = cx + r * 0.9 * Math.cos(angle);
-        const y1 = cy + r * 0.9 * Math.sin(angle);
-        const x2 = cx + r * 0.5 * Math.cos(angle);
-        const y2 = cy + r * 0.5 * Math.sin(angle);
+        const x1 = Number((cx + r * 0.9 * Math.cos(angle)).toFixed(4));
+        const y1 = Number((cy + r * 0.9 * Math.sin(angle)).toFixed(4));
+        const x2 = Number((cx + r * 0.5 * Math.cos(angle)).toFixed(4));
+        const y2 = Number((cy + r * 0.5 * Math.sin(angle)).toFixed(4));
         return (
           <line
             key={`spoke-${i}`}
@@ -58,8 +58,8 @@ export default function CosmicMandala({
       {Array.from({ length: 12 }).map((_, i) => {
         const angle = (i * 30 * Math.PI) / 180;
         const midAngle = ((i * 30 + 15) * Math.PI) / 180;
-        const px = cx + r * 0.72 * Math.cos(midAngle);
-        const py = cy + r * 0.72 * Math.sin(midAngle);
+        const px = Number((cx + r * 0.72 * Math.cos(midAngle)).toFixed(4));
+        const py = Number((cy + r * 0.72 * Math.sin(midAngle)).toFixed(4));
         return (
           <circle key={`dot-${i}`} cx={px} cy={py} r="1.5" fill="#D4AF37" opacity="0.6" />
         );
@@ -76,13 +76,19 @@ export default function CosmicMandala({
         const a2 = ((deg + 120) * Math.PI) / 180;
         const a3 = ((deg + 240) * Math.PI) / 180;
         const rr = r * 0.38;
+        const p1x = Number((cx + rr * Math.cos(a1)).toFixed(4));
+        const p1y = Number((cy + rr * Math.sin(a1)).toFixed(4));
+        const p2x = Number((cx + rr * Math.cos(a2)).toFixed(4));
+        const p2y = Number((cy + rr * Math.sin(a2)).toFixed(4));
+        const p3x = Number((cx + rr * Math.cos(a3)).toFixed(4));
+        const p3y = Number((cy + rr * Math.sin(a3)).toFixed(4));
         return (
           <polygon
             key={`triangle-${deg}`}
             points={[
-              `${cx + rr * Math.cos(a1)},${cy + rr * Math.sin(a1)}`,
-              `${cx + rr * Math.cos(a2)},${cy + rr * Math.sin(a2)}`,
-              `${cx + rr * Math.cos(a3)},${cy + rr * Math.sin(a3)}`,
+              `${p1x},${p1y}`,
+              `${p2x},${p2y}`,
+              `${p3x},${p3y}`,
             ].join(' ')}
             fill="none"
             stroke="#D4AF37"
@@ -99,8 +105,8 @@ export default function CosmicMandala({
       {/* 8 petal lotus in middle ring */}
       {Array.from({ length: 8 }).map((_, i) => {
         const angle = (i * 45 * Math.PI) / 180;
-        const px = cx + r * 0.28 * Math.cos(angle);
-        const py = cy + r * 0.28 * Math.sin(angle);
+        const px = Number((cx + r * 0.28 * Math.cos(angle)).toFixed(4));
+        const py = Number((cy + r * 0.28 * Math.sin(angle)).toFixed(4));
         return (
           <ellipse
             key={`petal-${i}`}

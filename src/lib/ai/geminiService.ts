@@ -58,7 +58,7 @@ function getModel(feature: 'REPORT' | 'CLARITY' | 'SYNASTRY' | 'JOURNAL') {
         }
     };
 
-    const complexity = (feature === 'REPORT' || feature === 'CLARITY' || feature === 'SYNASTRY') ? 'HIGH' : 'STANDARD';
+    const complexity = (feature === 'REPORT' || feature === 'SYNASTRY') ? 'HIGH' : 'STANDARD';
     return {
         provider: provider,
         modelName: config[provider as keyof typeof config]?.[complexity] || config.gemini[complexity]

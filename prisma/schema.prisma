@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // User model for authentication
@@ -18,6 +19,7 @@ model User {
   name          String?
   image         String?   // Profile picture from OAuth
   emailVerified DateTime?
+  welcomeBonusNotifiedAt DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   isSubscribed  Boolean   @default(true) // For Newsletter
@@ -30,6 +32,7 @@ model User {
   sessions      Session[]
   exports       ExportRecord[]
   creditHistory CreditTransaction[]
+  creditRequests CreditRequest[]
   topics        Topic[]
   posts         Post[]
   profileLimits UserProfileLimit[]
@@ -235,6 +238,23 @@ model CreditTransaction {
   metadata    Json?    // Optional extra info
 
   @@index([userId])
+}
+
+model CreditRequest {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestedCredits Int
+  reason           String?  @db.Text
+  status           String   @default("PENDING")
+  adminNote        String?  @db.Text
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([status, createdAt])
 }
 
 model Topic {

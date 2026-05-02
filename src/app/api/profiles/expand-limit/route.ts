@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
     try {
         const session = await auth();
 
@@ -19,24 +19,9 @@ export async function POST(req: NextRequest) {
         });
         const EXPANSION_COST = serviceCost?.credits || 50;
 
-        // Check user's current credits
-        const creditsRes = await fetch(`${process.env.NEXTURL || 'http://localhost:3000'}/api/credits/check`, {
-            headers: {
-                cookie: req.headers.get('cookie') || '',
-            },
-        });
-        const { totalCredits } = await creditsRes.json();
-
-        if (totalCredits < EXPANSION_COST) {
-            return NextResponse.json(
-                { error: 'Insufficient credits', required: EXPANSION_COST },
-                { status: 402 }
-            );
-        }
-
         // Check hard cap of 10 profiles
         const maxProfilesDefault = parseInt(process.env.MAX_ACTIVE_PROFILES || '5');
-        const currentLimitRecord = await (prisma as any).userProfileLimit.findFirst({
+        const currentLimitRecord = await prisma.userProfileLimit.findFirst({
             where: { userId: session.user.id },
         });
         const extraSlots = currentLimitRecord?.extraSlots || 0;
@@ -48,42 +33,91 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Get or create UserProfileLimit record
-        let limitRecord;
-        if (!currentLimitRecord) {
-            limitRecord = await (prisma as any).userProfileLimit.create({
+        const result = await prisma.$transaction(async (tx) => {
+            const creditPacks = await tx.creditPack.findMany({
+                where: {
+                    userId: session.user.id,
+                    questionsUsed: {
+                        lt: prisma.creditPack.fields.questionsTotal,
+                    },
+                },
+                orderBy: {
+                    purchasedAt: 'asc',
+                },
+            });
+
+            const totalCredits = creditPacks.reduce(
+                (sum, pack) => sum + (pack.questionsTotal - pack.questionsUsed),
+                0
+            );
+
+            if (totalCredits < EXPANSION_COST) {
+                throw new Error('INSUFFICIENT_CREDITS');
+            }
+
+            let creditsToDeduct = EXPANSION_COST;
+            for (const pack of creditPacks) {
+                if (creditsToDeduct <= 0) break;
+                const available = pack.questionsTotal - pack.questionsUsed;
+                const deduct = Math.min(available, creditsToDeduct);
+
+                await tx.creditPack.update({
+                    where: { id: pack.id },
+                    data: {
+                        questionsUsed: { increment: deduct }
+                    }
+                });
+
+                creditsToDeduct -= deduct;
+            }
+
+            const latestLimitRecord = await tx.userProfileLimit.findFirst({
+                where: { userId: session.user.id },
+                orderBy: { purchasedAt: 'desc' }
+            });
+
+            const limitRecord = latestLimitRecord
+                ? await tx.userProfileLimit.update({
+                    where: { id: latestLimitRecord.id },
+                    data: { extraSlots: latestLimitRecord.extraSlots + 1 }
+                })
+                : await tx.userProfileLimit.create({
+                    data: {
+                        userId: session.user.id,
+                        extraSlots: 1,
+                    },
+                });
+
+            await tx.creditTransaction.create({
                 data: {
                     userId: session.user.id,
-                    extraSlots: 1,
+                    amount: -EXPANSION_COST,
+                    description: 'Expanded profile limit (+1 slot)',
+                    metadata: {
+                        previousExtraSlots: latestLimitRecord?.extraSlots || 0,
+                        newExtraSlots: limitRecord.extraSlots
+                    }
                 },
             });
-        } else {
-            limitRecord = await (prisma as any).userProfileLimit.update({
-                where: { id: currentLimitRecord.id },
-                data: {
-                    extraSlots: currentLimitRecord.extraSlots + 1,
-                },
-            });
-        }
 
-        // Deduct credits
-        await (prisma as any).creditTransaction.create({
-            data: {
-                userId: session.user.id,
-                amount: -EXPANSION_COST,
-                description: `Expanded profile limit (+1 slot)`,
-            },
+            return limitRecord;
         });
 
-        const newLimit = maxProfilesDefault + limitRecord.extraSlots;
+        const newLimit = maxProfilesDefault + result.extraSlots;
 
         return NextResponse.json({
             success: true,
             newLimit,
-            extraSlots: limitRecord.extraSlots,
+            extraSlots: result.extraSlots,
             creditsUsed: EXPANSION_COST,
         });
     } catch (error) {
+        if (error instanceof Error && error.message === 'INSUFFICIENT_CREDITS') {
+            return NextResponse.json(
+                { error: 'Insufficient credits' },
+                { status: 402 }
+            );
+        }
         console.error('Profile limit expansion error:', error);
         return NextResponse.json(
             { error: 'Failed to expand profile limit' },

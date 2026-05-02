@@ -32,8 +32,15 @@ export async function POST(req: NextRequest) {
         // Handle payment success
         if (event.event === 'payment.captured') {
             const payment = event.payload.payment.entity;
-            const userId = payment.notes.userId;
-            const productType = payment.notes.productType;
+            const userId = payment.notes?.userId as string | undefined;
+            const productType = (payment.notes?.productType || payment.notes?.productKey) as string | undefined;
+
+            if (!userId || !productType) {
+                return NextResponse.json(
+                    { error: 'Missing payment metadata' },
+                    { status: 400 }
+                );
+            }
 
             // Create credit pack or mark question as paid
             if (productType === 'CREDIT_PACK_5' || productType === 'CREDIT_PACK_10' || productType === 'SINGLE_QUESTION') {
@@ -50,16 +57,30 @@ export async function POST(req: NextRequest) {
                     return NextResponse.json({ success: true, note: 'Duplicate' });
                 }
 
-                await prisma.creditPack.create({
-                    data: {
-                        userId,
-                        packType: productType,
-                        questionsTotal,
-                        questionsUsed: 0,
-                        paymentId: payment.id,
-                        amount: payment.amount,
-                    },
-                });
+                await prisma.$transaction([
+                    prisma.creditPack.create({
+                        data: {
+                            userId,
+                            packType: productType,
+                            questionsTotal,
+                            questionsUsed: 0,
+                            paymentId: payment.id,
+                            amount: payment.amount,
+                        },
+                    }),
+                    prisma.creditTransaction.create({
+                        data: {
+                            userId,
+                            amount: questionsTotal,
+                            description: `Purchased ${questionsTotal} credit${questionsTotal > 1 ? 's' : ''} via Razorpay`,
+                            metadata: {
+                                paymentId: payment.id,
+                                productType,
+                                razorpayOrderId: payment.order_id || null
+                            }
+                        }
+                    })
+                ]);
             }
 
             return NextResponse.json({ success: true });

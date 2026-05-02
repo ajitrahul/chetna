@@ -504,22 +504,60 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                                     let posX = house.textX;
                                     let posY = house.textY;
                                     const isKendra = [1, 4, 7, 10].includes(house.num);
+                                    
+                                    // dynamically reduce font size & spacing for crowded houses
+                                    const isCrowded = total > 4;
+                                    const colWidth = isCrowded ? 24 : 32;
+                                    const rowHeight = isCrowded ? 14 : 20;
+
                                     if (isKendra) {
-                                        const ox = [-35, 35, -35, 35, 0, 0][idx] || 0;
-                                        const oy = [-22, -22, 22, 22, -44, 44][idx] || 0;
-                                        posX += ox; posY += oy;
+                                        const half = Math.ceil(total / 2);
+                                        const isTop = idx < half;
+                                        const localIdx = isTop ? idx : idx - half;
+                                        const rowTotal = isTop ? half : total - half;
+                                        
+                                        const rowsPerHalf = Math.ceil(rowTotal / 3);
+                                        const r = Math.floor(localIdx / 3);
+                                        const c = localIdx % 3;
+                                        const itemsInRow = Math.min(rowTotal - r * 3, 3);
+                                        
+                                        const startX = -((itemsInRow - 1) * colWidth) / 2;
+                                        const yOffset = isTop ? -25 - ((rowsPerHalf - 1 - r) * rowHeight) : 25 + (r * rowHeight);
+                                        
+                                        posX += startX + (c * colWidth);
+                                        posY += yOffset;
                                     } else {
-                                        const start = -((total - 1) * 22) / 2;
-                                        if ([3, 9, 5, 11].includes(house.num)) {
-                                            posX += (house.num === 3 || house.num === 5 ? 45 : -45);
-                                            posY += start + (idx * 22);
+                                        const isVertical = [3, 5, 9, 11].includes(house.num);
+                                        if (isVertical) {
+                                            const maxRows = total >= 7 ? 3 : (total > 4 ? Math.ceil(total / 2) : total);
+                                            const cols = Math.ceil(total / maxRows);
+                                            const c = Math.floor(idx / maxRows);
+                                            const r = idx % maxRows;
+                                            const itemsInCol = Math.min(total - c * maxRows, maxRows);
+                                            
+                                            const startX = -((cols - 1) * colWidth) / 2;
+                                            const startY = -((itemsInCol - 1) * rowHeight) / 2;
+                                            
+                                            posX += (house.num === 3 || house.num === 5 ? 25 : -25) + startX + (c * colWidth);
+                                            posY += startY + (r * rowHeight);
                                         } else {
-                                            posX += start + (idx * 22);
-                                            posY += (house.num === 2 || house.num === 12 ? 45 : -45);
+                                            const maxCols = total >= 7 ? 3 : (total > 4 ? Math.ceil(total / 2) : total);
+                                            const rows = Math.ceil(total / maxCols);
+                                            const r = Math.floor(idx / maxCols);
+                                            const c = idx % maxCols;
+                                            const itemsInRow = Math.min(total - r * maxCols, maxCols);
+                                            
+                                            const startX = -((itemsInRow - 1) * colWidth) / 2;
+                                            const startY = -((rows - 1) * rowHeight) / 2;
+                                            
+                                            posX += startX + (c * colWidth);
+                                            posY += (house.num === 2 || house.num === 12 ? 25 : -25) + startY + (r * rowHeight);
                                         }
                                     }
 
                                     const degree = Math.floor((planetObj.longitude || 0) % 30);
+                                    let fSize = planetObj.name === 'Ascendant' ? 12 : 11;
+                                    if (isCrowded) fSize = Math.max(8, fSize - 2);
 
                                     return (
                                         <text
@@ -528,7 +566,7 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                                             y={posY}
                                             textAnchor="middle"
                                             dominantBaseline="middle"
-                                            fontSize={planetObj.name === 'Ascendant' ? "12" : "11"}
+                                            fontSize={fSize}
                                             fill={isActive ? "var(--background)" : "var(--primary)"}
                                             fontWeight={planetObj.name === 'Ascendant' ? "700" : "500"}
                                             fontFamily="var(--font-main)"

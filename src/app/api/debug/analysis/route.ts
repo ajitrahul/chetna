@@ -1,11 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { VedicAnalysisEngine } from '@/lib/astrology/engine';
 import { ChartData } from '@/lib/astrology/calculator';
+import { checkAdminAccess } from '@/lib/admin';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
+        if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+        }
+
+        if (!await checkAdminAccess()) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const session = await auth();
         if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -23,7 +32,8 @@ export async function GET(req: NextRequest) {
             profileName: profile.name,
             analysis: analysis
         });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

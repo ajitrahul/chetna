@@ -1,11 +1,20 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { checkAdminAccess } from '@/lib/admin';
 
 export async function GET() {
     try {
+        if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+        }
+
+        if (!await checkAdminAccess()) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const cwd = process.cwd();
-        const files: any[] = [];
+        const files: Array<Record<string, unknown>> = [];
 
         function scan(dir: string, depth = 0) {
             if (depth > 2) return;
@@ -23,10 +32,10 @@ export async function GET() {
                         } else {
                             files.push({ type: 'file', path: fullPath.replace(cwd, ''), size: stat.size });
                         }
-                    } catch (e) { }
+                    } catch { }
                 });
-            } catch (e) {
-                files.push({ error: `Failed to read ${dir}: ${e}` });
+            } catch (error) {
+                files.push({ error: `Failed to read ${dir}: ${error}` });
             }
         }
 

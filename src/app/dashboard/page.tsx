@@ -6,9 +6,10 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { CreditCard, History, UserCircle, ChevronRight, MessageSquare, Trash2, Crown, Download, FileText, PlusCircle, Zap, Sparkles, MapPin, Clock, Trash, CheckSquare, Square, Info, Users } from 'lucide-react';
+import { CreditCard, UserCircle, ChevronRight, MessageSquare, Trash2, Crown, Download, FileText, PlusCircle, Zap, Sparkles, MapPin, Clock, Trash, CheckSquare, Square, Info, X } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useProfile } from '@/context/ProfileContext';
+import { PAYMENTS_ENABLED, PAYMENTS_PAUSED_MESSAGE } from '@/lib/paymentConfig';
 
 interface UserProfile {
     id: string;
@@ -29,6 +30,39 @@ interface UserQuestion {
     createdAt: string;
 }
 
+interface UserExport {
+    id: string;
+    chartType: string;
+    createdAt: string;
+    url: string;
+}
+
+interface CreditHistoryItem {
+    id: string;
+    description: string;
+    amount: number;
+    createdAt: string;
+}
+
+type CreditRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+interface UserCreditRequest {
+    id: string;
+    requestedCredits: number;
+    reason: string | null;
+    status: CreditRequestStatus;
+    adminNote: string | null;
+    reviewedAt: string | null;
+    createdAt: string;
+}
+
+interface CreditRequestEligibility {
+    welcomeBonusConsumed: boolean;
+    remainingWelcomeCredits: number;
+    hasPendingRequest: boolean;
+    canRequest: boolean;
+}
+
 export default function DashboardPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -39,8 +73,8 @@ export default function DashboardPage() {
     });
     const [recentProfiles, setRecentProfiles] = useState<UserProfile[]>([]);
     const [recentQuestions, setRecentQuestions] = useState<UserQuestion[]>([]);
-    const [recentExports, setRecentExports] = useState<any[]>([]);
-    const [recentCredits, setRecentCredits] = useState<any[]>([]);
+    const [recentExports, setRecentExports] = useState<UserExport[]>([]);
+    const [recentCredits, setRecentCredits] = useState<CreditHistoryItem[]>([]);
     const [profileStats, setProfileStats] = useState({ active: 0, limit: 5, extra: 0 });
     const [loading, setLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -51,6 +85,18 @@ export default function DashboardPage() {
     const [selectedExports, setSelectedExports] = useState<string[]>([]);
     const [isBulkDeleting, setIsBulkDeleting] = useState(false);
     const [isExportDeleting, setIsExportDeleting] = useState(false);
+    const [creditRequests, setCreditRequests] = useState<UserCreditRequest[]>([]);
+    const [creditRequestEligibility, setCreditRequestEligibility] = useState<CreditRequestEligibility>({
+        welcomeBonusConsumed: false,
+        remainingWelcomeCredits: 10,
+        hasPendingRequest: false,
+        canRequest: false
+    });
+    const [requestedCredits, setRequestedCredits] = useState(10);
+    const [creditRequestReason, setCreditRequestReason] = useState('');
+    const [submittingCreditRequest, setSubmittingCreditRequest] = useState(false);
+    const [welcomeBonusNotice, setWelcomeBonusNotice] = useState<string | null>(null);
+    const [hasCheckedWelcomeBonusNotice, setHasCheckedWelcomeBonusNotice] = useState(false);
     const { openNewProfileModal } = useProfile();
 
     useEffect(() => {
@@ -63,17 +109,45 @@ export default function DashboardPage() {
         }
     }, [status, router]);
 
+    useEffect(() => {
+        if (status === 'authenticated' && !hasCheckedWelcomeBonusNotice) {
+            fetchWelcomeBonusNotice();
+        }
+    }, [status, hasCheckedWelcomeBonusNotice]);
+
+    const fetchWelcomeBonusNotice = async () => {
+        try {
+            const res = await fetch('/api/credits/welcome-bonus-notice', {
+                method: 'POST'
+            });
+
+            if (!res.ok) {
+                return;
+            }
+
+            const data = await res.json();
+            if (data?.show && typeof data.message === 'string') {
+                setWelcomeBonusNotice(data.message);
+            }
+        } catch (error) {
+            console.error('Welcome bonus notice fetch error:', error);
+        } finally {
+            setHasCheckedWelcomeBonusNotice(true);
+        }
+    };
+
     const fetchProfileData = async () => {
         try {
             setLoading(true);
             // In a real app, these would be separate or combined API calls
-            const [creditsRes, profilesRes, questionsRes, exportsRes, creditHistoryRes, activeProfileRes] = await Promise.all([
+            const [creditsRes, profilesRes, questionsRes, exportsRes, creditHistoryRes, activeProfileRes, creditRequestsRes] = await Promise.all([
                 fetch('/api/credits/check'),
                 fetch('/api/profiles'),
                 fetch('/api/questions'),
                 fetch('/api/user/exports'),
                 fetch('/api/credits/history'),
-                fetch('/api/profiles/active') // Fetch active profile & limit metadata
+                fetch('/api/profiles/active'), // Fetch active profile & limit metadata
+                fetch('/api/credits/requests')
             ]);
 
             const creditsData = await creditsRes.json();
@@ -82,6 +156,7 @@ export default function DashboardPage() {
             const exportsData = await exportsRes.ok ? await exportsRes.json() : [];
             const creditHistoryData = await creditHistoryRes.ok ? await creditHistoryRes.json() : [];
             const activeData = await activeProfileRes.ok ? await activeProfileRes.json() : {};
+            const creditRequestsData = await creditRequestsRes.ok ? await creditRequestsRes.json() : null;
 
             setStats({
                 credits: creditsData.totalCredits || 0,
@@ -101,6 +176,18 @@ export default function DashboardPage() {
             setRecentQuestions(Array.isArray(questionsData) ? questionsData.slice(0, 5) : []);
             setRecentExports(Array.isArray(exportsData) ? exportsData : []);
             setRecentCredits(Array.isArray(creditHistoryData) ? creditHistoryData : []);
+            setCreditRequests(Array.isArray(creditRequestsData?.requests) ? creditRequestsData.requests : []);
+
+            if (creditRequestsData?.eligibility) {
+                setCreditRequestEligibility(creditRequestsData.eligibility);
+            } else {
+                setCreditRequestEligibility({
+                    welcomeBonusConsumed: false,
+                    remainingWelcomeCredits: 10,
+                    hasPendingRequest: false,
+                    canRequest: false
+                });
+            }
 
         } catch (error) {
             console.error('Failed to fetch profile data:', error);
@@ -192,14 +279,14 @@ export default function DashboardPage() {
         }
     };
 
-    const toggleProfileSelection = (id: string, e: React.MouseEvent) => {
+    const toggleProfileSelection = (id: string, e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         setSelectedProfiles(prev =>
             prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
         );
     };
 
-    const toggleExportSelection = (id: string, e: React.MouseEvent) => {
+    const toggleExportSelection = (id: string, e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         setSelectedExports(prev =>
             prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
@@ -254,7 +341,7 @@ export default function DashboardPage() {
         }
     };
 
-    const handleDownloadPDF = async (exp: any) => {
+    const handleDownloadPDF = async (exp: UserExport) => {
         // Redirection logic to trigger download
         if (exp.url.startsWith('/api/charts/export')) {
             // It's a proper link
@@ -262,6 +349,46 @@ export default function DashboardPage() {
         } else {
             // Old record or placeholder
             alert('This report uses an older format and cannot be directly re-downloaded. Please generate a new one from the chart page.');
+        }
+    };
+
+    const handleSubmitCreditRequest = async () => {
+        if (!creditRequestEligibility.canRequest) return;
+
+        const creditsToRequest = Number(requestedCredits);
+        if (!Number.isInteger(creditsToRequest) || creditsToRequest < 1) {
+            alert('Please enter a valid credit amount.');
+            return;
+        }
+
+        try {
+            setSubmittingCreditRequest(true);
+            const res = await fetch('/api/credits/requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    requestedCredits: creditsToRequest,
+                    reason: creditRequestReason
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.error || 'Failed to submit credit request.');
+                if (res.status === 403 || res.status === 409) {
+                    await fetchProfileData();
+                }
+                return;
+            }
+
+            setCreditRequestReason('');
+            alert(data.message || 'Credit request submitted.');
+            await fetchProfileData();
+        } catch (error) {
+            console.error('Credit request submit error:', error);
+            alert('An error occurred while submitting your request.');
+        } finally {
+            setSubmittingCreditRequest(false);
         }
     };
 
@@ -310,6 +437,22 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </header>
+
+            {welcomeBonusNotice && (
+                <div className={styles.welcomeBonusNotice} role="status" aria-live="polite">
+                    <div className={styles.welcomeBonusNoticeText}>
+                        <Sparkles size={16} />
+                        <span>{welcomeBonusNotice}</span>
+                    </div>
+                    <button
+                        className={styles.welcomeBonusNoticeClose}
+                        onClick={() => setWelcomeBonusNotice(null)}
+                        aria-label="Dismiss welcome bonus notice"
+                    >
+                        <X size={16} />
+                    </button>
+                </div>
+            )}
 
             <div className={styles.layout}>
                 {/* Sidebar Navigation */}
@@ -534,14 +677,121 @@ export default function DashboardPage() {
                         <section className={styles.fullSection}>
                             <div className={styles.sectionHeader}>
                                 <h2 className={styles.sectionTitle}><CreditCard size={20} /> Clarity Credits</h2>
-                                <Link href="/pricing" className={styles.actionBtn}>Add Credits</Link>
+                                {PAYMENTS_ENABLED ? (
+                                    <Link href="/pricing" className={styles.actionBtn}>Add Credits</Link>
+                                ) : (
+                                    <span className={styles.infoBadge}>Purchases Paused</span>
+                                )}
                             </div>
+                            {!PAYMENTS_ENABLED && (
+                                <div className={styles.infoNote}>
+                                    <Info size={14} />
+                                    <span>{PAYMENTS_PAUSED_MESSAGE}</span>
+                                </div>
+                            )}
                             <div className={styles.creditsDisplay}>
                                 <div className={styles.creditValueLarge}>
                                     <Zap size={32} />
                                     <span>{stats.credits}</span>
                                     <label>Available Credits</label>
                                 </div>
+
+                                <div className={styles.creditRequestPanel}>
+                                    <div className={styles.creditRequestHeader}>
+                                        <h3>Need Additional Credits?</h3>
+                                        {creditRequestEligibility.hasPendingRequest && (
+                                            <span className={styles.statusPending}>Pending Request</span>
+                                        )}
+                                    </div>
+
+                                    {creditRequestEligibility.canRequest ? (
+                                        <div className={styles.creditRequestForm}>
+                                            <div className={styles.creditRequestField}>
+                                                <label htmlFor="requestedCredits">Credits Needed</label>
+                                                <input
+                                                    id="requestedCredits"
+                                                    type="number"
+                                                    min={1}
+                                                    max={1000}
+                                                    value={requestedCredits}
+                                                    onChange={(e) => {
+                                                        const parsed = parseInt(e.target.value, 10);
+                                                        setRequestedCredits(Number.isNaN(parsed) ? 0 : parsed);
+                                                    }}
+                                                    className={styles.creditRequestInput}
+                                                />
+                                            </div>
+                                            <div className={styles.creditRequestField}>
+                                                <label htmlFor="creditRequestReason">Reason (optional)</label>
+                                                <textarea
+                                                    id="creditRequestReason"
+                                                    value={creditRequestReason}
+                                                    onChange={(e) => setCreditRequestReason(e.target.value)}
+                                                    className={styles.creditRequestTextarea}
+                                                    rows={3}
+                                                    maxLength={1000}
+                                                    placeholder="Tell us why you need additional credits."
+                                                />
+                                            </div>
+                                            <button
+                                                className={styles.creditRequestBtn}
+                                                onClick={handleSubmitCreditRequest}
+                                                disabled={submittingCreditRequest}
+                                            >
+                                                {submittingCreditRequest ? 'Submitting...' : 'Request Credits'}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <p className={styles.creditRequestHint}>
+                                            {creditRequestEligibility.hasPendingRequest
+                                                ? 'You already have a pending request. Please wait for admin review.'
+                                                : creditRequestEligibility.welcomeBonusConsumed
+                                                    ? 'Credit requests are currently unavailable.'
+                                                    : `Use your welcome bonus first. Remaining welcome credits: ${creditRequestEligibility.remainingWelcomeCredits}.`}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {creditRequests.length > 0 && (
+                                    <div className={styles.creditRequestHistory}>
+                                        <h3 className={styles.creditRequestHistoryTitle}>Credit Request History</h3>
+                                        <div className={styles.tableWrapper}>
+                                            <table className={styles.exportTable}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Credits</th>
+                                                        <th>Status</th>
+                                                        <th>Requested</th>
+                                                        <th>Admin Note</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {creditRequests.map((request) => (
+                                                        <tr key={request.id}>
+                                                            <td>{request.requestedCredits}</td>
+                                                            <td>
+                                                                <span className={
+                                                                    request.status === 'APPROVED'
+                                                                        ? styles.statusApproved
+                                                                        : request.status === 'REJECTED'
+                                                                            ? styles.statusRejected
+                                                                            : styles.statusPending
+                                                                }>
+                                                                    {request.status}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                {new Date(request.createdAt).toLocaleDateString()}
+                                                            </td>
+                                                            <td>{request.adminNote || '-'}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className={styles.tableWrapper}>
                                     {recentCredits.length > 0 ? (
                                         <table className={styles.exportTable}>
@@ -658,17 +908,17 @@ export default function DashboardPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {recentExports.map((exp: any) => (
+                                            {recentExports.map((exp) => (
                                                 <tr
                                                     key={exp.id}
                                                     className={selectedExports.includes(exp.id) ? styles.selectedRow : ''}
-                                                    onClick={(e) => toggleExportSelection(exp.id, e as any)}
+                                                    onClick={(e) => toggleExportSelection(exp.id, e)}
                                                     style={{ cursor: 'pointer' }}
                                                 >
                                                     <td onClick={(e) => e.stopPropagation()}>
                                                         <button
                                                             className={styles.checkbox}
-                                                            onClick={(e) => toggleExportSelection(exp.id, e as any)}
+                                                            onClick={(e) => toggleExportSelection(exp.id, e)}
                                                         >
                                                             {selectedExports.includes(exp.id) ? <CheckSquare size={18} /> : <Square size={18} />}
                                                         </button>

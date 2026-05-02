@@ -271,6 +271,71 @@
     gap: 8px;
 }
 
+.pendingBadge,
+.approvedBadge,
+.rejectedBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+.pendingBadge {
+    background: rgba(var(--accent-gold-rgb), 0.14);
+    color: var(--accent-gold);
+    border: 1px solid rgba(var(--accent-gold-rgb), 0.25);
+}
+
+.approvedBadge {
+    background: rgba(76, 175, 80, 0.12);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.rejectedBadge {
+    background: rgba(244, 67, 54, 0.12);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.approveBtn,
+.rejectBtn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.approveBtn {
+    background: rgba(76, 175, 80, 0.12);
+    color: #4caf50;
+    border-color: rgba(76, 175, 80, 0.2);
+}
+
+.approveBtn:hover {
+    background: #4caf50;
+    color: #fff;
+}
+
+.rejectBtn {
+    background: rgba(244, 67, 54, 0.12);
+    color: #f44336;
+    border-color: rgba(244, 67, 54, 0.2);
+}
+
+.rejectBtn:hover {
+    background: #f44336;
+    color: #fff;
+}
+
 .newsletterSection {
     background: var(--card-bg);
     padding: 2rem;

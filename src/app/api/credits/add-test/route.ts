@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
+import { isAdmin } from '@/lib/admin';
 
 export async function POST() {
     try {
+        if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json(
+                { error: 'Not available in production' },
+                { status: 404 }
+            );
+        }
+
         const session = await auth();
 
         if (!session?.user?.id) {
@@ -13,17 +21,34 @@ export async function POST() {
             );
         }
 
+        if (!await isAdmin(session.user.email)) {
+            return NextResponse.json(
+                { error: 'Admin access required.' },
+                { status: 403 }
+            );
+        }
+
         // Add 10 test credits
-        await prisma.creditPack.create({
-            data: {
-                userId: session.user.id,
-                packType: 'TEST_CREDITS',
-                questionsTotal: 10,
-                questionsUsed: 0,
-                paymentId: `test_${Date.now()}`,
-                amount: 0,
-            },
-        });
+        await prisma.$transaction([
+            prisma.creditPack.create({
+                data: {
+                    userId: session.user.id,
+                    packType: 'TEST_CREDITS',
+                    questionsTotal: 10,
+                    questionsUsed: 0,
+                    paymentId: `test_${Date.now()}`,
+                    amount: 0,
+                },
+            }),
+            prisma.creditTransaction.create({
+                data: {
+                    userId: session.user.id,
+                    amount: 10,
+                    description: 'Admin test credit grant',
+                    metadata: { source: 'api/credits/add-test' }
+                }
+            })
+        ]);
 
         return NextResponse.json({
             success: true,

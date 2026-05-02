@@ -2,9 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
+import { PAYMENTS_ENABLED, PAYMENTS_PAUSED_MESSAGE } from '@/lib/paymentConfig';
 
 export async function POST(req: NextRequest) {
     try {
+        if (!PAYMENTS_ENABLED) {
+            return NextResponse.json(
+                { error: PAYMENTS_PAUSED_MESSAGE },
+                { status: 503 }
+            );
+        }
+
         const session = await auth();
 
         if (!session?.user?.id) {
@@ -27,7 +35,7 @@ export async function POST(req: NextRequest) {
             key_secret: process.env.RAZORPAY_KEY_SECRET,
         });
 
-        const { productKey, productName } = await req.json();
+        const { productKey } = await req.json();
 
         if (!productKey) {
             return NextResponse.json(
@@ -48,8 +56,6 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const amount = plan.price / 100; // Convert paise to INR for validation check if needed, but Razorpay takes paise
-
         // Create Razorpay order
         const order = await razorpay.orders.create({
             amount: plan.price, // Use DB price (in paise)
@@ -58,6 +64,7 @@ export async function POST(req: NextRequest) {
             notes: {
                 userId: session.user.id,
                 productKey: plan.key,
+                productType: plan.key,
                 productName: plan.name, // Use DB name preferred, but can fallback
             },
         });

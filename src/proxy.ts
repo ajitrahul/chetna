@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { auth } from "@/auth"
+import { PAYMENTS_ENABLED } from "@/lib/paymentConfig"
 
 // Protected routes that require authentication
 const protectedPaths = [
@@ -8,7 +9,7 @@ const protectedPaths = [
     "/clarity",
     "/timing",
     "/synastry",
-    "/pricing"
+    ...(PAYMENTS_ENABLED ? ["/pricing"] : [])
 ]
 
 export async function proxy(request: NextRequest) {

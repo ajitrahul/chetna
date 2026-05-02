@@ -26,6 +26,7 @@ import { useProfile } from '@/context/ProfileContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PlusCircle, ArrowLeft, Lock, Info, CheckCircle, Sparkles, Zap, Loader2, Download, Clock, Compass, Copy, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { PAYMENTS_ENABLED, PAYMENTS_PAUSED_MESSAGE } from '@/lib/paymentConfig';
 
 const VARGA_DEFINITIONS: Record<string, { title: string, definition: string, tips: string }> = {
     'D1': {
@@ -490,10 +491,10 @@ export default function ChartPageContent() {
             let targetProfile = null;
 
             if (profileIdFromUrl) {
-                targetProfile = data.profiles.find((p: UserProfile) => p.id === profileIdFromUrl);
+                targetProfile = (data.profiles || []).find((p: UserProfile) => p.id === profileIdFromUrl);
             }
 
-            if (!targetProfile && data.profiles.length > 0) {
+            if (!targetProfile && (data.profiles || []).length > 0) {
                 targetProfile = data.profiles[0];
             }
 
@@ -1013,24 +1014,28 @@ export default function ChartPageContent() {
                             animate={{ scale: 1 }}
                             className={styles.dialogBox}
                         >
-                            <h3 className={styles.dialogTitle} style={{ color: '#ff4747' }}>Insufficient Credits</h3>
-                            <p className={styles.dialogText}>
-                                You need more credits to unlock this premium chart analysis.
-                            </p>
-                            <div className={styles.dialogActions}>
-                                <button
-                                    onClick={() => setNoCreditsModal(false)}
-                                    className={styles.btnCancel}
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    onClick={() => router.push('/pricing')}
-                                    className={styles.btnPremium}
-                                >
-                                    Get Credits
-                                </button>
-                            </div>
+	                            <h3 className={styles.dialogTitle} style={{ color: '#ff4747' }}>Insufficient Credits</h3>
+	                            <p className={styles.dialogText}>
+	                                {PAYMENTS_ENABLED
+	                                    ? 'You need more credits to unlock this premium chart analysis.'
+	                                    : PAYMENTS_PAUSED_MESSAGE}
+	                            </p>
+	                            <div className={styles.dialogActions}>
+	                                <button
+	                                    onClick={() => setNoCreditsModal(false)}
+	                                    className={styles.btnCancel}
+	                                >
+	                                    Close
+	                                </button>
+	                                {PAYMENTS_ENABLED && (
+	                                    <button
+	                                        onClick={() => router.push('/pricing')}
+	                                        className={styles.btnPremium}
+	                                    >
+	                                        Get Credits
+	                                    </button>
+	                                )}
+	                            </div>
                         </motion.div>
                     </motion.div>
                 )}

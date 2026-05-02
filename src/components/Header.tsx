@@ -8,14 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Header.module.css';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
-import { Menu, X, CreditCard, LayoutDashboard, Settings, LogOut, Info, BookOpen, MessageSquare, Sparkles, Users } from 'lucide-react';
+import { Menu, X, CreditCard, LayoutDashboard, LogOut, Info, BookOpen, MessageSquare, Sparkles, Users } from 'lucide-react';
+import { PAYMENTS_ENABLED } from '@/lib/paymentConfig';
 
 export default function Header() {
   const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close menu when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 768) setIsMenuOpen(false);
@@ -31,7 +31,6 @@ export default function Header() {
           <Logo width={140} height={50} />
         </Link>
 
-        {/* Mobile Menu Toggle */}
         <button
           className={styles.menuToggle}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -60,7 +59,9 @@ export default function Header() {
                 <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Ask AI</Link>
                 <Link href="/synastry" className={`${styles.navLink} ${pathname === '/synastry' ? styles.activeLink : ''}`}>Relationships</Link>
                 <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Wisdom Blog</Link>
-                <Link href="/pricing" className={`${styles.navLink} ${pathname === '/pricing' ? styles.activeLink : ''}`}>Credit</Link>
+                {PAYMENTS_ENABLED && (
+                  <Link href="/pricing" className={`${styles.navLink} ${pathname === '/pricing' ? styles.activeLink : ''}`}>Credit</Link>
+                )}
               </>
             ) : (
               <>
@@ -79,7 +80,6 @@ export default function Header() {
                 <Link href="/dashboard" className={`${styles.navLink} ${pathname === '/dashboard' ? styles.activeLink : ''}`}>
                   Dashboard
                 </Link>
-                {/* Admin Link */}
                 {session?.user?.isAdmin && (
                   <Link href="/admin" className={`${styles.navLink} ${styles.adminLink} ${pathname === '/admin' ? styles.activeLink : ''}`} onClick={() => setIsMenuOpen(false)}>
                     Admin
@@ -98,7 +98,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Menu Portal-like Drawer */}
         <AnimatePresence>
           {isMenuOpen && (
             <>
@@ -144,9 +143,11 @@ export default function Header() {
                       <Link href="/blog" className={`${styles.mobileNavLink} ${pathname === '/blog' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <BookOpen size={20} /> Wisdom Blog
                       </Link>
-                      <Link href="/pricing" className={`${styles.mobileNavLink} ${pathname === '/pricing' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <CreditCard size={20} /> Credits
-                      </Link>
+                      {PAYMENTS_ENABLED && (
+                        <Link href="/pricing" className={`${styles.mobileNavLink} ${pathname === '/pricing' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                          <CreditCard size={20} /> Credits
+                        </Link>
+                      )}
                       <Link href="/dashboard" className={`${styles.mobileNavLink} ${pathname === '/dashboard' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <LayoutDashboard size={20} /> Dashboard
                       </Link>
@@ -168,17 +169,15 @@ export default function Header() {
                     <ThemeToggle />
                   </div>
                   {status === 'authenticated' ? (
-                    <>
-                      <button
-                        className={styles.mobileSignOut}
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          signOut({ callbackUrl: '/' });
-                        }}
-                      >
-                        <LogOut size={20} /> Sign Out
-                      </button>
-                    </>
+                    <button
+                      className={styles.mobileSignOut}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
+                    >
+                      <LogOut size={20} /> Sign Out
+                    </button>
                   ) : (
                     <Link href="/login" className={styles.mobileLoginBtn} onClick={() => setIsMenuOpen(false)}>
                       Sign In to Chetna
@@ -189,7 +188,6 @@ export default function Header() {
             </>
           )}
         </AnimatePresence>
-
       </div>
     </header>
   );
