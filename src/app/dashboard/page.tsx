@@ -118,7 +118,7 @@ export default function DashboardPage() {
     const fetchWelcomeBonusNotice = async () => {
         try {
             const res = await fetch('/api/credits/welcome-bonus-notice', {
-                method: 'POST'
+                method: 'GET'
             });
 
             if (!res.ok) {
@@ -128,6 +128,11 @@ export default function DashboardPage() {
             const data = await res.json();
             if (data?.show && typeof data.message === 'string') {
                 setWelcomeBonusNotice(data.message);
+
+                // Mark this one-time notice as acknowledged after it is displayed.
+                fetch('/api/credits/welcome-bonus-notice', { method: 'POST' }).catch((error) => {
+                    console.error('Welcome bonus notice acknowledge error:', error);
+                });
             }
         } catch (error) {
             console.error('Welcome bonus notice fetch error:', error);
