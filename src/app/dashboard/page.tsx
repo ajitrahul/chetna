@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { CreditCard, UserCircle, ChevronRight, MessageSquare, Trash2, Crown, Download, FileText, PlusCircle, Zap, Sparkles, MapPin, Clock, Trash, CheckSquare, Square, Info, X } from 'lucide-react';
+import { CreditCard, UserCircle, ChevronRight, MessageSquare, Trash2, Crown, Download, FileText, PlusCircle, Zap, Sparkles, MapPin, Clock, Trash, CheckSquare, Square, Info } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useProfile } from '@/context/ProfileContext';
 import { PAYMENTS_ENABLED, PAYMENTS_PAUSED_MESSAGE } from '@/lib/paymentConfig';
@@ -128,17 +128,22 @@ export default function DashboardPage() {
             const data = await res.json();
             if (data?.show && typeof data.message === 'string') {
                 setWelcomeBonusNotice(data.message);
-
-                // Mark this one-time notice as acknowledged after it is displayed.
-                fetch('/api/credits/welcome-bonus-notice', { method: 'POST' }).catch((error) => {
-                    console.error('Welcome bonus notice acknowledge error:', error);
-                });
             }
         } catch (error) {
             console.error('Welcome bonus notice fetch error:', error);
         } finally {
             setHasCheckedWelcomeBonusNotice(true);
         }
+    };
+
+    const acknowledgeWelcomeBonusNotice = () => {
+        if (!welcomeBonusNotice) return;
+
+        setWelcomeBonusNotice(null);
+
+        fetch('/api/credits/welcome-bonus-notice', { method: 'POST' }).catch((error) => {
+            console.error('Welcome bonus notice acknowledge error:', error);
+        });
     };
 
     const fetchProfileData = async () => {
@@ -442,22 +447,6 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </header>
-
-            {welcomeBonusNotice && (
-                <div className={styles.welcomeBonusNotice} role="status" aria-live="polite">
-                    <div className={styles.welcomeBonusNoticeText}>
-                        <Sparkles size={16} />
-                        <span>{welcomeBonusNotice}</span>
-                    </div>
-                    <button
-                        className={styles.welcomeBonusNoticeClose}
-                        onClick={() => setWelcomeBonusNotice(null)}
-                        aria-label="Dismiss welcome bonus notice"
-                    >
-                        <X size={16} />
-                    </button>
-                </div>
-            )}
 
             <div className={styles.layout}>
                 {/* Sidebar Navigation */}
@@ -978,6 +967,17 @@ export default function DashboardPage() {
                 onConfirm={handleConfirmDelete}
                 onCancel={() => !isDeleting && setShowDeleteConfirm(false)}
                 variant="danger"
+            />
+
+            <ConfirmDialog
+                isOpen={Boolean(welcomeBonusNotice)}
+                title="Welcome Bonus Added"
+                message={welcomeBonusNotice || ''}
+                confirmText="Got It"
+                cancelText="Close"
+                onConfirm={acknowledgeWelcomeBonusNotice}
+                onCancel={acknowledgeWelcomeBonusNotice}
+                variant="info"
             />
         </div>
     );
