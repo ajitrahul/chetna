@@ -31,23 +31,30 @@ export default function Header() {
           <Logo width={140} height={50} />
         </Link>
 
-        <button
-          className={styles.menuToggle}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={isMenuOpen ? 'close' : 'open'}
-              initial={{ opacity: 0, rotate: -90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: 90 }}
-              transition={{ duration: 0.2 }}
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </motion.div>
-          </AnimatePresence>
-        </button>
+        <div className={styles.mobileHeaderActions}>
+          {status === 'unauthenticated' && (
+            <Link href="/login" className={styles.mobileSignInBtn} onClick={() => setIsMenuOpen(false)}>
+              Sign In
+            </Link>
+          )}
+          <button
+            className={styles.menuToggle}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={isMenuOpen ? 'close' : 'open'}
+                initial={{ opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </motion.div>
+            </AnimatePresence>
+          </button>
+        </div>
 
         <div className={styles.desktopNav}>
           <nav className={styles.navLinks}>
@@ -117,9 +124,6 @@ export default function Header() {
               >
                 <div className={styles.mobileMenuHeader}>
                   <Logo width={120} height={40} />
-                  <button onClick={() => setIsMenuOpen(false)} className={styles.closeBtn}>
-                    <X size={24} />
-                  </button>
                 </div>
 
                 <nav className={styles.mobileNavLinks}>

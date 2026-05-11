@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
             'CHART_D2', 'CHART_D3', 'CHART_D4', 'CHART_D5', 'CHART_D6',
             'CHART_D7', 'CHART_D8', 'CHART_D10', 'CHART_D12', 'CHART_D16',
             'CHART_D20', 'CHART_D24', 'CHART_D27', 'CHART_D30',
-            'EXPAND_PROFILE_LIMIT'
+            'EXPAND_PROFILE_LIMIT', 'WELCOME_BONUS'
         ];
 
         for (const key of KNOWN_SERVICES) {
@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
                 update: {},
                 create: {
                     key,
-                    credits: 5,
-                    description: `Unlock ${key} Analysis`
+                    credits: key === 'WELCOME_BONUS' ? 10 : 5,
+                    description: key === 'WELCOME_BONUS' ? 'Credits given on sign-up' : `Unlock ${key} Analysis`
                 }
             });
         }

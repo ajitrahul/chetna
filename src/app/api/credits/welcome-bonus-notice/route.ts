@@ -3,6 +3,64 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
+async function ensureWelcomeBonusGranted(userId: string) {
+    const [welcomeBonusPack, welcomeBonusTx] = await Promise.all([
+        prisma.creditPack.findFirst({
+            where: {
+                userId,
+                packType: 'WELCOME_BONUS'
+            },
+            select: {
+                id: true
+            }
+        }),
+        prisma.creditTransaction.findFirst({
+            where: {
+                userId,
+                amount: {
+                    gt: 0
+                },
+                description: {
+                    contains: 'Welcome Bonus'
+                }
+            },
+            select: {
+                id: true
+            }
+        })
+    ]);
+
+    if (welcomeBonusPack || welcomeBonusTx) {
+        return;
+    }
+
+    const welcomeBonusSetting = await prisma.serviceCost.findUnique({
+        where: { key: "WELCOME_BONUS" }
+    });
+    const bonusAmount = welcomeBonusSetting ? welcomeBonusSetting.credits : 10;
+
+    await prisma.$transaction([
+        prisma.creditPack.create({
+            data: {
+                userId,
+                packType: 'WELCOME_BONUS',
+                questionsTotal: bonusAmount,
+                questionsUsed: 0,
+                paymentId: 'FREE_WELCOME_BONUS_BACKFILL',
+                amount: 0
+            }
+        }),
+        prisma.creditTransaction.create({
+            data: {
+                userId,
+                amount: bonusAmount,
+                description: `Welcome Bonus - ${bonusAmount} Free Credits`,
+                metadata: { source: 'welcome_bonus_notice_route' }
+            }
+        })
+    ]);
+}
+
 async function getWelcomeBonusStatus(userId: string) {
     const [user, welcomeBonusPack, welcomeBonusTx] = await Promise.all([
         prisma.user.findUnique({
@@ -51,6 +109,7 @@ export async function GET() {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        await ensureWelcomeBonusGranted(session.user.id);
         const result = await getWelcomeBonusStatus(session.user.id);
 
         if (!result.show) {

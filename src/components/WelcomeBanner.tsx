@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 
-export default function WelcomeBanner() {
+export default function WelcomeBanner({ bonusAmount = 10 }: { bonusAmount?: number }) {
     const { status } = useSession();
     const [isVisible, setIsVisible] = useState(true);
 
@@ -47,7 +47,7 @@ export default function WelcomeBanner() {
                     }}>
                         Unlock your spiritual journey!
                         <span style={{ color: 'var(--accent-gold)', fontWeight: 'bold', marginLeft: '6px' }}>
-                            Sign up now to get 10 free credits.
+                            Sign up now to get {bonusAmount} free credits.
                         </span>
                     </span>
                     <Link

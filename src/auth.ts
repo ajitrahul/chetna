@@ -90,11 +90,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         where: { userId: user.id, packType: "WELCOME_BONUS" }
                     });
                     if (!existingBonus) {
+                        const welcomeBonusSetting = await prisma.serviceCost.findUnique({
+                            where: { key: "WELCOME_BONUS" }
+                        });
+                        const bonusAmount = welcomeBonusSetting ? welcomeBonusSetting.credits : 10;
+
                         await prisma.creditPack.create({
                             data: {
                                 userId: user.id,
                                 packType: "WELCOME_BONUS",
-                                questionsTotal: 10,
+                                questionsTotal: bonusAmount,
                                 questionsUsed: 0,
                                 paymentId: "FREE_WELCOME_BONUS",
                                 amount: 0
@@ -103,8 +108,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         await prisma.creditTransaction.create({
                             data: {
                                 userId: user.id,
-                                amount: 10,
-                                description: "Welcome Bonus - 10 Free Credits",
+                                amount: bonusAmount,
+                                description: `Welcome Bonus - ${bonusAmount} Free Credits`,
                                 metadata: { source: "auth_event" }
                             }
                         });

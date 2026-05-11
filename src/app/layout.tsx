@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
 import WelcomeBanner from '@/components/WelcomeBanner';
+import prisma from '@/lib/prisma';
 
 import AnalyticsTracker from '@/components/AnalyticsTracker';
 import FloatingActionButton from '@/components/FloatingActionButton';
@@ -46,11 +47,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let welcomeBonusAmount = 10;
+  try {
+    const welcomeBonusSetting = await prisma.serviceCost.findUnique({
+      where: { key: 'WELCOME_BONUS' }
+    });
+    if (welcomeBonusSetting) {
+      welcomeBonusAmount = welcomeBonusSetting.credits;
+    }
+  } catch (error) {
+    console.error('Failed to fetch welcome bonus amount:', error);
+  }
+
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${playfair.variable}`}>
@@ -62,7 +75,7 @@ export default function RootLayout({
         <AuthProvider>
           <ProfileProvider>
             <Header />
-            <WelcomeBanner />
+            <WelcomeBanner bonusAmount={welcomeBonusAmount} />
             <main style={{ paddingTop: '20px' }}>
               {children}
             </main>

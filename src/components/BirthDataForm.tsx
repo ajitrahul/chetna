@@ -134,6 +134,16 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
+        if (formData.name.trim().length < 3) {
+            setStatusMsg({ type: 'error', text: 'Name must be at least 3 characters long.' });
+            return;
+        }
+
+        if (formData.pob.trim().length < 3) {
+            setStatusMsg({ type: 'error', text: 'Location must be at least 3 characters long.' });
+            return;
+        }
+
         // Show confirmation dialog first
         setShowConfirmDialog(true);
     };
@@ -255,6 +265,7 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                         onChange={handleChange}
                         placeholder="e.g. Rahul Sharma"
                         required
+                        minLength={3}
                         className={styles.input}
                     />
                 </div>
@@ -328,6 +339,7 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                         onFocus={() => formData.pob.length >= 2 && setShowSuggestions(true)}
                         placeholder="Start typing city..."
                         required
+                        minLength={3}
                         autoComplete="off"
                         className={styles.input}
                     />
