@@ -16,60 +16,118 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
+type AIProvider = 'gemini' | 'openai' | 'deepseek';
+type AIFlow =
+    | 'CLARITY_ASK'
+    | 'TIMING_INSIGHT'
+    | 'PLANET_INSIGHTS'
+    | 'JOURNAL_ANALYSIS'
+    | 'SYNASTRY_ANALYSIS'
+    | 'REPORT_GENERATION';
+type FlowComplexity = 'HIGH' | 'STANDARD';
+
+const DEFAULT_MODELS: Record<AIProvider, Record<FlowComplexity, string>> = {
+    gemini: {
+        HIGH: 'gemini-2.5-pro',
+        STANDARD: 'gemini-2.5-flash'
+    },
+    openai: {
+        HIGH: 'gpt-4o',
+        STANDARD: 'gpt-4o-mini'
+    },
+    deepseek: {
+        HIGH: 'deepseek-chat',
+        STANDARD: 'deepseek-chat'
+    }
+};
+
+const FLOW_COMPLEXITY: Record<AIFlow, FlowComplexity> = {
+    CLARITY_ASK: 'STANDARD',
+    TIMING_INSIGHT: 'STANDARD',
+    PLANET_INSIGHTS: 'STANDARD',
+    JOURNAL_ANALYSIS: 'STANDARD',
+    SYNASTRY_ANALYSIS: 'HIGH',
+    REPORT_GENERATION: 'HIGH'
+};
+
+const HYBRID_DEFAULTS: Record<AIFlow, { provider: AIProvider; modelName: string }> = {
+    CLARITY_ASK: { provider: 'openai', modelName: 'gpt-4o' },
+    TIMING_INSIGHT: { provider: 'openai', modelName: 'gpt-4o' },
+    PLANET_INSIGHTS: { provider: 'openai', modelName: 'gpt-4o' },
+    JOURNAL_ANALYSIS: { provider: 'deepseek', modelName: 'deepseek-chat' },
+    SYNASTRY_ANALYSIS: { provider: 'gemini', modelName: 'gemini-2.5-pro' },
+    REPORT_GENERATION: { provider: 'gemini', modelName: 'gemini-2.5-pro' }
+};
+
+function normalizeProvider(raw?: string): AIProvider | null {
+    if (!raw) return null;
+    const value = raw.toLowerCase();
+    if (value === 'gemini' || value === 'openai' || value === 'deepseek') return value;
+    return null;
+}
+
+function hasProviderKey(provider: AIProvider) {
+    if (provider === 'gemini') return !!process.env.GOOGLE_AI_API_KEY;
+    if (provider === 'openai') return !!process.env.OPENAI_API_KEY;
+    return !!process.env.DEEPSEEK_API_KEY;
+}
+
+function getDefaultModel(provider: AIProvider, flow: AIFlow) {
+    const complexity = FLOW_COMPLEXITY[flow];
+    return DEFAULT_MODELS[provider][complexity];
+}
+
 /**
- * Utility to get the correct model name based on provider and complexity
+ * Resolve provider/model for each AI flow.
+ *
+ * Priority order:
+ * 1) Per-flow env vars (AI_PROVIDER_<FLOW>, AI_MODEL_<FLOW>)
+ * 2) Strategy defaults (HYBRID best-of-breed OR SINGLE global provider)
+ * 3) Automatic fallback to Gemini if chosen provider key is missing
  */
-function getModel(feature: 'REPORT' | 'CLARITY' | 'SYNASTRY' | 'JOURNAL') {
-    const provider = process.env.AI_PROVIDER || process.env.REPORT_LLM_PROVIDER || 'gemini';
-    const strategy = process.env.AI_STRATEGY || 'SINGLE';
+function getModel(flow: AIFlow) {
+    const strategy = (process.env.AI_STRATEGY || 'SINGLE').toUpperCase();
 
-    // Default provider mapping for SINGLE mode
-    const defaultProvider = process.env.REPORT_LLM_PROVIDER || 'gemini';
+    const flowProvider = normalizeProvider(process.env[`AI_PROVIDER_${flow}`]);
+    const flowModel = process.env[`AI_MODEL_${flow}`]?.trim();
 
-    // Best-of-Breed Mapping for HYBRID mode
-    const bestOfBreed = {
-        REPORT: { provider: 'gemini', model: 'gemini-2.5-pro' },   // Narrative depth
-        CLARITY: { provider: 'openai', model: 'gpt-4o' },         // Logical reasoning
-        SYNASTRY: { provider: 'gemini', model: 'gemini-2.5-pro' }, // Poetic empathy
-        JOURNAL: { provider: 'deepseek', model: 'deepseek-chat' } // Performance/Cost
-    };
+    let provider: AIProvider;
+    let modelName: string;
 
-    if (strategy === 'HYBRID') {
-        const result = bestOfBreed[feature];
-        // Fallback check: if the required API key is missing, fallback to gemini
-        if (result.provider === 'openai' && !process.env.OPENAI_API_KEY) return { provider: 'gemini', modelName: 'gemini-2.5-pro' };
-        if (result.provider === 'deepseek' && !process.env.DEEPSEEK_API_KEY) return { provider: 'gemini', modelName: 'gemini-2.5-flash' };
-        return { provider: result.provider, modelName: result.model };
+    if (flowProvider) {
+        provider = flowProvider;
+        modelName = flowModel || getDefaultModel(provider, flow);
+    } else if (strategy === 'HYBRID') {
+        const config = HYBRID_DEFAULTS[flow];
+        provider = config.provider;
+        modelName = flowModel || config.modelName;
+    } else {
+        const globalProvider =
+            normalizeProvider(process.env.AI_PROVIDER) ||
+            normalizeProvider(process.env.REPORT_LLM_PROVIDER) ||
+            'gemini';
+        provider = globalProvider;
+        modelName = flowModel || getDefaultModel(provider, flow);
     }
 
-    // SINGLE mode logic
-    const config = {
-        gemini: {
-            HIGH: 'gemini-2.5-pro',
-            STANDARD: 'gemini-2.5-flash'
-        },
-        openai: {
-            HIGH: 'gpt-4o',
-            STANDARD: 'gpt-4o-mini'
-        },
-        deepseek: {
-            HIGH: 'deepseek-chat', // maps to V3 model
-            STANDARD: 'deepseek-chat'
+    if (!hasProviderKey(provider)) {
+        if (provider !== 'gemini' && hasProviderKey('gemini')) {
+            return {
+                provider: 'gemini' as AIProvider,
+                modelName: getDefaultModel('gemini', flow)
+            };
         }
-    };
+        throw new Error(`Missing API key for AI provider "${provider}" on flow ${flow}`);
+    }
 
-    const complexity = (feature === 'REPORT' || feature === 'SYNASTRY') ? 'HIGH' : 'STANDARD';
-    return {
-        provider: provider,
-        modelName: config[provider as keyof typeof config]?.[complexity] || config.gemini[complexity]
-    };
+    return { provider, modelName };
 }
 
 /**
  * Generic caller for different providers
  */
-async function callAI(prompt: string, feature: 'REPORT' | 'CLARITY' | 'SYNASTRY' | 'JOURNAL', isJson: boolean = false) {
-    const { provider, modelName } = getModel(feature);
+async function callAI(prompt: string, flow: AIFlow, isJson: boolean = false) {
+    const { provider, modelName } = getModel(flow);
 
     try {
         if (provider === 'gemini') {
@@ -88,7 +146,7 @@ async function callAI(prompt: string, feature: 'REPORT' | 'CLARITY' | 'SYNASTRY'
         }
     } catch (error: any) {
         const isQuotaError = error.status === 429 || error.message?.includes('429') || error.message?.includes('quota');
-        console.error(`${provider.toUpperCase()} AI Error:`, error);
+        console.error(`${provider.toUpperCase()} AI Error (${flow}):`, error);
 
         // If we hit a quota limit and we have a secondary provider available, try a high-quality fallback
         if (isQuotaError && provider === 'gemini' && process.env.OPENAI_API_KEY) {
@@ -174,7 +232,7 @@ export async function generateTimingInsight(
     Return with headers PHASE_FLAVOR:, OPPORTUNITY:, AWARENESS_PRACTICE:. Keep it under 250 words total. Avoid boilerplate.`;
 
     try {
-        const text = await callAI(prompt, 'CLARITY');
+        const text = await callAI(prompt, 'TIMING_INSIGHT');
         return {
             phaseFlavor: extractSection(text, 'PHASE_FLAVOR:', 'OPPORTUNITY') || "A period of internal refinement.",
             opportunityArea: extractSection(text, 'OPPORTUNITY:', 'AWARENESS_PRACTICE') || "Focus on personal growth.",
@@ -210,7 +268,7 @@ TASK:
 Keep it brief (under 150 words total). Return the sections clearly marked with the headers CORRELATION:, ASTROLOGICAL CONTEXT:, and GROWTH SUGGESTION:.`;
 
     try {
-        const text = await callAI(prompt, 'JOURNAL');
+        const text = await callAI(prompt, 'JOURNAL_ANALYSIS');
         return {
             correlation: extractSection(text, 'CORRELATION:', 'ASTROLOGICAL CONTEXT') || "Reflecting your internal shift.",
             astrologicalContext: extractSection(text, 'ASTROLOGICAL CONTEXT:', 'GROWTH SUGGESTION') || "Planetary phase of grounding.",
@@ -251,7 +309,7 @@ YOGAS B: ${JSON.stringify(VedicAnalysisEngine.detectYogas(chartB), null, 2)}
 Return sections with headers OVERVIEW:, MAGNETIC PULL:, GROWTH EDGES:, COMMUNICATION:, HARMONY TIPS:.`;
 
     try {
-        const text = await callAI(prompt, 'SYNASTRY');
+        const text = await callAI(prompt, 'SYNASTRY_ANALYSIS');
         return {
             connectionOverview: extractSection(text, 'OVERVIEW:', 'MAGNETIC PULL') || "Unique energetic blend.",
             magneticPull: extractSection(text, 'MAGNETIC PULL:', 'GROWTH EDGES') || "Natural resonance exists.",
@@ -299,7 +357,7 @@ export async function generatePlanetInsights(
     Return ONLY valid JSON. Keep the tone empathetic, awareness-focused, and deeply technical yet accessible. Avoid generic filler. Every profile's insight MUST feel unique based on these specific calculations.`;
 
     try {
-        const text = await callAI(prompt, 'CLARITY'); // Using 'CLARITY' settings for moderate cost/speed
+        const text = await callAI(prompt, 'PLANET_INSIGHTS');
         // Robust JSON parsing
         const cleanJson = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
         return JSON.parse(cleanJson);
@@ -338,7 +396,7 @@ SECTION E - Reflective Questions (Bullets)
 SECTION F - Ethical Closing`;
 
     try {
-        const text = await callAI(prompt, 'CLARITY');
+        const text = await callAI(prompt, 'CLARITY_ASK');
         const finalVerdictMatch = text.match(/FINAL VERDICT:\s*(ACT|WAIT|REDIRECT)/i);
         const finalVerdict = finalVerdictMatch ? finalVerdictMatch[1].toUpperCase() : 'WAIT';
 
@@ -394,8 +452,8 @@ export async function generateReportChapters(data: { name: string; gender: strin
     try {
         console.log("Starting parallel synthesis for report...");
         const [text1, text2] = await Promise.all([
-            callAI(promptPart1, 'REPORT', true),
-            callAI(promptPart2, 'REPORT', true)
+            callAI(promptPart1, 'REPORT_GENERATION', true),
+            callAI(promptPart2, 'REPORT_GENERATION', true)
         ]);
 
         console.log("Synthesis complete. Parsing...");
