@@ -184,7 +184,7 @@ export default function Header() {
                     </button>
                   ) : (
                     <Link href="/login" className={styles.mobileLoginBtn} onClick={() => setIsMenuOpen(false)}>
-                      Sign In to Chetna
+                      Sign In to AskChetna
                     </Link>
                   )}
                 </div>

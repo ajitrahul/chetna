@@ -2,8 +2,8 @@ import styles from '../legal.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Refund Policy - Chetna',
-    description: 'Refund and cancellation policy for Chetna services.',
+    title: 'Refund Policy - AskChetna',
+    description: 'Refund and cancellation policy for AskChetna services.',
 };
 
 export default function RefundPage() {
@@ -16,7 +16,7 @@ export default function RefundPage() {
                 <section>
                     <h2>1. Overview</h2>
                     <p>
-                        At Chetna, we strive to provide high-quality astrological services and ensure customer satisfaction. This Refund Policy outlines the circumstances under which refunds may be issued for purchases made on our platform.
+                        At AskChetna, we strive to provide high-quality astrological services and ensure customer satisfaction. This Refund Policy outlines the circumstances under which refunds may be issued for purchases made on our platform.
                     </p>
                     <p>
                         <strong>Important:</strong> Due to the digital and personalized nature of our services, most purchases are final and non-refundable. Please review this policy carefully before making a purchase.
@@ -70,7 +70,7 @@ export default function RefundPage() {
                         To request a refund, please follow these steps:
                     </p>
                     <ol>
-                        <li>Contact us at <a href="mailto:support@chetna.com">support@chetna.com</a> or <a href="mailto:refunds@chetna.com">refunds@chetna.com</a></li>
+                        <li>Contact us at <a href="mailto:support@askchetna.com">support@askchetna.com</a> or <a href="mailto:refunds@askchetna.com">refunds@askchetna.com</a></li>
                         <li>Include the following information in your email:
                             <ul>
                                 <li>Your registered email address or user ID</li>
@@ -98,7 +98,7 @@ export default function RefundPage() {
                         <li><strong>Wallet Payments:</strong> Refunds will be credited to your payment wallet within 3-5 business days.</li>
                     </ul>
                     <p>
-                        <strong>Note:</strong> Chetna is not responsible for delays caused by your bank or payment provider.
+                        <strong>Note:</strong> AskChetna is not responsible for delays caused by your bank or payment provider.
                     </p>
                 </section>
 
@@ -154,8 +154,8 @@ export default function RefundPage() {
                         For refund requests, billing inquiries, or questions about this policy, please contact:
                     </p>
                     <ul>
-                        <li>Refunds: <a href="mailto:refunds@chetna.com">refunds@chetna.com</a></li>
-                        <li>Support: <a href="mailto:support@chetna.com">support@chetna.com</a></li>
+                        <li>Refunds: <a href="mailto:refunds@askchetna.com">refunds@askchetna.com</a></li>
+                        <li>Support: <a href="mailto:support@askchetna.com">support@askchetna.com</a></li>
                     </ul>
                 </section>
 

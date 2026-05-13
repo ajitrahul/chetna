@@ -43,14 +43,14 @@ export default function ContactPage() {
                             <Mail size={24} color="var(--accent-gold)" />
                             <div>
                                 <h3>Email</h3>
-                                <a href="mailto:hello@chetna.app">hello@chetna.app</a>
+                                <a href="mailto:hello@askchetna.com">hello@askchetna.com</a>
                             </div>
                         </div>
                         <div className={styles.infoItem}>
                             <Mail size={24} color="var(--accent-gold)" />
                             <div>
                                 <h3>Support</h3>
-                                <a href="mailto:support@chetna.app">support@chetna.app</a>
+                                <a href="mailto:support@askchetna.com">support@askchetna.com</a>
                             </div>
                         </div>
                     </div>

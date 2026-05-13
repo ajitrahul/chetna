@@ -268,7 +268,7 @@ export default function AdminDashboard() {
     return (
         <div className={styles.container}>
             <div className={styles.sidebar}>
-                <h2 className={styles.logo}>Chetna Admin</h2>
+                <h2 className={styles.logo}>AskChetna Admin</h2>
                 <nav className={styles.nav}>
                     <button
                         className={`${styles.navItem} ${activeTab === 'analytics' ? styles.active : ''}`}

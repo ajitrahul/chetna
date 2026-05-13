@@ -65,6 +65,11 @@
     gap: 0.4rem;
 }
 
+[data-theme='light'] .navLink {
+    color: rgba(244, 232, 209, 0.92);
+    opacity: 0.9;
+}
+
 .navLink:hover {
     opacity: 1;
     color: var(--accent-gold);
@@ -142,6 +147,11 @@
     transition: all 0.2s ease;
 }
 
+[data-theme='light'] .signOutBtn {
+    color: rgba(244, 232, 209, 0.92);
+    border-color: rgba(244, 232, 209, 0.35);
+}
+
 .signOutBtn:hover {
     border-color: var(--accent-rose);
     color: var(--accent-rose);
@@ -156,6 +166,10 @@
     cursor: pointer;
     padding: 8px;
     z-index: 1100;
+}
+
+[data-theme='light'] .menuToggle {
+    color: rgba(244, 232, 209, 0.95);
 }
 
 /* Mobile Menu Styles */

@@ -103,7 +103,7 @@ function LoginContent() {
                 <p className={styles.subtitle}>
                     {isLogin
                         ? 'Sign in to access your chart and insights'
-                        : 'Join Chetna for personalized astrological awareness'}
+                        : 'Join AskChetna for personalized astrological awareness'}
                 </p>
 
                 {error && (

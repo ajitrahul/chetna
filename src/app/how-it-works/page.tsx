@@ -3,7 +3,7 @@ import styles from './page.module.css';
 export default function HowItWorksPage() {
     return (
         <div className={`container ${styles.container}`}>
-            <h1 className={styles.title}>How Chetna Works</h1>
+            <h1 className={styles.title}>How AskChetna Works</h1>
 
             <section className={styles.timeline}>
                 <div className={styles.step}>

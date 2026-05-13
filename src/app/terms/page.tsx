@@ -2,8 +2,8 @@ import styles from '../legal.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Terms of Service - Chetna',
-    description: 'Terms of Service for using the Chetna astrological platform.',
+    title: 'Terms of Service - AskChetna',
+    description: 'Terms of Service for using the AskChetna astrological platform.',
 };
 
 export default function TermsPage() {
@@ -16,14 +16,14 @@ export default function TermsPage() {
                 <section>
                     <h2>1. Acceptance of Terms</h2>
                     <p>
-                        By accessing or using Chetna ("the Platform," "our Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Platform. These Terms constitute a legally binding agreement between you ("User," "you," or "your") and Chetna.
+                        By accessing or using AskChetna ("the Platform," "our Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Platform. These Terms constitute a legally binding agreement between you ("User," "you," or "your") and AskChetna.
                     </p>
                 </section>
 
                 <section>
                     <h2>2. Description of Services</h2>
                     <p>
-                        Chetna provides personalized astrological services, including but not limited to:
+                        AskChetna provides personalized astrological services, including but not limited to:
                     </p>
                     <ul>
                         <li>Birth chart calculations and interpretations</li>
@@ -62,7 +62,7 @@ export default function TermsPage() {
                     <h2>4. Astrological Services Disclaimer</h2>
                     <div className={styles.importantNotice}>
                         <p>
-                            <strong>IMPORTANT:</strong> Astrological insights provided by Chetna are for entertainment, self-reflection, and awareness purposes only. They are NOT a substitute for professional advice in areas including but not limited to:
+                            <strong>IMPORTANT:</strong> Astrological insights provided by AskChetna are for entertainment, self-reflection, and awareness purposes only. They are NOT a substitute for professional advice in areas including but not limited to:
                         </p>
                         <ul>
                             <li>Medical, mental health, or psychological counseling</li>
@@ -74,7 +74,7 @@ export default function TermsPage() {
                             We do not claim to predict the future with certainty. Astrological interpretations are based on ancient systems of knowledge and should be used as tools for self-awareness, not as definitive guidance for life decisions.
                         </p>
                         <p>
-                            <strong>You are solely responsible for your actions and decisions.</strong> Chetna and its operators shall not be held liable for any consequences arising from reliance on astrological insights provided through our platform.
+                            <strong>You are solely responsible for your actions and decisions.</strong> AskChetna and its operators shall not be held liable for any consequences arising from reliance on astrological insights provided through our platform.
                         </p>
                     </div>
                 </section>
@@ -125,7 +125,7 @@ export default function TermsPage() {
                     <h2>7. Intellectual Property Rights</h2>
                     <h3>7.1 Our Content</h3>
                     <p>
-                        All content on the Platform, including but not limited to text, graphics, logos, algorithms, astrological interpretations, software code, and blog posts, are the intellectual property of Chetna and are protected by copyright, trademark, and other laws. You may not copy, reproduce, distribute, or create derivative works without our express written permission.
+                        All content on the Platform, including but not limited to text, graphics, logos, algorithms, astrological interpretations, software code, and blog posts, are the intellectual property of AskChetna and are protected by copyright, trademark, and other laws. You may not copy, reproduce, distribute, or create derivative works without our express written permission.
                     </p>
 
                     <h3>7.2 Your Content</h3>
@@ -145,7 +145,7 @@ export default function TermsPage() {
                     <h2>9. Limitation of Liability</h2>
                     <div className={styles.importantNotice}>
                         <p>
-                            TO THE MAXIMUM EXTENT PERMITTED BY LAW, CHETNA AND ITS OPERATORS, EMPLOYEES, AND AFFILIATES SHALL NOT BE LIABLE FOR:
+                            TO THE MAXIMUM EXTENT PERMITTED BY LAW, AskChetna AND ITS OPERATORS, EMPLOYEES, AND AFFILIATES SHALL NOT BE LIABLE FOR:
                         </p>
                         <ul>
                             <li>Any indirect, incidental, special, consequential, or punitive damages</li>
@@ -164,7 +164,7 @@ export default function TermsPage() {
                 <section>
                     <h2>10. Indemnification</h2>
                     <p>
-                        You agree to indemnify, defend, and hold harmless Chetna and its affiliates from any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:
+                        You agree to indemnify, defend, and hold harmless AskChetna and its affiliates from any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:
                     </p>
                     <ul>
                         <li>Your use or misuse of the Platform</li>
@@ -222,8 +222,8 @@ export default function TermsPage() {
                         For questions, concerns, or feedback regarding these Terms, please contact us:
                     </p>
                     <ul>
-                        <li>Email: <a href="mailto:support@chetna.com">support@chetna.com</a></li>
-                        <li>Legal: <a href="mailto:legal@chetna.com">legal@chetna.com</a></li>
+                        <li>Email: <a href="mailto:support@askchetna.com">support@askchetna.com</a></li>
+                        <li>Legal: <a href="mailto:legal@askchetna.com">legal@askchetna.com</a></li>
                     </ul>
                 </section>
 

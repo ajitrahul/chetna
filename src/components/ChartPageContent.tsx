@@ -728,7 +728,7 @@ export default function ChartPageContent() {
         return (
             <div className={`container ${styles.pageContainer}`}>
                 <div className="max-w-2xl mx-auto text-center mb-12">
-                    <h1 className={styles.title}>Welcome to Chetna</h1>
+                    <h1 className={styles.title}>Welcome to AskChetna</h1>
                     <p className={styles.subtitle}>
                         To verify the stars, we first need to know where you stand. <br />
                         Please enter your birth details to begin your journey.

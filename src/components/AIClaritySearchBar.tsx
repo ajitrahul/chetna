@@ -31,7 +31,7 @@ export default function AIClaritySearchBar() {
                     className={styles.searchInput}
                 />
                 <button type="submit" className={styles.searchBtn} disabled={query.length < 10}>
-                    <span>Ask Chetna</span>
+                    <span>Ask AskChetna</span>
                     <Search size={18} />
                 </button>
             </form>

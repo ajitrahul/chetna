@@ -10,12 +10,12 @@ export default function Footer() {
             <div className={styles.footerContent}>
                 {/* About Section */}
                 <div className={styles.footerSection}>
-                    <h3>About Chetna</h3>
+                    <h3>About AskChetna</h3>
                     <p>
                         An awareness-first astrology platform designed to support reflection, understanding, and conscious decision-making.
                     </p>
                     <div className={styles.socialLinks}>
-                        <a href="mailto:hello@chetna.ai" className={styles.socialIcon} aria-label="Email">
+                        <a href="mailto:hello@askchetna.com" className={styles.socialIcon} aria-label="Email">
                             <Mail size={18} />
                         </a>
                         <a href="#" className={styles.socialIcon} aria-label="YouTube">
@@ -59,7 +59,7 @@ export default function Footer() {
 
             <div className={styles.footerBottom}>
                 <p className={styles.copyright}>
-                    © {new Date().getFullYear()} Chetna. All rights reserved.
+                    © {new Date().getFullYear()} AskChetna. All rights reserved.
                 </p>
                 <p className={styles.productRule}>
                     Astrology is interpretive, not deterministic.

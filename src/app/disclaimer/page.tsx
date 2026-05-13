@@ -2,8 +2,8 @@ import styles from '../legal.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Disclaimer - Chetna',
-    description: 'Important disclaimers for using Chetna astrological services.',
+    title: 'Disclaimer - AskChetna',
+    description: 'Important disclaimers for using AskChetna astrological services.',
 };
 
 export default function DisclaimerPage() {
@@ -16,14 +16,14 @@ export default function DisclaimerPage() {
                 <div className={styles.importantNotice}>
                     <h2>⚠️ Important Notice</h2>
                     <p>
-                        Please read this disclaimer carefully before using Chetna's services. By accessing or using our platform, you acknowledge that you have read, understood, and agree to be bound by this disclaimer.
+                        Please read this disclaimer carefully before using AskChetna's services. By accessing or using our platform, you acknowledge that you have read, understood, and agree to be bound by this disclaimer.
                     </p>
                 </div>
 
                 <section>
                     <h2>1. Nature of Astrological Services</h2>
                     <p>
-                        Chetna provides astrological interpretations, insights, and guidance based on Vedic astrology principles, planetary positions, and birth chart calculations. Our services are intended for:
+                        AskChetna provides astrological interpretations, insights, and guidance based on Vedic astrology principles, planetary positions, and birth chart calculations. Our services are intended for:
                     </p>
                     <ul>
                         <li><strong>Self-awareness and personal growth</strong></li>
@@ -40,7 +40,7 @@ export default function DisclaimerPage() {
                     <h2>2. Not a Substitute for Professional Advice</h2>
                     <div className={styles.warningBox}>
                         <p>
-                            The astrological insights and guidance provided by Chetna are <strong>NOT a substitute</strong> for professional advice from qualified experts in the following areas:
+                            The astrological insights and guidance provided by AskChetna are <strong>NOT a substitute</strong> for professional advice from qualified experts in the following areas:
                         </p>
                         <ul>
                             <li><strong>Medical or Mental Health:</strong> Astrology cannot diagnose, treat, or cure any medical or psychological condition. If you are experiencing health issues, please consult a licensed healthcare professional.</li>
@@ -55,7 +55,7 @@ export default function DisclaimerPage() {
                 <section>
                     <h2>3. No Guarantees or Predictions</h2>
                     <p>
-                        Chetna does not guarantee the accuracy, completeness, or reliability of any astrological interpretation or insight. We do not claim to:
+                        AskChetna does not guarantee the accuracy, completeness, or reliability of any astrological interpretation or insight. We do not claim to:
                     </p>
                     <ul>
                         <li>Predict the future with certainty</li>
@@ -90,13 +90,13 @@ export default function DisclaimerPage() {
                             <strong>YOU ARE SOLELY RESPONSIBLE FOR YOUR DECISIONS AND ACTIONS.</strong>
                         </p>
                         <p>
-                            By using Chetna's services, you acknowledge that:
+                            By using AskChetna's services, you acknowledge that:
                         </p>
                         <ul>
                             <li>You will not make critical life decisions based solely on astrological insights</li>
                             <li>You understand astrology is interpretive and subjective</li>
                             <li>You will seek professional advice for serious matters (health, legal, financial)</li>
-                            <li>You will not hold Chetna liable for any consequences of your decisions</li>
+                            <li>You will not hold AskChetna liable for any consequences of your decisions</li>
                         </ul>
                     </div>
                 </section>
@@ -134,7 +134,7 @@ export default function DisclaimerPage() {
                 <section>
                     <h2>8. No Liability</h2>
                     <p>
-                        To the fullest extent permitted by law, Chetna and its operators, employees, affiliates, and partners shall not be liable for any:
+                        To the fullest extent permitted by law, AskChetna and its operators, employees, affiliates, and partners shall not be liable for any:
                     </p>
                     <ul>
                         <li>Direct, indirect, incidental, or consequential damages arising from your use of our services</li>
@@ -147,7 +147,7 @@ export default function DisclaimerPage() {
                 <section>
                     <h2>9. Cultural and Religious Sensitivity</h2>
                     <p>
-                        Chetna's services are rooted in Vedic astrology, a system originating from ancient Indian traditions. We respect all cultural and religious beliefs. Our interpretations are not intended to:
+                        AskChetna's services are rooted in Vedic astrology, a system originating from ancient Indian traditions. We respect all cultural and religious beliefs. Our interpretations are not intended to:
                     </p>
                     <ul>
                         <li>Replace your religious or spiritual practices</li>
@@ -172,8 +172,8 @@ export default function DisclaimerPage() {
                         If you have questions or concerns about this disclaimer, please contact us:
                     </p>
                     <ul>
-                        <li>Email: <a href="mailto:support@chetna.com">support@chetna.com</a></li>
-                        <li>Legal: <a href="mailto:legal@chetna.com">legal@chetna.com</a></li>
+                        <li>Email: <a href="mailto:support@askchetna.com">support@askchetna.com</a></li>
+                        <li>Legal: <a href="mailto:legal@askchetna.com">legal@askchetna.com</a></li>
                     </ul>
                 </section>
 

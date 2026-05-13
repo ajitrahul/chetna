@@ -2,8 +2,8 @@ import styles from '../legal.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Privacy Policy - Chetna',
-    description: 'Privacy Policy for Chetna - Your data security and privacy matters to us.',
+    title: 'Privacy Policy - AskChetna',
+    description: 'Privacy Policy for AskChetna - Your data security and privacy matters to us.',
 };
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
                 <section>
                     <h2>1. Introduction</h2>
                     <p>
-                        Welcome to Chetna ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our astrological services platform.
+                        Welcome to AskChetna ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our astrological services platform.
                     </p>
                 </section>
 
@@ -109,7 +109,7 @@ export default function PrivacyPage() {
                         <li><strong>Withdraw Consent:</strong> You can withdraw consent for data processing where applicable</li>
                     </ul>
                     <p>
-                        To exercise these rights, please contact us at <a href="mailto:privacy@chetna.com">privacy@chetna.com</a>.
+                        To exercise these rights, please contact us at <a href="mailto:privacy@askchetna.com">privacy@askchetna.com</a>.
                     </p>
                 </section>
 
@@ -159,8 +159,8 @@ export default function PrivacyPage() {
                         If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:
                     </p>
                     <ul>
-                        <li>Email: <a href="mailto:privacy@chetna.com">privacy@chetna.com</a></li>
-                        <li>Email (General): <a href="mailto:support@chetna.com">support@chetna.com</a></li>
+                        <li>Email: <a href="mailto:privacy@askchetna.com">privacy@askchetna.com</a></li>
+                        <li>Email (General): <a href="mailto:support@askchetna.com">support@askchetna.com</a></li>
                     </ul>
                 </section>
 

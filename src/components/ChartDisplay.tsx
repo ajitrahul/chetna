@@ -456,7 +456,7 @@ export default function ChartDisplay({ data, isMoonChart, width = '100%', height
                     <g opacity="0.6" pointerEvents="none" filter="url(#glow)">
                         <circle cx="200" cy="200" r="45" fill="none" stroke="var(--accent-gold)" strokeWidth="0.8" strokeDasharray="4 4" className="pulse-rotation" />
                         <circle cx="200" cy="200" r="35" fill="none" stroke="var(--accent-gold)" strokeWidth="0.5" opacity="0.5" className="pulse-glow" />
-                        <text x="200" y="204" textAnchor="middle" fontSize="10" fill="var(--accent-gold)" fontWeight="600" letterSpacing="5" fontFamily="var(--font-heading)">CHETNA</text>
+                        <text x="200" y="204" textAnchor="middle" fontSize="10" fill="var(--accent-gold)" fontWeight="600" letterSpacing="5" fontFamily="var(--font-heading)">AskChetna</text>
                     </g>
 
                     {/* Text Content */}

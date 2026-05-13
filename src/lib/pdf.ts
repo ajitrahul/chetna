@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from 'pdf-lib';
 import fs from 'fs/promises';
 import path from 'path';
+import { LOGO_DARK_FILE, LOGO_LIGHT_FILE } from '@/lib/logoConfig';
 
 export interface ReportContent {
     chapter1_SoulPurpose: string;
@@ -34,12 +35,18 @@ export async function generateReportPDF(name: string, content: ReportContent, ch
     let logoDark: any = null;
     let logoLight: any = null;
     try {
-        const logoDarkPath = path.join(process.cwd(), 'public', 'chetna_logo_dark.png');
-        const logoLightPath = path.join(process.cwd(), 'public', 'chetna_logo_light.png');
-        const logoDarkBytes = await fs.readFile(logoDarkPath);
-        const logoLightBytes = await fs.readFile(logoLightPath);
-        logoDark = await pdfDoc.embedPng(logoDarkBytes);
-        logoLight = await pdfDoc.embedPng(logoLightBytes);
+        const darkLogoPath = path.join(process.cwd(), 'public', LOGO_DARK_FILE);
+        const lightLogoPath = path.join(process.cwd(), 'public', LOGO_LIGHT_FILE);
+        const logoDarkBytes = await fs.readFile(darkLogoPath);
+        const logoLightBytes = await fs.readFile(lightLogoPath);
+
+        logoDark = darkLogoPath.toLowerCase().endsWith('.jpg') || darkLogoPath.toLowerCase().endsWith('.jpeg')
+            ? await pdfDoc.embedJpg(logoDarkBytes)
+            : await pdfDoc.embedPng(logoDarkBytes);
+
+        logoLight = lightLogoPath.toLowerCase().endsWith('.jpg') || lightLogoPath.toLowerCase().endsWith('.jpeg')
+            ? await pdfDoc.embedJpg(logoLightBytes)
+            : await pdfDoc.embedPng(logoLightBytes);
     } catch (e) {
         console.warn('Logos not found for PDF, proceeding without them.', e);
     }
@@ -228,8 +235,8 @@ export async function generateReportPDF(name: string, content: ReportContent, ch
         });
     }
 
-    coverPage.drawText('CHETNA', {
-        x: (width - titleFont.widthOfTextAtSize('CHETNA', 44)) / 2,
+    coverPage.drawText('AskChetna', {
+        x: (width - titleFont.widthOfTextAtSize('AskChetna', 44)) / 2,
         y: height - 400,
         size: 44,
         font: titleFont,
@@ -335,7 +342,7 @@ export async function generateReportPDF(name: string, content: ReportContent, ch
         }
 
         // Footer
-        page.drawText(`Chetna AI | ${name} | Awareness, not prediction.`, {
+        page.drawText(`AskChetna AI | ${name} | Awareness, not prediction.`, {
             x: 60,
             y: 40,
             size: 8,

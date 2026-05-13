@@ -132,10 +132,10 @@ export default function Home() {
                   </h1>
                   <div className={styles.heroContent}>
                     <p className={styles.heroSubtitle}>
-                      Chetna is a clarity-first astrology platform that helps you understand patterns, timing, and tendencies in your life — so you can make grounded, conscious choices.
+                      AskChetna is a clarity-first astrology platform that helps you understand patterns, timing, and tendencies in your life — so you can make grounded, conscious choices.
                     </p>
                     <p className={styles.heroDescription}>
-                      Chetna includes an AI-guided reflection tool where you can explore questions about relationships, career, and life patterns — using astrology as a lens, not a verdict.
+                      AskChetna includes an AI-guided reflection tool where you can explore questions about relationships, career, and life patterns — using astrology as a lens, not a verdict.
                     </p>
                   </div>
                 </motion.div>
@@ -200,7 +200,7 @@ export default function Home() {
           <section id="how-it-works" className={styles.howItWorks + " section-anchor"}>
             <div className={styles.sectionHeader}>
               <span className="cosmic-label">❋ Sadhana · The Practice ❋</span>
-              <h2 className="mystic-text">How Chetna Works</h2>
+              <h2 className="mystic-text">How AskChetna Works</h2>
               <div className="sacred-divider"></div>
             </div>
 
@@ -265,7 +265,7 @@ export default function Home() {
                 </div>
                 <h3 className={styles.featureTitle}>Timing Through Dasha</h3>
                 <p className={styles.featureText}>
-                  Chetna explains dasha and transit as capacity windows — what this phase supports, what it resists, where patience or effort is required.
+                  AskChetna explains dasha and transit as capacity windows — what this phase supports, what it resists, where patience or effort is required.
                 </p>
               </motion.div>
 
@@ -302,12 +302,12 @@ export default function Home() {
                 <div className={styles.philosophyIcon}>
                   <span className="planet-glyph" style={{ fontSize: '2rem' }}>♀</span>
                 </div>
-                <h3 className={styles.philosophyTitle}>About Chetna</h3>
+                <h3 className={styles.philosophyTitle}>About AskChetna</h3>
                 <p className={styles.philosophyText}>
-                  Chetna was created with a simple belief: Astrology should help people become clearer, calmer, and more responsible — not more confused.
+                  AskChetna was created with a simple belief: Astrology should help people become clearer, calmer, and more responsible — not more confused.
                 </p>
                 <p className={styles.philosophyText}>
-                  In a world full of prediction-heavy astrology, Chetna offers a different approach.
+                  In a world full of prediction-heavy astrology, AskChetna offers a different approach.
                 </p>
               </div>
 
@@ -317,7 +317,7 @@ export default function Home() {
                 <div className={styles.philosophyIcon}>
                   <span className="planet-glyph" style={{ fontSize: '2rem' }}>☊</span>
                 </div>
-                <h3 className={styles.philosophyTitle}>Chetna does not:</h3>
+                <h3 className={styles.philosophyTitle}>AskChetna does not:</h3>
                 <ul className={styles.doesNotList}>
                   <li className={styles.doesNotItem}>Use fear-based astrology to influence decisions</li>
                   <li className={styles.doesNotItem}>Force or prescribe remedies, rituals</li>
@@ -325,7 +325,7 @@ export default function Home() {
                   <li className={styles.doesNotItem}>Label time periods as good or bad</li>
                 </ul>
                 <p className={styles.doesNotSummary}>
-                  Instead of predicting outcomes, Chetna supports understanding—of patterns, responses, and inner awareness.
+                  Instead of predicting outcomes, AskChetna supports understanding—of patterns, responses, and inner awareness.
                 </p>
               </div>
             </div>

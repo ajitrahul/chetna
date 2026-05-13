@@ -65,7 +65,7 @@ export default function PricingClient({ plans }: PricingClientProps) {
                 key: order.keyId,
                 amount: order.amount,
                 currency: order.currency,
-                name: 'Chetna',
+                name: 'AskChetna',
                 description: plan.name,
                 order_id: order.orderId,
                 handler: function () {
@@ -109,7 +109,7 @@ export default function PricingClient({ plans }: PricingClientProps) {
                     <h1 className="mystic-text text-5xl mb-4">Sacred Exchange</h1>
                     <div className="sacred-divider mb-8"></div>
                     <p className={styles.subtitle}>
-                        Chetna follows a simple and transparent pricing model. You pay only for what you choose to explore — no subscriptions, no pressure.
+                        AskChetna follows a simple and transparent pricing model. You pay only for what you choose to explore — no subscriptions, no pressure.
                     </p>
                 </div>
 
@@ -171,7 +171,7 @@ export default function PricingClient({ plans }: PricingClientProps) {
 
                 <div className={styles.noteBox}>
                     <p>
-                        <strong>A Gentle Reminder:</strong> Chetna encourages thoughtful use. More questions do not mean better answers — clarity comes from reflection and action.
+                        <strong>A Gentle Reminder:</strong> AskChetna encourages thoughtful use. More questions do not mean better answers — clarity comes from reflection and action.
                     </p>
                 </div>
             </div>

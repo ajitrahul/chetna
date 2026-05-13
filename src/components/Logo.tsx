@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { LOGO_DARK_SRC, LOGO_LIGHT_SRC } from '@/lib/logoConfig';
 
 export default function Logo({ width = 120, height = 40 }: { width?: number, height?: number }) {
     // Simple theme detection for logo switching
@@ -44,13 +45,13 @@ export default function Logo({ width = 120, height = 40 }: { width?: number, hei
         };
     }, []);
 
-    const src = isDark ? '/chetna_logo_dark.png' : '/chetna_logo_light.png';
+    const src = isDark ? LOGO_DARK_SRC : LOGO_LIGHT_SRC;
 
     return (
         <div style={{ position: 'relative', width, height, overflow: 'hidden' }}>
             <Image
                 src={src}
-                alt="Chetna Logo"
+                alt="AskChetna Logo"
                 fill
                 style={{ objectFit: 'contain', objectPosition: 'left' }}
                 priority

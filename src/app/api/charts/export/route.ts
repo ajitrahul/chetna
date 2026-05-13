@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import fs from 'fs';
 import path from 'path';
+import { LOGO_DARK_FILE } from '@/lib/logoConfig';
 
 // Helper to wrapping text lines
 const wrapText = (text: string, font: PDFFont, size: number, maxWidth: number) => {
@@ -98,10 +99,12 @@ export async function POST(req: NextRequest) {
         // Assets
         let logoImage: any;
         try {
-            const logoPath = path.join(process.cwd(), 'public', 'icons', 'logo_dark.jpg');
+            const logoPath = path.join(process.cwd(), 'public', LOGO_DARK_FILE);
             if (fs.existsSync(logoPath)) {
                 const logoBytes = fs.readFileSync(logoPath);
-                logoImage = await pdfDoc.embedJpg(logoBytes);
+                logoImage = logoPath.toLowerCase().endsWith('.png')
+                    ? await pdfDoc.embedPng(logoBytes)
+                    : await pdfDoc.embedJpg(logoBytes);
             }
         } catch (e) {
             console.error("Logo load error", e);
@@ -229,7 +232,7 @@ export async function POST(req: NextRequest) {
                     height: headerDims.height,
                 });
             } else {
-                p.drawText('CHETNA', { x: 50, y: h - 50, size: 18, font: boldFont, color: goldColor });
+                p.drawText('AskChetna', { x: 50, y: h - 50, size: 18, font: boldFont, color: goldColor });
             }
 
             p.drawText(finalTitle, { x: w - 300, y: h - 40, size: 9, font: boldFont, color: grayColor });

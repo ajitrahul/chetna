@@ -2,8 +2,8 @@ import styles from '../legal.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'About Chetna - Awareness, Not Prediction',
-    description: 'Learn about Chetna - an awareness-first astrology platform designed for self-reflection and conscious living.',
+    title: 'About AskChetna - Awareness, Not Prediction',
+    description: 'Learn about AskChetna - an awareness-first astrology platform designed for self-reflection and conscious living.',
 };
 
 export default function AboutPage() {
@@ -12,15 +12,15 @@ export default function AboutPage() {
             <div className={styles.container}>
                 <div className={styles.hero}>
                     <span className="cosmic-label mb-2">Our Vision · Darshana</span>
-                    <h1 className="mystic-text text-6xl">About Chetna</h1>
+                    <h1 className="mystic-text text-6xl">About AskChetna</h1>
                     <div className="sacred-divider"></div>
                     <p className={styles.heroSubtitle}>Awareness, Not Prediction</p>
                 </div>
 
                 <section className="mb-12">
-                    <h2 className="mystic-text text-3xl mb-4">What is Chetna?</h2>
+                    <h2 className="mystic-text text-3xl mb-4">What is AskChetna?</h2>
                     <p>
-                        <strong>Chetna</strong> (चेतना) is a Sanskrit word meaning "awareness" or "consciousness." It represents the essence of our platform: a space for self-reflection, understanding, and conscious decision-making through the lens of Vedic astrology.
+                        <strong>AskChetna</strong> (चेतना) is a Sanskrit word meaning "awareness" or "consciousness." It represents the essence of our platform: a space for self-reflection, understanding, and conscious decision-making through the lens of Vedic astrology.
                     </p>
                     <p>
                         We are not here to predict your future or tell you what to do. Instead, we provide tools and insights to help you understand yourself better, recognize patterns in your life, and make more aware choices aligned with your true nature.
@@ -30,7 +30,7 @@ export default function AboutPage() {
                 <section className="mb-12">
                     <h2 className="mystic-text text-3xl mb-4">Our Philosophy</h2>
                     <div className={`${styles.importantNotice} sacred-card`}>
-                        <h3 className="mystic-text !text-xl mb-4 text-[var(--accent-gold)]">What Chetna Is:</h3>
+                        <h3 className="mystic-text !text-xl mb-4 text-[var(--accent-gold)]">What AskChetna Is:</h3>
                         <ul>
                             <li><strong>A tool for self-awareness</strong> — Understanding your strengths, challenges, and natural tendencies</li>
                             <li><strong>A guide for timing</strong> — Recognizing favorable and challenging periods in your life</li>
@@ -38,7 +38,7 @@ export default function AboutPage() {
                             <li><strong>A companion for growth</strong> — Supporting your journey toward conscious living</li>
                         </ul>
 
-                        <h3>What Chetna Is NOT:</h3>
+                        <h3>What AskChetna Is NOT:</h3>
                         <ul>
                             <li><strong>Not a fortune-telling service</strong> — We don't claim to predict the future with certainty</li>
                             <li><strong>Not a decision-making authority</strong> — You are responsible for your choices</li>
@@ -65,11 +65,11 @@ export default function AboutPage() {
                 </section>
 
                 <section>
-                    <h2>What Makes Chetna Different?</h2>
+                    <h2>What Makes AskChetna Different?</h2>
 
                     <h3>1. Awareness-First Approach</h3>
                     <p>
-                        Most astrology platforms focus on predictions: "You will meet someone special," "You'll get a promotion," etc. Chetna takes a different path. We emphasize <strong>awareness over prediction</strong>. Instead of telling you what will happen, we help you understand the energies at play, the lessons being presented, and the choices available to you.
+                        Most astrology platforms focus on predictions: "You will meet someone special," "You'll get a promotion," etc. AskChetna takes a different path. We emphasize <strong>awareness over prediction</strong>. Instead of telling you what will happen, we help you understand the energies at play, the lessons being presented, and the choices available to you.
                     </p>
 
                     <h3>2. No Fear-Mongering</h3>
@@ -95,7 +95,7 @@ export default function AboutPage() {
 
                 <section>
                     <h2>Our Services</h2>
-                    <p>Chetna offers a comprehensive suite of astrological tools:</p>
+                    <p>AskChetna offers a comprehensive suite of astrological tools:</p>
                     <ul>
                         <li><strong>Birth Chart Analysis</strong> — Detailed breakdown of your planetary positions, houses, and signs</li>
                         <li><strong>Divisional Charts</strong> — Navamsa (relationships), Dasamsa (career), and more</li>
@@ -109,9 +109,9 @@ export default function AboutPage() {
                 </section>
 
                 <section>
-                    <h2>Who is Chetna For?</h2>
+                    <h2>Who is AskChetna For?</h2>
                     <p>
-                        Chetna is designed for seekers, thinkers, and anyone curious about the deeper patterns of life. You don't need to "believe" in astrology to benefit from it. If you're interested in:
+                        AskChetna is designed for seekers, thinkers, and anyone curious about the deeper patterns of life. You don't need to "believe" in astrology to benefit from it. If you're interested in:
                     </p>
                     <ul>
                         <li>Understanding yourself more deeply</li>
@@ -121,7 +121,7 @@ export default function AboutPage() {
                         <li>Finding meaning and perspective during challenging times</li>
                     </ul>
                     <p>
-                        ...then Chetna is for you.
+                        ...then AskChetna is for you.
                     </p>
                 </section>
 
@@ -140,16 +140,16 @@ export default function AboutPage() {
                 <section>
                     <h2>A Note from the Creator</h2>
                     <p>
-                        Chetna was born from a simple realization: most people approach astrology looking for answers, but what they really need is <em>awareness</em>. Awareness of their patterns, their strengths, their blind spots, and the energies influencing their lives.
+                        AskChetna was born from a simple realization: most people approach astrology looking for answers, but what they really need is <em>awareness</em>. Awareness of their patterns, their strengths, their blind spots, and the energies influencing their lives.
                     </p>
                     <p>
-                        I wanted to create a platform that respects your intelligence, doesn't manipulate through fear, and genuinely helps you understand yourself better. Chetna is not about dependency—it's about empowerment. Use it as a mirror, not a crutch.
+                        I wanted to create a platform that respects your intelligence, doesn't manipulate through fear, and genuinely helps you understand yourself better. AskChetna is not about dependency—it's about empowerment. Use it as a mirror, not a crutch.
                     </p>
                     <p>
-                        Whether you're a lifelong astrology enthusiast or a curious skeptic, I hope Chetna serves your journey toward greater self-awareness and conscious living.
+                        Whether you're a lifelong astrology enthusiast or a curious skeptic, I hope AskChetna serves your journey toward greater self-awareness and conscious living.
                     </p>
                     <p style={{ fontStyle: 'italic', marginTop: '24px' }}>
-                        — The Chetna Team
+                        — The AskChetna Team
                     </p>
                 </section>
 
@@ -159,10 +159,10 @@ export default function AboutPage() {
                         We'd love to hear from you! Whether you have questions, feedback, or just want to share your experience, reach out:
                     </p>
                     <ul>
-                        <li>Email: <a href="mailto:hello@chetna.ai">hello@chetna.ai</a></li>
-                        <li>Support: <a href="mailto:hello@chetna.ai">hello@chetna.ai</a></li>
+                        <li>Email: <a href="mailto:hello@askchetna.com">hello@askchetna.com</a></li>
+                        <li>Support: <a href="mailto:hello@askchetna.com">hello@askchetna.com</a></li>
                         <li>Instagram: <a href="#">@chetna.astrology</a></li>
-                        <li>YouTube: <a href="#">Chetna Insights</a></li>
+                        <li>YouTube: <a href="#">AskChetna Insights</a></li>
                     </ul>
                 </section>
 

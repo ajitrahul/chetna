@@ -39,9 +39,9 @@ export default function OnboardingPage() {
                         <div className={styles.iconBox}>
                             <Sparkles size={48} color="var(--accent-gold)" />
                         </div>
-                        <h1 className={styles.title}>Welcome to Chetna</h1>
+                        <h1 className={styles.title}>Welcome to AskChetna</h1>
                         <p className={styles.content}>
-                            Chetna is an awareness-first astrology platform.
+                            AskChetna is an awareness-first astrology platform.
                             <br /><br />
                             Here, astrology is used to understand patterns and timing — not to predict outcomes.
                         </p>
@@ -67,7 +67,7 @@ export default function OnboardingPage() {
                 {/* Screen 3: What You Won't Find */}
                 {currentScreen === 3 && (
                     <div className={styles.screen}>
-                        <h1 className={styles.title}>What Chetna Does <span style={{ color: 'var(--accent-rose)' }}>NOT</span> Do</h1>
+                        <h1 className={styles.title}>What AskChetna Does <span style={{ color: 'var(--accent-rose)' }}>NOT</span> Do</h1>
                         <ul className={styles.noList}>
                             <li>No fear-based predictions</li>
                             <li>No guarantees or verdicts</li>
@@ -75,7 +75,7 @@ export default function OnboardingPage() {
                             <li>No replacement for your own judgement</li>
                         </ul>
                         <p className={styles.note}>
-                            Chetna supports thinking — it does not decide for you.
+                            AskChetna supports thinking — it does not decide for you.
                         </p>
                     </div>
                 )}
