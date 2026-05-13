@@ -4,11 +4,57 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function WelcomeBanner({ bonusAmount = 10 }: { bonusAmount?: number }) {
     const { status } = useSession();
     const [isVisible, setIsVisible] = useState(true);
+    const [resolvedBonusAmount, setResolvedBonusAmount] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (status === 'authenticated') {
+            return;
+        }
+
+        let isMounted = true;
+
+        const loadWelcomeBonusAmount = async () => {
+            try {
+                const response = await fetch('/api/public/welcome-bonus', {
+                    method: 'GET',
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    if (isMounted) {
+                        setResolvedBonusAmount(bonusAmount);
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                if (isMounted && typeof data?.bonusAmount === 'number' && Number.isFinite(data.bonusAmount)) {
+                    setResolvedBonusAmount(data.bonusAmount);
+                    return;
+                }
+
+                if (isMounted) {
+                    setResolvedBonusAmount(bonusAmount);
+                }
+            } catch (error) {
+                if (isMounted) {
+                    setResolvedBonusAmount(bonusAmount);
+                }
+                console.error('Failed to load welcome bonus amount:', error);
+            }
+        };
+
+        void loadWelcomeBonusAmount();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [bonusAmount, status]);
 
     if (status === 'authenticated' || !isVisible) {
         return null;
@@ -47,7 +93,9 @@ export default function WelcomeBanner({ bonusAmount = 10 }: { bonusAmount?: numb
                     }}>
                         Unlock your spiritual journey!
                         <span style={{ color: 'var(--accent-gold)', fontWeight: 'bold', marginLeft: '6px' }}>
-                            Sign up now to get {bonusAmount} free credits.
+                            {resolvedBonusAmount === null
+                                ? 'Sign up now to get free credits.'
+                                : `Sign up now to get ${resolvedBonusAmount} free credits.`}
                         </span>
                     </span>
                     <Link
