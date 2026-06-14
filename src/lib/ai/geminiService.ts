@@ -94,7 +94,12 @@ function getModel(flow: AIFlow) {
     let provider: AIProvider;
     let modelName: string;
 
-    if (flowProvider) {
+    // Robustness: Handle cases where AI_MODEL_<FLOW> is set to a provider name (e.g. "deepseek")
+    const inferredProvider = normalizeProvider(flowModel);
+    if (inferredProvider && !flowProvider) {
+        provider = inferredProvider;
+        modelName = getDefaultModel(provider, flow);
+    } else if (flowProvider) {
         provider = flowProvider;
         modelName = flowModel || getDefaultModel(provider, flow);
     } else if (strategy === 'HYBRID') {
@@ -450,13 +455,11 @@ export async function generateReportChapters(data: { name: string; gender: strin
     }`;
 
     try {
-        console.log("Starting parallel synthesis for report...");
         const [text1, text2] = await Promise.all([
             callAI(promptPart1, 'REPORT_GENERATION', true),
             callAI(promptPart2, 'REPORT_GENERATION', true)
         ]);
 
-        console.log("Synthesis complete. Parsing...");
         const json1 = JSON.parse(text1);
         const json2 = JSON.parse(text2);
 

@@ -1,0 +1,49 @@
+.term {
+    position: relative;
+    border-bottom: 1px dotted var(--accent-gold);
+    cursor: help;
+    color: inherit;
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    background: var(--card-bg, #1a1a2e);
+    border: 1px solid var(--accent-gold);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(20px);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    white-space: normal;
+    pointer-events: none;
+}
+
+.tooltip strong {
+    color: var(--accent-gold);
+    font-size: 0.85rem;
+}
+
+.plain {
+    color: var(--foreground);
+}
+
+.example {
+    color: var(--text-muted, rgba(255, 255, 255, 0.6));
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .tooltip {
+        width: 220px;
+    }
+}

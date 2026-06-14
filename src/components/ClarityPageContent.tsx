@@ -4,11 +4,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { Send, Sparkles, MessageSquare, History, ArrowLeft } from 'lucide-react';
+import { Send, Sparkles, MessageSquare, History, ArrowLeft, Bookmark, Share2, ShieldCheck, Check } from 'lucide-react';
 import styles from '../app/clarity/page.module.css';
 
 import ProfileGuard from '@/components/ProfileGuard';
 import { PAYMENTS_ENABLED, PAYMENTS_PAUSED_MESSAGE } from '@/lib/paymentConfig';
+
+const LOADING_MESSAGES = [
+    "Calculating your Ascendant…",
+    "Mapping your Dasha periods…",
+    "Reading your Navamsa chart…",
+    "Tracing the pattern behind your question…",
+    "Composing your reflection…"
+];
 
 export default function ClarityPageContent() {
     const searchParams = useSearchParams();
@@ -19,6 +27,17 @@ export default function ClarityPageContent() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [credits, setCredits] = useState<number | null>(null);
+    const [showSample, setShowSample] = useState(false);
+    const [loadingStep, setLoadingStep] = useState(0);
+    const [saved, setSaved] = useState(false);
+    const [shareMsg, setShareMsg] = useState<string | null>(null);
+
+    const STARTER_QUESTIONS = [
+        "Why do I keep self-sabotaging when things go well?",
+        "Why do I attract emotionally unavailable people?",
+        "What is my current Dasha phase about?",
+        "I feel stuck in my career — what patterns might explain this?"
+    ];
 
     const [result, setResult] = useState<null | {
         questionContext: string;
@@ -99,6 +118,47 @@ export default function ClarityPageContent() {
         triggerAsk(question);
     };
 
+    // Cycle the step-by-step loading messages while analyzing
+    useEffect(() => {
+        if (!isAnalyzing) {
+            setLoadingStep(0);
+            return;
+        }
+        const interval = setInterval(() => {
+            setLoadingStep((s) => (s + 1) % LOADING_MESSAGES.length);
+        }, 1400);
+        return () => clearInterval(interval);
+    }, [isAnalyzing]);
+
+    const handleSaveResponse = () => {
+        if (!result) return;
+        try {
+            const saved = JSON.parse(localStorage.getItem('chetna-saved-insights') || '[]');
+            saved.unshift({ ...result, savedAt: new Date().toISOString() });
+            localStorage.setItem('chetna-saved-insights', JSON.stringify(saved.slice(0, 50)));
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2500);
+        } catch (err) {
+            console.error('Failed to save insight:', err);
+        }
+    };
+
+    const handleShareResponse = async () => {
+        if (!result) return;
+        const text = `Chetna AI reflection on: "${result.questionContext}"\n\n${result.phaseOverview}\n\nExplore yours at askchetna.com`;
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: 'My Chetna AI Insight', text });
+            } else {
+                await navigator.clipboard.writeText(text);
+                setShareMsg('Copied to clipboard');
+                setTimeout(() => setShareMsg(null), 2500);
+            }
+        } catch {
+            // User cancelled share sheet — no action needed
+        }
+    };
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -174,19 +234,83 @@ export default function ClarityPageContent() {
                     )}
 
                     {!result && !isAnalyzing && (
-                        <motion.div 
-                            className={styles.rulesBox}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                        >
-                            <h3>Seekers Principles</h3>
-                            <ul>
-                                <li>Ask focused questions for maximum resonance</li>
-                                <li>Observe patterns behind events, not just outcomes</li>
-                                <li>Astrology offers perspective, not prescription</li>
-                            </ul>
-                        </motion.div>
+                        <>
+                            <motion.div 
+                                className={styles.rulesBox}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                            >
+                                <h3>Seekers Principles</h3>
+                                <ul>
+                                    <li>Ask focused questions for maximum resonance</li>
+                                    <li>Observe patterns behind events, not just outcomes</li>
+                                    <li>Astrology offers perspective, not prescription</li>
+                                </ul>
+                            </motion.div>
+
+                            {/* Collapsible Sample Response Preview */}
+                            <motion.div 
+                                className={styles.sampleResponseCollapse}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ delay: 0.1 }}
+                            >
+                                <div 
+                                    className={styles.sampleResponseHeader} 
+                                    onClick={() => setShowSample(!showSample)}
+                                >
+                                    <span>💡 See an example response</span>
+                                    <span>{showSample ? '▲ Collapse' : '▼ Expand'}</span>
+                                </div>
+                                <AnimatePresence>
+                                    {showSample && (
+                                        <motion.div 
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className={styles.sampleResponseContent}
+                                        >
+                                            <p style={{ color: 'var(--accent-gold)', fontWeight: 'bold', marginBottom: '8px' }}>
+                                                Question: &ldquo;Why do I hold onto control when things are going well?&rdquo;
+                                            </p>
+                                            <p style={{ marginBottom: '16px', fontSize: '0.95rem' }}>
+                                                <strong>1. Chart Observation:</strong> Your Moon is placed in the 8th House in Scorpio, conjunct Saturn. This indicates a deeply feeling nature that associates emotional vulnerability with insecurity.
+                                            </p>
+                                            <p style={{ marginBottom: '16px', fontSize: '0.95rem' }}>
+                                                <strong>2. Pattern Explanation:</strong> When life is stable, your Saturnian influence anticipates a drop or crisis to protect itself. You default to hyper-vigilance or micro-managing outcomes to maintain safety, which drains your energy.
+                                            </p>
+                                            <p style={{ marginBottom: '16px', fontSize: '0.95rem' }}>
+                                                <strong>3. What Helps / What to Avoid:</strong> Notice the exact moment you begin to over-plan. Gently remind yourself that stability is not a threat. Avoid trying to predict the outcome of every conversation.
+                                            </p>
+                                            <p style={{ fontStyle: 'italic', fontSize: '0.9rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', marginTop: '12px' }}>
+                                                <strong>4. Free-Will Reminder:</strong> This is the energetic pattern at play. What you do with this awareness in the present moment is entirely your choice.
+                                            </p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+
+                            {/* Starter Question Chips */}
+                            <motion.div 
+                                className={styles.chipsContainer}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ delay: 0.2 }}
+                            >
+                                {STARTER_QUESTIONS.map((q, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => { setQuestion(q); }}
+                                        className={styles.chip}
+                                    >
+                                        {q}
+                                    </button>
+                                ))}
+                            </motion.div>
+                        </>
                     )}
 
                     {isAnalyzing && (
@@ -197,7 +321,17 @@ export default function ClarityPageContent() {
                             exit={{ opacity: 0 }}
                         >
                             <div className={styles.orb}></div>
-                            <p>Reading from your planetary configuration...</p>
+                            <AnimatePresence mode="wait">
+                                <motion.p
+                                    key={loadingStep}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -8 }}
+                                    transition={{ duration: 0.4 }}
+                                >
+                                    {LOADING_MESSAGES[loadingStep]}
+                                </motion.p>
+                            </AnimatePresence>
                         </motion.div>
                     )}
 
@@ -274,6 +408,21 @@ export default function ClarityPageContent() {
                                 </ul>
                             </motion.div>
 
+                            {/* Free-will closing line (8.3) */}
+                            <motion.p className={styles.freeWillClosing} variants={itemVariants}>
+                                {result.ethicalClosing || 'This is the energy at play. What you do with it is entirely yours.'}
+                            </motion.p>
+
+                            {/* Save / Share actions */}
+                            <motion.div className={styles.responseActions} variants={itemVariants}>
+                                <button onClick={handleSaveResponse} className={styles.responseActionBtn}>
+                                    {saved ? <><Check size={16} /> Saved</> : <><Bookmark size={16} /> Save this response</>}
+                                </button>
+                                <button onClick={handleShareResponse} className={styles.responseActionBtn}>
+                                    {shareMsg ? <><Check size={16} /> {shareMsg}</> : <><Share2 size={16} /> Share this insight</>}
+                                </button>
+                            </motion.div>
+
                             <motion.button
                                 onClick={() => { setResult(null); setQuestion(''); }}
                                 className={styles.resetBtn}
@@ -303,6 +452,7 @@ export default function ClarityPageContent() {
                         type="submit"
                         className={styles.askBtn}
                         disabled={isAnalyzing || !question.trim() || question.length < 10}
+                        aria-label="Send question"
                     >
                         {isAnalyzing ? <div className={styles.loaderSmall}></div> : <Send size={20} />}
                     </button>
@@ -312,6 +462,21 @@ export default function ClarityPageContent() {
                         </p>
                     )}
                 </motion.form>
+                
+                {/* Character/Focus guide */}
+                <div className={styles.characterGuide}>
+                    Best questions are <strong>specific and reflective</strong>.<br />
+                    Try: <em>&ldquo;Why do I keep pulling away when relationships get serious?&rdquo;</em> Instead of: <em>&ldquo;Will I get married?&rdquo;</em>
+                </div>
+
+                {/* Disclaimer footnote (12.1) */}
+                <div className={styles.disclaimerNote}>
+                    <ShieldCheck size={14} />
+                    <span>
+                        Chetna is for awareness and reflection, not prediction.{' '}
+                        <Link href="/disclaimer">Read our approach.</Link>
+                    </span>
+                </div>
             </div>
         </ProfileGuard>
     );

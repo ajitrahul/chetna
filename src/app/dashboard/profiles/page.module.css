@@ -156,7 +156,7 @@
 }
 
 .disableDate {
-    color: var(--foreground-muted);
+    color: var(--text-muted);
     font-style: italic;
 }
 
@@ -229,7 +229,7 @@
 }
 
 .disabledIcon {
-    color: var(--foreground-muted);
+    color: var(--text-muted);
     opacity: 0.4;
 }
 

@@ -7,6 +7,9 @@ import styles from '../app/timing/page.module.css';
 import { Clock, Calendar, Info, Sparkles, User, Zap, Loader2 } from 'lucide-react';
 
 import DashaDisplay from '@/components/DashaDisplay';
+import DashaTimeline from '@/components/DashaTimeline';
+import Term from '@/components/Term';
+import DisclaimerNote from '@/components/DisclaimerNote';
 
 interface UserProfile {
     id: string;
@@ -53,6 +56,19 @@ interface DashaPeriod {
     isCurrent: boolean;
     antardashas?: Antardasha[];
 }
+
+// Plain-language life themes — what the phase FEELS like, before any planet name (6.1, 6.2)
+const PHASE_THEMES: Record<string, { theme: string, asking: string }> = {
+    'Jupiter': { theme: 'A season of growth, learning, and expansion', asking: 'This is an opening phase. Life is asking you to say yes to opportunities, widen your horizons, and trust that you have room to grow — through new knowledge, mentors, or beliefs.' },
+    'Saturn': { theme: 'A season of discipline, structure, and maturing', asking: 'This is a building phase, not a resting one. Life is asking you to slow down, take responsibility, and do the patient work — what you construct now is meant to last.' },
+    'Mercury': { theme: 'A season of communication, learning, and connection', asking: 'This is a thinking and connecting phase. Life is asking you to learn, exchange ideas, and put your intelligence to work through conversation, study, or commerce.' },
+    'Venus': { theme: 'A season of relationships, creativity, and pleasure', asking: 'This is a softening phase. Life is asking you to nurture connection, create beauty, and allow yourself comfort and enjoyment — relationships and creativity flow more easily now.' },
+    'Sun': { theme: 'A season of identity, clarity, and leadership', asking: 'This is a stepping-forward phase. Life is asking you to claim your authority, express who you truly are, and lead from a place of confidence rather than hiding.' },
+    'Moon': { theme: 'A season of emotion, care, and inner life', asking: 'This is a feeling phase. Life is asking you to tend to your emotional needs, nurture and be nurtured, and honour your inner world and your home.' },
+    'Mars': { theme: 'A season of action, effort, and identity', asking: 'This is a doing phase, not a resting phase. Life is asking you to take initiative, fight for what matters, and put your energy into focused, courageous effort.' },
+    'Rahu': { theme: 'A season of ambition, hunger, and the unfamiliar', asking: 'This is a reaching phase. Life is asking you to chase the unconventional and the unknown — expect intensity and rapid change as you stretch beyond your comfort zone.' },
+    'Ketu': { theme: 'A season of release, introspection, and letting go', asking: 'This is a releasing phase. Life is asking you to detach from what no longer serves you, turn inward, and find meaning beyond the material.' }
+};
 
 const LORD_DESCRIPTIONS: Record<string, { supports: string, resists: string, themes: string }> = {
     'Jupiter': { supports: 'Growth, wisdom, teaching, expansion.', resists: 'Reckless shortcuts, lack of foundations.', themes: 'Optimism, spiritual seeking.' },
@@ -260,9 +276,26 @@ export default function TimingPageContent() {
                 </div>
             )}
 
+            {/* Life-theme-first summary block (6.1, 6.2) */}
+            {currentDasha && PHASE_THEMES[currentDasha.lord] && (
+                <div className={`${styles.phaseSummary} sacred-card`}>
+                    <div className={styles.phaseSummaryLabel}>What this phase is asking of you</div>
+                    <h2 className={styles.phaseSummaryTheme}>
+                        {new Date(currentDasha.start).getFullYear()}–{new Date(currentDasha.end).getFullYear()}: {PHASE_THEMES[currentDasha.lord].theme}
+                    </h2>
+                    <p className={styles.phaseSummaryText}>{PHASE_THEMES[currentDasha.lord].asking}</p>
+                    <p className={styles.phaseSummaryClosing}>
+                        This is the energy at play. What you do with it is entirely yours.
+                    </p>
+                    <p className={styles.phaseSummaryFooter}>
+                        Astrologically, this is your <strong>{currentDasha.lord} Mahadasha</strong> — the technical detail follows below.
+                    </p>
+                </div>
+            )}
+
             {currentDasha && (
                 <div className={`${styles.currentPeriod} sacred-card`}>
-                    <div className={styles.periodLabel}>Current Major Phase (Mahadasha)</div>
+                    <div className={styles.periodLabel}>Current Major Phase (<Term termKey="mahadasha">Mahadasha</Term>)</div>
                     <h2 className="mystic-text text-3xl my-2">{currentDasha.lord} Period</h2>
                     <div className={styles.periodDates}>
                         {new Date(currentDasha.start).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} —
@@ -394,6 +427,9 @@ export default function TimingPageContent() {
                 ) : null}
             </section>
 
+            {/* Visual horizontal Dasha timeline (6.3) */}
+            {dashas.length > 0 && <DashaTimeline dashas={dashas} />}
+
             <section className={styles.timelineSection}>
                 <div className={styles.sectionHeader}>
                     <h2 className={styles.sectionTitle}>Extended Timeline Analysis</h2>
@@ -406,6 +442,8 @@ export default function TimingPageContent() {
                     <DashaDisplay dashas={dashas} />
                 )}
             </section>
+
+            <DisclaimerNote />
         </div>
     );
 }

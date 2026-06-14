@@ -185,6 +185,21 @@
     border-radius: 20px;
 }
 
+.privacyReassurance {
+    margin-top: 16px;
+    font-size: 0.8rem;
+    color: var(--secondary);
+    opacity: 0.7;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.privacyReassurance a {
+    color: var(--accent-gold);
+    text-decoration: underline;
+    white-space: nowrap;
+}
+
 @media (max-width: 640px) {
     .formRow {
         grid-template-columns: 1fr;

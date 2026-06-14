@@ -38,9 +38,10 @@ export default function Footer() {
                         <li><Link href="/how-it-works">How It Works</Link></li>
                         <li><Link href="/chart">Your Chart</Link></li>
                         <li><Link href="/timing">Timing & Phases</Link></li>
-                        <li><Link href="/synastry">Synastry</Link></li>
-                        <li><Link href="/blog">Wisdom Blog</Link></li>
-                        <li><Link href="/clarity">Ask AI</Link></li>
+                        <li><Link href="/synastry">Relationships</Link></li>
+                        <li><Link href="/blog">Blog</Link></li>
+                        <li><Link href="/glossary">Glossary</Link></li>
+                        <li><Link href="/clarity">Ask Chetna AI</Link></li>
                     </ul>
                 </div>
 

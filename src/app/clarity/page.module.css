@@ -516,7 +516,7 @@
 
 .historyFooter p {
     font-size: 0.85rem;
-    color: var(--foreground-muted);
+    color: var(--text-muted);
     font-style: italic;
 }
 
@@ -529,4 +529,149 @@
     .historyMeta {
         text-align: left;
     }
+}
+
+/* Starter Questions */
+.chipsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 24px auto 0;
+    max-width: 800px;
+}
+
+.chip {
+    padding: 10px 18px;
+    background: rgba(18, 22, 64, 0.4);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 20px;
+    color: var(--foreground);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.chip:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: var(--accent-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+}
+
+/* Sample Response Collapsible */
+.sampleResponseCollapse {
+    max-width: 800px;
+    margin: 24px auto 0;
+    background: rgba(18, 22, 64, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    text-align: left;
+    backdrop-filter: blur(12px);
+}
+
+.sampleResponseHeader {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--accent-gold);
+    transition: background 0.3s;
+}
+
+.sampleResponseHeader:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.sampleResponseContent {
+    padding: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(10, 10, 15, 0.2);
+}
+
+/* Character Input Guide */
+.characterGuide {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    text-align: center;
+    margin: 12px auto 0;
+    max-width: 800px;
+    opacity: 0.75;
+}
+
+.characterGuide strong {
+    color: var(--accent-gold);
+}
+
+/* Free-will closing line */
+.freeWillClosing {
+    text-align: center;
+    font-style: italic;
+    color: var(--accent-gold);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 32px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+/* Save / Share response actions */
+.responseActions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+.responseActionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--accent-gold);
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.responseActionBtn:hover {
+    background: rgba(212, 175, 55, 0.16);
+    border-color: rgba(212, 175, 55, 0.6);
+}
+
+/* Inline disclaimer footnote */
+.disclaimerNote {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 28px auto 8px;
+    max-width: 640px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    text-align: center;
+}
+
+.disclaimerNote svg {
+    color: var(--accent-gold);
+    flex-shrink: 0;
+}
+
+.disclaimerNote a {
+    color: var(--accent-gold);
+    text-decoration: underline;
 }

@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import styles from './page.module.css';
+
+export const metadata: Metadata = {
+    title: 'How AskChetna Works | Awareness-First Astrology',
+    description: 'How Chetna works: precise sidereal calculation, pattern recognition over fortune-telling, Dasha periods as life seasons, and your choice at the centre.',
+};
 
 export default function HowItWorksPage() {
     return (

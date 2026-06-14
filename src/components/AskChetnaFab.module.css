@@ -1,0 +1,43 @@
+.fab {
+    display: none;
+}
+
+/* Mobile-only: highest-value action always within thumb reach */
+@media (max-width: 768px) {
+    .fab {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 52px;
+        padding: 0 20px;
+        border-radius: 50px;
+        background: linear-gradient(135deg, var(--accent-gold), #ffc107);
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.45);
+        z-index: 600;
+        animation: fabPulse 2.4s infinite;
+    }
+
+    .fab:active {
+        transform: scale(0.96);
+    }
+
+    .label {
+        white-space: nowrap;
+    }
+}
+
+@keyframes fabPulse {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.45);
+    }
+    50% {
+        box-shadow: 0 4px 22px rgba(212, 175, 55, 0.7), 0 0 0 6px rgba(212, 175, 55, 0.1);
+    }
+}

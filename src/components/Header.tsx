@@ -63,9 +63,9 @@ export default function Header() {
                 <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.activeLink : ''}`}>Home</Link>
                 <Link href="/chart" className={`${styles.navLink} ${pathname === '/chart' ? styles.activeLink : ''}`}>Birth Chart</Link>
                 <Link href="/timing" className={`${styles.navLink} ${pathname === '/timing' ? styles.activeLink : ''}`}>Timing & Seasons</Link>
-                <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Ask AI</Link>
+                <Link href="/clarity" className={`${styles.navCta} ${pathname === '/clarity' ? styles.navCtaActive : ''}`}>Ask Chetna AI</Link>
                 <Link href="/synastry" className={`${styles.navLink} ${pathname === '/synastry' ? styles.activeLink : ''}`}>Relationships</Link>
-                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Wisdom Blog</Link>
+                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Blog</Link>
                 {PAYMENTS_ENABLED && (
                   <Link href="/pricing" className={`${styles.navLink} ${pathname === '/pricing' ? styles.activeLink : ''}`}>Credit</Link>
                 )}
@@ -74,8 +74,8 @@ export default function Header() {
               <>
                 <Link href="/" className={`${styles.navLink} ${pathname === '/' ? styles.activeLink : ''}`}>Home</Link>
                 <Link href="/about" className={`${styles.navLink} ${pathname === '/about' ? styles.activeLink : ''}`}>About</Link>
-                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Wisdom Blog</Link>
-                <Link href="/clarity" className={`${styles.navLink} ${pathname === '/clarity' ? styles.activeLink : ''}`}>Ask for Clarity</Link>
+                <Link href="/blog" className={`${styles.navLink} ${pathname === '/blog' ? styles.activeLink : ''}`}>Blog</Link>
+                <Link href="/clarity" className={`${styles.navCta} ${pathname === '/clarity' ? styles.navCtaActive : ''}`}>Ask Chetna AI</Link>
               </>
             )}
           </nav>
@@ -95,6 +95,7 @@ export default function Header() {
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className={styles.signOutBtn}
+                  aria-label="Sign out"
                 >
                   <LogOut size={16} />
                 </button>
@@ -138,14 +139,14 @@ export default function Header() {
                       <Link href="/timing" className={`${styles.mobileNavLink} ${pathname === '/timing' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <Info size={20} /> Timing & Seasons
                       </Link>
-                      <Link href="/clarity" className={`${styles.mobileNavLink} ${pathname === '/clarity' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <MessageSquare size={20} /> Ask AI
+                      <Link href="/clarity" className={`${styles.mobileNavLink} ${styles.mobileCtaLink} ${pathname === '/clarity' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
+                        <MessageSquare size={20} /> Ask Chetna AI
                       </Link>
                       <Link href="/synastry" className={`${styles.mobileNavLink} ${pathname === '/synastry' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <Users size={20} /> Relationships
                       </Link>
                       <Link href="/blog" className={`${styles.mobileNavLink} ${pathname === '/blog' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <BookOpen size={20} /> Wisdom Blog
+                        <BookOpen size={20} /> Blog
                       </Link>
                       {PAYMENTS_ENABLED && (
                         <Link href="/pricing" className={`${styles.mobileNavLink} ${pathname === '/pricing' ? styles.mobileActiveLink : ''}`} onClick={() => setIsMenuOpen(false)}>
@@ -160,8 +161,8 @@ export default function Header() {
                     <>
                       <Link href="/" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Home</Link>
                       <Link href="/about" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>About Us</Link>
-                      <Link href="/blog" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Wisdom Blog</Link>
-                      <Link href="/clarity" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Ask for Clarity</Link>
+                      <Link href="/blog" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>Blog</Link>
+                      <Link href="/clarity" className={`${styles.mobileNavLink} ${styles.mobileCtaLink}`} onClick={() => setIsMenuOpen(false)}>Ask Chetna AI</Link>
                     </>
                   )}
                 </nav>

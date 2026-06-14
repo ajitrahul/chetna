@@ -138,6 +138,12 @@
     cursor: not-allowed;
 }
 
+.formError {
+    color: #ef4444;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
 @media (max-width: 968px) {
     .content {
         grid-template-columns: 1fr;

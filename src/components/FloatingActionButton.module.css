@@ -41,8 +41,9 @@
 }
 
 @media (max-width: 768px) {
+    /* Stack above the mobile "Ask Chetna" pill so they don't overlap */
     .fab {
-        bottom: 16px;
+        bottom: 80px;
         right: 16px;
         width: 56px;
         height: 56px;

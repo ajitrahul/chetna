@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { UserPlus, Check } from 'lucide-react';
 import styles from './page.module.css';
 import ProfileSelector from '@/components/ProfileSelector';
 import { UserProfile } from '@/components/BirthDataForm';
+import Term from '@/components/Term';
+import DisclaimerNote from '@/components/DisclaimerNote';
 
 export default function SynastryPage() {
     const [personA, setPersonA] = useState<UserProfile | null>(null);
@@ -12,6 +15,24 @@ export default function SynastryPage() {
     const [showResult, setShowResult] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [inviteCopied, setInviteCopied] = useState(false);
+
+    const handleInvite = async () => {
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://askchetna.com';
+        const inviteUrl = `${origin}/synastry`;
+        const text = `Let's see how our charts connect on Chetna — compare yours with mine: ${inviteUrl}`;
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: 'Compare charts on Chetna', text, url: inviteUrl });
+            } else {
+                await navigator.clipboard.writeText(text);
+                setInviteCopied(true);
+                setTimeout(() => setInviteCopied(false), 2500);
+            }
+        } catch {
+            // Share sheet cancelled — no action needed
+        }
+    };
 
     const handleAnalyze = async () => {
         setIsAnalyzing(true);
@@ -45,8 +66,17 @@ export default function SynastryPage() {
         <div className={`container ${styles.container}`}>
             <h1 className={styles.title}>Relationship Dynamics</h1>
             <p className={styles.subtitle}>
-                Understand the flow of energy between two charts. No judgments, just patterns.
+                Understand the flow of energy between two charts — what astrologers call{' '}
+                <Term termKey="synastry">synastry</Term>. No judgments, just patterns.
             </p>
+
+            {/* Invite a Friend flow (7.1) */}
+            <div className={styles.inviteBar}>
+                <span>See how you connect with someone — invite them to compare charts.</span>
+                <button onClick={handleInvite} className={styles.inviteBtn}>
+                    {inviteCopied ? <><Check size={16} /> Link copied</> : <><UserPlus size={16} /> Invite a Friend</>}
+                </button>
+            </div>
 
             <div className={styles.selectorGrid}>
                 <div className={styles.profileSlot}>
@@ -121,14 +151,6 @@ export default function SynastryPage() {
                             <p>{result.aiAnalysis.magneticPull}</p>
                         </div>
                         <div className={styles.insightCard}>
-                            <h4>Growth Edges</h4>
-                            <ul>
-                                {result.aiAnalysis.growthEdges.map((edge: string, i: number) => (
-                                    <li key={i}>{edge}</li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className={styles.insightCard}>
                             <h4>Communication Flow</h4>
                             <p>{result.aiAnalysis.communicationFlow}</p>
                         </div>
@@ -162,8 +184,25 @@ export default function SynastryPage() {
                             ))}
                         </ul>
                     </div>
+
+                    {/* What this relationship teaches you (7.3) */}
+                    {result.aiAnalysis.growthEdges && result.aiAnalysis.growthEdges.length > 0 && (
+                        <div className={styles.teachesSection}>
+                            <h3>What This Dynamic Is Here to Help You Learn</h3>
+                            <p className={styles.teachesIntro}>
+                                Every connection is a mirror. Beyond compatibility, this relationship invites both of you to grow in specific ways:
+                            </p>
+                            <ul className={styles.teachesList}>
+                                {result.aiAnalysis.growthEdges.map((edge: string, i: number) => (
+                                    <li key={i}>{edge}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             )}
+
+            <DisclaimerNote />
         </div>
     );
 }

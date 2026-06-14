@@ -45,7 +45,8 @@ export default function LoginReminder() {
                     exit={{ opacity: 0, y: -20, scale: 0.9 }}
                     className={styles.reminder}
                 >
-                    <button className={styles.closeBtn} onClick={handleDismiss}>
+                    <button className={styles.closeBtn} onClick={handleDismiss} aria-label="Dismiss">
+
                         <X size={16} />
                     </button>
 
@@ -54,8 +55,12 @@ export default function LoginReminder() {
                             <Sparkles size={20} />
                         </div>
                         <div className={styles.textGroup}>
-                            <h4 className={styles.title}>Unlock Full Awareness</h4>
-                            <p className={styles.text}>Save your chart, track your timing, and keep a reflective journal.</p>
+                            <h4 className={styles.title}>Sign up free to unlock</h4>
+                            <ul className={styles.unlockList}>
+                                <li>Full birth chart</li>
+                                <li>Dasha timing</li>
+                                <li>AI questions (10 free)</li>
+                            </ul>
                         </div>
                     </div>
 

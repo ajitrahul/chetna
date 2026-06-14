@@ -1,0 +1,121 @@
+.wrapper {
+    margin: 48px 0;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.title {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    color: var(--foreground);
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+}
+
+.track {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 6px 4px 14px;
+    scrollbar-width: thin;
+}
+
+.segment {
+    flex: 1 0 84px;
+    min-width: 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--secondary);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.segment:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+    color: var(--foreground);
+}
+
+.segLord {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.segYears {
+    font-size: 0.72rem;
+    opacity: 0.7;
+}
+
+.current {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(159, 122, 234, 0.12));
+    border-color: var(--accent-gold);
+    color: var(--foreground);
+}
+
+.active {
+    box-shadow: 0 0 0 2px var(--accent-gold);
+}
+
+.detail {
+    margin-top: 18px;
+    padding: 24px;
+    background: rgba(159, 122, 234, 0.05);
+    border: 1px solid rgba(159, 122, 234, 0.2);
+    border-radius: 16px;
+    text-align: left;
+}
+
+.detailHead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.detailRange {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.78rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+.nowBadge {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--accent-gold);
+    color: #1a1a1a;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-weight: 700;
+}
+
+.detailTheme {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--foreground);
+    margin-bottom: 8px;
+}
+
+.detailNote {
+    color: var(--secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.detailNote strong {
+    color: var(--accent-gold);
+}

@@ -84,10 +84,38 @@ export async function sendLifeReportEmail(to: string, userName: string, reportCo
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Email sent successfully with PDF to ${to}`);
         return { success: true };
     } catch (error) {
         console.error('Email sending error:', error);
+        return { success: false, error };
+    }
+}
+
+export async function sendContactEmail(name: string, email: string, subject: string, message: string) {
+    const contactTo = process.env.CONTACT_MAIL_TO || process.env.MAIL_REPLY_TO || smtpUser || 'hello@askchetna.com';
+
+    const mailOptions: any = {
+        from: formatFrom(reportFromEmail, reportFromName),
+        to: contactTo,
+        replyTo: `"${name}" <${email}>`,
+        subject: `[Contact] ${subject}`,
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #d4af37;">New contact message — AskChetna</h2>
+                <p><b>Name:</b> ${name}</p>
+                <p><b>Email:</b> ${email}</p>
+                <p><b>Subject:</b> ${subject}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 16px 0;" />
+                <p style="white-space: pre-wrap; line-height: 1.6; color: #333;">${message}</p>
+            </div>
+        `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        return { success: true };
+    } catch (error) {
+        console.error('Contact email error:', error);
         return { success: false, error };
     }
 }

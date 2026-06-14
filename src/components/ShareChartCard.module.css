@@ -1,0 +1,102 @@
+.shareBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: var(--accent-gold);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.shareBtn:hover {
+    background: rgba(212, 175, 55, 0.2);
+}
+
+.shareBtn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Render the card off-screen but fully painted so html2canvas can capture it */
+.cardStage {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    pointer-events: none;
+}
+
+.card {
+    width: 500px;
+    height: 500px;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background: linear-gradient(160deg, #1a1430 0%, #0d0b1a 100%);
+    color: #f5f1e6;
+    font-family: Georgia, 'Times New Roman', serif;
+    position: relative;
+    border: 2px solid #d4af37;
+}
+
+.brand {
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+    color: #d4af37;
+    font-weight: 700;
+}
+
+.name {
+    margin-top: 28px;
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.rows {
+    margin-top: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex-grow: 1;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+    padding-bottom: 10px;
+}
+
+.row span {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.row strong {
+    font-size: 1.5rem;
+    color: #d4af37;
+}
+
+.tagline {
+    margin-top: 24px;
+    font-style: italic;
+    opacity: 0.8;
+    font-size: 1.05rem;
+}
+
+.url {
+    margin-top: 6px;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    color: #d4af37;
+    font-family: Arial, sans-serif;
+}

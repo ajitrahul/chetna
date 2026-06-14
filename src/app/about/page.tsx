@@ -18,7 +18,13 @@ export default function AboutPage() {
                 </div>
 
                 <section className="mb-12">
-                    <h2 className="mystic-text text-3xl mb-4">What is AskChetna?</h2>
+                    <p style={{ fontSize: '1.15rem', lineHeight: 1.8 }}>
+                        Most people come to astrology when something isn't working. A relationship that keeps unravelling the same way. A career that feels stuck. A quiet sense that you keep tripping over the same invisible wire — and you can't see why.
+                    </p>
+                    <p>
+                        You don't need someone to tell you what will happen next. You need to understand the pattern you're already living inside. That's the moment AskChetna was built for.
+                    </p>
+                    <h2 className="mystic-text text-3xl mb-4 mt-8">What is AskChetna?</h2>
                     <p>
                         <strong>AskChetna</strong> (चेतना) is a Sanskrit word meaning "awareness" or "consciousness." It represents the essence of our platform: a space for self-reflection, understanding, and conscious decision-making through the lens of Vedic astrology.
                     </p>

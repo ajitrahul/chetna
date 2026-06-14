@@ -1,0 +1,76 @@
+.wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px;
+    gap: 16px;
+}
+
+.glyph {
+    font-size: 3rem;
+    color: var(--accent-gold);
+    opacity: 0.9;
+}
+
+.code {
+    font-family: var(--font-heading, serif);
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--accent-gold);
+    margin: 0;
+}
+
+.title {
+    font-family: var(--font-heading, serif);
+    font-size: 1.9rem;
+    color: var(--foreground);
+    margin: 0;
+}
+
+.text {
+    color: var(--secondary);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 480px;
+}
+
+.actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.secondaryLink {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: var(--accent-gold);
+    background: transparent;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.secondaryLink:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.orb {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-gold), transparent 70%);
+    animation: pulse 2.4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(0.85); opacity: 0.5; }
+    50% { transform: scale(1.15); opacity: 1; }
+}

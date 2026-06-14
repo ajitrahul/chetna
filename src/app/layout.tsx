@@ -10,6 +10,7 @@ import prisma from '@/lib/prisma';
 
 import AnalyticsTracker from '@/components/AnalyticsTracker';
 import FloatingActionButton from '@/components/FloatingActionButton';
+import AskChetnaFab from '@/components/AskChetnaFab';
 import { ProfileProvider } from '@/context/ProfileContext';
 import ProfileManager from '@/components/ProfileManager';
 
@@ -64,9 +65,26 @@ export default async function RootLayout({
     console.error('Failed to fetch welcome bonus amount:', error);
   }
 
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'AskChetna',
+    url: 'https://askchetna.com',
+    description: 'Understand patterns, not predictions. An awareness-first approach to Vedic Astrology and planetary timing.',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://askchetna.com/clarity?q={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${playfair.variable}`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <div className="cosmic-bg-overlay"></div>
         <div className="stars-layer-1"></div>
         <div className="stars-layer-2"></div>
@@ -83,6 +101,7 @@ export default async function RootLayout({
 
             <ProfileManager />
             <FloatingActionButton />
+            <AskChetnaFab />
             <Suspense fallback={null}>
               <AnalyticsTracker />
             </Suspense>

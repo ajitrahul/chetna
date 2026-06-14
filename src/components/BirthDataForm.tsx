@@ -257,8 +257,9 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
 
                 {/* Name */}
                 <div className={styles.inputGroup}>
-                    <label className={styles.label}>FULL NAME</label>
+                    <label className={styles.label} htmlFor="bdf-name">FULL NAME</label>
                     <input
+                        id="bdf-name"
                         type="text"
                         name="name"
                         value={formData.name}
@@ -293,8 +294,9 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                 {/* Date and Time Row */}
                 <div className={styles.formRow}>
                     <div className={styles.inputGroup}>
-                        <label className={styles.label}>DATE OF BIRTH</label>
+                        <label className={styles.label} htmlFor="bdf-dob">DATE OF BIRTH</label>
                         <input
+                            id="bdf-dob"
                             type="date"
                             name="dob"
                             value={formData.dob}
@@ -305,8 +307,9 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                     </div>
 
                     <div className={styles.inputGroup}>
-                        <label className={styles.label}>TIME OF BIRTH</label>
+                        <label className={styles.label} htmlFor="bdf-tob">TIME OF BIRTH</label>
                         <input
+                            id="bdf-tob"
                             type="time"
                             name="tob"
                             value={formData.tob}
@@ -323,15 +326,16 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                                 checked={formData.unknownTime}
                                 onChange={handleChange}
                             />
-                            I don&apos;t know
+                            I don&apos;t know my exact birth time
                         </label>
                     </div>
                 </div>
 
                 {/* Place of Birth */}
                 <div className={styles.inputGroup} ref={wrapperRef}>
-                    <label className={styles.label}>PLACE OF BIRTH</label>
+                    <label className={styles.label} htmlFor="bdf-pob">PLACE OF BIRTH</label>
                     <input
+                        id="bdf-pob"
                         type="text"
                         name="pob"
                         value={formData.pob}
@@ -375,6 +379,12 @@ export default function BirthDataForm({ onChartGenerated, initialData }: BirthDa
                 >
                     {loading ? 'CALCULATING COSMIC MAP...' : (initialData ? 'SAVE NEW PROFILE' : 'BEGIN JOURNEY')}
                 </button>
+                
+                {/* Privacy Reassurance */}
+                <div className={styles.privacyReassurance}>
+                    Your birth data is used only to calculate your chart. We never sell or share it.{' '}
+                    <a href="/privacy">Privacy Policy</a> · <a href="/how-we-calculate">How we calculate your chart</a>
+                </div>
             </form>
 
             <ConfirmDialog

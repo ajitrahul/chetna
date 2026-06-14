@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { generateClarityResponse, isQuestionSafe } from '@/lib/ai/geminiService';
 import { ChartData } from '@/lib/astrology/calculator';
 import { PAYMENTS_ENABLED, PAYMENTS_PAUSED_MESSAGE } from '@/lib/paymentConfig';
+import { rateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,6 +15,15 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(
                 { error: 'Unauthorized. Please log in to ask questions.' },
                 { status: 401 }
+            );
+        }
+
+        // Burst protection (credits already cap overall usage)
+        const burst = rateLimit(`ask:${session.user.id}`, { limit: 10, windowMs: 60 * 1000 });
+        if (!burst.allowed) {
+            return NextResponse.json(
+                { error: 'You are asking very quickly. Please wait a moment and try again.' },
+                { status: 429, headers: { 'Retry-After': String(burst.retryAfterSeconds) } }
             );
         }
 

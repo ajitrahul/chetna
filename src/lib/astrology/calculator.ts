@@ -1,5 +1,10 @@
 import SwissEph from 'swisseph-wasm';
 
+// Dev-only diagnostics for the (finicky) WASM loader — silent in production.
+const seLog = (...args: unknown[]) => {
+    if (process.env.NODE_ENV !== 'production') console.log(...args);
+};
+
 // Queue for serializing WASM calls
 let calculationQueue: Promise<any> = Promise.resolve();
 
@@ -47,12 +52,12 @@ async function getSwe() {
                 const startTime = Date.now();
                 // @ts-ignore
                 const { swissephWasm, swissephData } = require('./swisseph-binaries');
-                console.log(`[SwissEph] Binaries required in ${Date.now() - startTime}ms. Decoding...`);
+                seLog(`[SwissEph] Binaries required in ${Date.now() - startTime}ms. Decoding...`);
 
                 const decodeStart = Date.now();
                 wasmBinary = decodeBase64(swissephWasm);
                 dataBinary = decodeBase64(swissephData);
-                console.log(`[SwissEph] Decoded in ${Date.now() - decodeStart}ms. WASM: ${wasmBinary.byteLength}, DATA: ${dataBinary.byteLength}`);
+                seLog(`[SwissEph] Decoded in ${Date.now() - decodeStart}ms. WASM: ${wasmBinary.byteLength}, DATA: ${dataBinary.byteLength}`);
             } catch (e) {
                 console.error('[SwissEph] Failed to load/decode bundled binaries:', e);
             }
@@ -71,7 +76,7 @@ async function getSwe() {
                 WasamSwissEph = WasamSwissEph.default;
             }
 
-            console.log(`[SwissEph] Instantiating Module manually. hasWasm: ${!!wasmBinary}, hasData: ${!!dataBinary}`);
+            seLog(`[SwissEph] Instantiating Module manually. hasWasm: ${!!wasmBinary}, hasData: ${!!dataBinary}`);
 
             const moduleOptions = {
                 // Pass Uint8Array directly
@@ -81,26 +86,26 @@ async function getSwe() {
                 // Provide the pre-loaded data package to Emscripten
                 getPreloadedPackage: (name: string, size: number) => {
                     if (name.endsWith('.data') && dataBinary) {
-                        console.log(`[SwissEph] Providing pre-loaded package: ${name}`);
+                        seLog(`[SwissEph] Providing pre-loaded package: ${name}`);
                         return dataBinary;
                     }
                     return null;
                 },
                 locateFile: (path: string, scriptDirectory: string) => {
                     if (path.endsWith('.wasm')) {
-                        console.log('[SwissEph] LocateFile requested WASM: ' + path);
+                        seLog('[SwissEph] LocateFile requested WASM: ' + path);
                         // If we have a file path from fs search, return it.
                         // Otherwise return the simple filename and hope the binary buffer we passed works.
                         if (wasmFilePath) return wasmFilePath;
                         return '/swisseph.wasm';
                     }
                     if (path.endsWith('.data')) {
-                        console.log('[SwissEph] LocateFile requested DATA: ' + path);
+                        seLog('[SwissEph] LocateFile requested DATA: ' + path);
                         return '/swisseph.data';
                     }
                     return path;
                 },
-                print: (str: string) => console.log('[SwissEph stdout]', str),
+                print: (str: string) => seLog('[SwissEph stdout]', str),
                 printErr: (str: string) => console.error('[SwissEph stderr]', str)
             };
 
@@ -117,7 +122,7 @@ async function getSwe() {
             // @ts-ignore
             instance.set_ephe_path('sweph');
 
-            console.log('[SwissEph] Initialization complete!');
+            seLog('[SwissEph] Initialization complete!');
 
             sweInstance = instance;
             return instance;

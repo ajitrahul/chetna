@@ -9,16 +9,35 @@ export default function ContactPage() {
         name: '',
         email: '',
         subject: '',
-        message: ''
+        message: '',
+        company: '' // honeypot — real users never fill this
     });
     const [submitted, setSubmitted] = useState(false);
+    const [sending, setSending] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // In a real app, this would send to a backend API
-        console.log('Form submitted:', formData);
-        setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 3000);
+        setSending(true);
+        setError(null);
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Failed to send message.');
+            }
+            setSubmitted(true);
+            setFormData({ name: '', email: '', subject: '', message: '', company: '' });
+            setTimeout(() => setSubmitted(false), 4000);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to send message.');
+        } finally {
+            setSending(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -57,6 +76,18 @@ export default function ContactPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className={styles.form}>
+                    {/* Honeypot — visually hidden, ignored by humans, filled by bots */}
+                    <input
+                        type="text"
+                        name="company"
+                        value={formData.company}
+                        onChange={handleChange}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                        style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+                    />
+
                     <div className={styles.formGroup}>
                         <label htmlFor="name">Name</label>
                         <input
@@ -109,8 +140,10 @@ export default function ContactPage() {
                         />
                     </div>
 
-                    <button type="submit" className={styles.submitBtn} disabled={submitted}>
-                        {submitted ? 'Message Sent!' : (
+                    {error && <p className={styles.formError}>{error}</p>}
+
+                    <button type="submit" className={styles.submitBtn} disabled={sending || submitted}>
+                        {sending ? 'Sending…' : submitted ? 'Message Sent!' : (
                             <>
                                 Send Message <Send size={18} />
                             </>
